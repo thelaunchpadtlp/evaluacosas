@@ -354,9 +354,125 @@ const html = `<!doctype html>
         <li><a href="/">Inicio</a></li>
         <li><a href="/#catalog">Catálogo</a></li>
         <li><a href="/ayuda/estudiantes/">Ayuda</a></li>
+        <li>
+          <button type="button" class="bio-help-btn" id="bio-help-open" aria-label="Abrir ayuda integrada (atajo: ?)" title="Ayuda integrada — atajo: ?">
+            <span aria-hidden="true">?</span>
+          </button>
+        </li>
       </ul>
     </div>
   </nav>
+  <aside class="bio-help-drawer" id="bio-help-drawer" hidden aria-label="Ayuda integrada">
+    <header class="bio-help-head">
+      <div>
+        <p class="bio-help-eyebrow">Ayuda integrada</p>
+        <h2>Cómo resolver este examen</h2>
+      </div>
+      <button type="button" class="bio-help-close" id="bio-help-close" aria-label="Cerrar ayuda">×</button>
+    </header>
+    <div class="bio-help-body">
+      <nav class="bio-help-tabs" role="tablist">
+        <button class="bio-help-tab is-active" data-tab="responder" role="tab" type="button">Cómo responder</button>
+        <button class="bio-help-tab" data-tab="rubricas" role="tab" type="button">Mini rúbricas</button>
+        <button class="bio-help-tab" data-tab="atajos" role="tab" type="button">Atajos</button>
+        <button class="bio-help-tab" data-tab="faq" role="tab" type="button">FAQ</button>
+        <button class="bio-help-tab" data-tab="glosario" role="tab" type="button">Glosario MEP</button>
+        <button class="bio-help-tab" data-tab="trabado" role="tab" type="button">Si me trabo</button>
+      </nav>
+      <section class="bio-help-panel is-active" data-panel="responder">
+        <h3>📝 Cómo responder cada ítem</h3>
+        <ol>
+          <li>Cada pregunta tiene 3 botones: <strong>Responder</strong> (enfocá el campo), <strong>Guardar</strong> (verde · marca lista) y <strong>Editar</strong> (cambiarla).</li>
+          <li>Mientras escribís, tu progreso se guarda <strong>automáticamente en el navegador</strong>. Si cerrás la pestaña, podés volver y tus respuestas siguen ahí.</li>
+          <li>Los ítems <strong>obligatorios</strong> tienen un asterisco rojo. Si no los completás, no se puede enviar.</li>
+          <li>Cuando termines todos, pulsá <strong>Enviar entrega</strong> al final. Recibís confirmación inmediata.</li>
+        </ol>
+      </section>
+      <section class="bio-help-panel" data-panel="rubricas">
+        <h3>📋 Mini rúbricas MEP por ítem</h3>
+        <p>Cada pregunta muestra una <strong>rúbrica colapsada</strong> con dos secciones:</p>
+        <ul>
+          <li><strong>Debe incluir</strong> ✓ — los elementos que tiene que tener tu respuesta para ser correcta.</li>
+          <li><strong>No hacer</strong> ✗ — anti-patrones que invalidan la respuesta.</li>
+        </ul>
+        <p>Hover sobre el ícono o click para expandirla. Sirve también de <strong>auto-evaluación rápida</strong> antes de pulsar "Guardar".</p>
+        <p>La calificación es <strong>binaria</strong>: 1 punto si pasaste TODOS los criterios "debe incluir" sin ningún "no hacer". 0 puntos si no.</p>
+      </section>
+      <section class="bio-help-panel" data-panel="atajos">
+        <h3>⌨️ Atajos de teclado</h3>
+        <table class="bio-help-table">
+          <tr><td><kbd>?</kbd></td><td>Abre/cierra esta ayuda</td></tr>
+          <tr><td><kbd>j</kbd> / <kbd>k</kbd></td><td>Siguiente / anterior pregunta</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Cerrar overlay (mapa, ayuda, modal)</td></tr>
+          <tr><td><kbd>g</kbd></td><td>Saltar a la primera pregunta sin guardar</td></tr>
+          <tr><td><kbd>s</kbd></td><td>Guardar respuesta actual</td></tr>
+          <tr><td><kbd>n</kbd></td><td>Guardar y avanzar a la siguiente</td></tr>
+          <tr><td><kbd>⇧</kbd>+<kbd>D</kbd></td><td>Cambiar visualización (iPhone, iPad, etc.)</td></tr>
+        </table>
+      </section>
+      <section class="bio-help-panel" data-panel="faq">
+        <h3>❓ Preguntas frecuentes</h3>
+        <details>
+          <summary>¿Cuántas preguntas tiene?</summary>
+          <p>${assessment.points} ítems en total. Distribuidos en los ejes MEP 7° básico de Biología 10.</p>
+        </details>
+        <details>
+          <summary>¿Cuál es la línea de aprobación?</summary>
+          <p><strong>80%</strong>. Es la política TLP. Necesitás al menos 80% del puntaje total para aprobar.</p>
+        </details>
+        <details>
+          <summary>¿Puedo pausar y volver después?</summary>
+          <p>Sí. Tu progreso se guarda automáticamente en el navegador. Volvé a abrir la misma URL en el mismo navegador y tus respuestas siguen.</p>
+        </details>
+        <details>
+          <summary>¿Tengo que descargar algo?</summary>
+          <p>No. Cuando pulsás <strong>Enviar entrega</strong>, todo se envía automáticamente al servidor. No tenés que bajar JSON ni nada manual.</p>
+        </details>
+        <details>
+          <summary>¿Quién ve mi entrega?</summary>
+          <p>Solo tu profesor con cuenta institucional (@thelaunchpadtlp.education). Más detalle en <a href="/privacy/">la política de privacidad</a>.</p>
+        </details>
+        <details>
+          <summary>¿Puedo cambiar una respuesta después de guardarla?</summary>
+          <p>Sí. Pulsá el botón <strong>Editar</strong> de ese ítem y modificá. Después volvé a guardar.</p>
+        </details>
+      </section>
+      <section class="bio-help-panel" data-panel="glosario">
+        <h3>📖 Glosario MEP / TLP</h3>
+        <dl class="bio-help-glossary">
+          <dt>Eje</dt>
+          <dd>Bloque temático del programa MEP (ej. "Identidad y diversidad biológica").</dd>
+          <dt>Subtema</dt>
+          <dd>Subdivisión dentro de un eje.</dd>
+          <dt>Concepto</dt>
+          <dd>Idea clave que la pregunta evalúa (ej. "biodiversidad").</dd>
+          <dt>Nivel cognitivo</dt>
+          <dd>Tipo de pensamiento que la pregunta exige (recordar, comprender, aplicar, analizar, evaluar, crear — Bloom revisado).</dd>
+          <dt>Verbo accionable</dt>
+          <dd>Verbo que indica qué hacer en la respuesta (definir, explicar, comparar, etc.).</dd>
+          <dt>Pre-calificación heurística</dt>
+          <dd>Cálculo automático sin IA que tu profesor ve. No es la nota final.</dd>
+          <dt>Política binaria</dt>
+          <dd>Cada ítem vale 1 punto si pasa todos los criterios. 0 puntos si no. Sin parciales.</dd>
+        </dl>
+      </section>
+      <section class="bio-help-panel" data-panel="trabado">
+        <h3>🆘 Si me trabo</h3>
+        <p>Cosas que podés probar:</p>
+        <ol>
+          <li>Leé otra vez la pregunta con calma.</li>
+          <li>Mirá la <strong>mini rúbrica</strong> del ítem (en el icono al lado de la pregunta) — te dice qué debe incluir tu respuesta.</li>
+          <li>Saltá al siguiente ítem (<kbd>j</kbd>) y volvé después si te bloquea.</li>
+          <li>Usá el <strong>Mapa</strong> (botón flotante o tecla <kbd>?</kbd>) para ver progreso global.</li>
+          <li>Si nada funciona, contactá a tu profesor o escribí a <a href="mailto:joaquin.munoz@thelaunchpadtlp.education">joaquin.munoz@thelaunchpadtlp.education</a>.</li>
+        </ol>
+        <p style="margin-top: 18px"><strong>¡Tranqui!</strong> El examen se puede pausar y retomar. No hay timer apurándote. Respirá hondo.</p>
+      </section>
+    </div>
+    <footer class="bio-help-foot">
+      <span>Más info en el <a href="/ayuda/estudiantes/" target="_blank" rel="noopener">centro de ayuda completo ↗</a></span>
+    </footer>
+  </aside>
   <canvas id="bio-canvas" aria-hidden="true"></canvas>
   <button class="toc-fab" id="toc-fab" type="button" aria-label="Abrir mapa del examen" aria-controls="toc-panel" aria-expanded="false" title="Mapa del examen — atajo: ?">
     <span class="toc-fab-icon" aria-hidden="true">☰</span>
@@ -638,6 +754,45 @@ drawCanvas();
 
 ${app}
 initAssessment();
+
+// Help drawer estudiante (Sprint 30 / G.3)
+(function initBioHelp() {
+  const drawer = document.querySelector("#bio-help-drawer");
+  const openBtn = document.querySelector("#bio-help-open");
+  const closeBtn = document.querySelector("#bio-help-close");
+  if (!drawer || !openBtn) return;
+  const open = () => {
+    drawer.hidden = false;
+    requestAnimationFrame(() => drawer.classList.add("is-open"));
+    openBtn.setAttribute("aria-expanded", "true");
+  };
+  const close = () => {
+    drawer.classList.remove("is-open");
+    setTimeout(() => { drawer.hidden = true; }, 280);
+    openBtn.setAttribute("aria-expanded", "false");
+  };
+  const toggle = () => drawer.hidden ? open() : close();
+  openBtn.addEventListener("click", toggle);
+  closeBtn?.addEventListener("click", close);
+  drawer.querySelectorAll(".bio-help-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      const t = tab.dataset.tab;
+      drawer.querySelectorAll(".bio-help-tab").forEach(x => x.classList.toggle("is-active", x === tab));
+      drawer.querySelectorAll(".bio-help-panel").forEach(p => p.classList.toggle("is-active", p.dataset.panel === t));
+    });
+  });
+  document.addEventListener("keydown", (e) => {
+    const inField = ["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName);
+    if (e.key === "Escape" && !drawer.hidden) close();
+    if (e.key === "?" && !inField) {
+      // Si TOC panel está abierto, no interferir (TOC ya usa ?)
+      const toc = document.querySelector("#toc-panel");
+      if (toc && !toc.hidden) return;
+      e.preventDefault();
+      toggle();
+    }
+  });
+})();
 </script>
 <footer class="bio-site-footer">
   <div class="bio-site-footer-inner">
