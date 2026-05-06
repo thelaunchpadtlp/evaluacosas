@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#07111d">
   <meta name="color-scheme" content="dark light">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="TLP Biología 10">
   <meta name="format-detection" content="telephone=no">
@@ -13,22 +14,146 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <title>The Launch Pad — TLP — Biología 10 — Tarea Integral Avanzada</title>
   <meta name="description" content="Biología 10 — Tarea Integral Avanzada — Procesos de la vida y sus entornos · Décimo Año (The Launch Pad — TLP, Centro Educativo GEA, acreditado ante el MEP, Biología Décimo / 10°)">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/favicon.svg">
   <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22The%20Launch%20Pad%20%E2%80%94%20TLP%20%E2%80%94%20Biolog%C3%ADa%2010%20%E2%80%94%20Tarea%20Integral%20Avanzada%22%2C%22short_name%22%3A%22TLP%20Biolog%C3%ADa%2010%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2307111d%22%2C%22theme_color%22%3A%22%2307111d%22%2C%22description%22%3A%22Procesos%20de%20la%20vida%20y%20sus%20entornos%20%C2%B7%20D%C3%A9cimo%20A%C3%B1o%22%7D">
+  <link rel="stylesheet" href="/device-view.css">
   <style>:root {
-  color-scheme: dark;
+  color-scheme: dark light;
+  /* Apple Liquid Glass tokens (macOS Tahoe / iOS 26 / iPadOS 26 / visionOS) */
   --bg: #07111d;
   --bg-2: #102018;
+  --bg-3: #0a1420;
   --surface: rgba(255, 255, 255, 0.08);
   --surface-strong: rgba(255, 255, 255, 0.14);
+  --glass-tint: rgba(255, 255, 255, 0.06);
+  --glass-tint-strong: rgba(255, 255, 255, 0.12);
+  --glass-blur: 32px;
+  --glass-blur-strong: 48px;
+  --glass-saturate: 180%;
   --line: rgba(255, 255, 255, 0.18);
+  --hairline: rgba(255, 255, 255, 0.12);
   --text: #eef6ff;
   --muted: #a9bacf;
   --accent: #39d98a;
   --accent-2: #67d1ff;
+  --accent-3: #c4a7ff;
   --danger: #ff8d8d;
   --warning: #ffd166;
   --shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+  --shadow-elevated: 0 30px 100px rgba(0, 0, 0, 0.5);
+  /* Squircle radii */
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 24px;
+  --r-xl: 32px;
+  --r-pill: 999px;
+  /* Spring easings */
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 150ms;
+  --dur-base: 280ms;
+  --dur-slow: 480ms;
+  /* Safe areas (iPhone notch / iPad / visionOS) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
 }
+
+/* Global nav (sticky liquid glass) — sync con landing/dashboard/ayuda */
+.globalnav {
+  position: sticky; top: var(--safe-top); z-index: 60;
+  width: 100%; padding: 10px 0;
+  background: linear-gradient(180deg,
+    color-mix(in oklab, var(--bg) 78%, transparent) 0%,
+    color-mix(in oklab, var(--bg) 50%, transparent) 100%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border-bottom: 1px solid var(--hairline);
+}
+.globalnav-inner {
+  width: min(1180px, calc(100% - 32px)); margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.globalnav-brand {
+  display: inline-flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--text); font-weight: 700;
+  padding: 6px 10px; border-radius: var(--r-md);
+  letter-spacing: -0.01em;
+}
+.globalnav-brand:hover { background: var(--glass-tint); }
+.globalnav-mark {
+  display: inline-grid; place-items: center; width: 26px; height: 26px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #06110b; font-weight: 900; font-size: 0.95rem;
+  box-shadow: 0 4px 14px rgba(57, 217, 138, 0.4);
+}
+.globalnav-name { font-size: 1.02rem; }
+.globalnav-sub { color: var(--muted); font-weight: 500; font-size: 0.9em; }
+.globalnav-links {
+  display: flex; align-items: center; gap: 4px;
+  list-style: none; margin: 0; padding: 0;
+}
+.globalnav-links a {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: var(--r-pill);
+  color: var(--text); text-decoration: none;
+  font-size: 0.94rem; font-weight: 500;
+  transition: background var(--dur-fast) var(--ease-spring);
+}
+.globalnav-links a:hover { background: var(--glass-tint); color: var(--accent); }
+@media (max-width: 720px) { .globalnav-name { display: none; } }
+
+/* Footer del examen — cross-link al sistema */
+.bio-site-footer {
+  margin-top: 64px;
+  padding: 32px 24px calc(24px + var(--safe-bottom));
+  border-top: 1px solid var(--hairline);
+  background: rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+.bio-site-footer-inner {
+  width: min(1180px, calc(100% - 32px)); margin: 0 auto;
+  display: flex; flex-wrap: wrap; gap: 18px;
+  justify-content: space-between; align-items: center;
+}
+.bio-footer-brand { margin: 0; color: var(--muted); font-size: 0.92rem; }
+.bio-footer-brand strong { color: var(--text); }
+.bio-footer-links {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.bio-footer-links a {
+  color: var(--text); text-decoration: none;
+  padding: 8px 14px; border-radius: var(--r-pill);
+  background: var(--glass-tint); border: 1px solid var(--hairline);
+  font-size: 0.86rem; font-weight: 500;
+  transition: all var(--dur-fast) var(--ease-spring);
+}
+.bio-footer-links a:hover {
+  background: rgba(57, 217, 138, 0.14);
+  color: var(--accent);
+  border-color: rgba(57, 217, 138, 0.3);
+}
+
+/* Padding global para safe-area en notched devices */
+body {
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+}
+/* SF Pro stack */
+body, html {
+  font-family:
+    "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont,
+    "Inter", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif !important;
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+h1, h2, h3, h4, h5, h6 { letter-spacing: -0.01em; }
 
 * {
   box-sizing: border-box;
@@ -3074,6 +3199,19 @@ body.teacher-view .final-check {
 </head>
 <body>
   <a class="skip-to-content" href="#contenido-principal">Saltar al contenido</a>
+  <nav class="globalnav" aria-label="Navegación principal">
+    <div class="globalnav-inner">
+      <a class="globalnav-brand" href="/" aria-label="Volver al catálogo">
+        <span class="globalnav-mark" aria-hidden="true">✺</span>
+        <span class="globalnav-name">evaluacosas <span class="globalnav-sub">TLP</span></span>
+      </a>
+      <ul class="globalnav-links" role="list">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/#catalog">Catálogo</a></li>
+        <li><a href="/ayuda/estudiantes/">Ayuda</a></li>
+      </ul>
+    </div>
+  </nav>
   <canvas id="bio-canvas" aria-hidden="true"></canvas>
   <button class="toc-fab" id="toc-fab" type="button" aria-label="Abrir mapa del examen" aria-controls="toc-panel" aria-expanded="false" title="Mapa del examen — atajo: ?">
     <span class="toc-fab-icon" aria-hidden="true">☰</span>
@@ -10923,5 +11061,17 @@ JSON DEL EXAMEN:
 
 initAssessment();
 </script>
+<footer class="bio-site-footer">
+  <div class="bio-site-footer-inner">
+    <p class="bio-footer-brand"><strong>The Launch Pad — TLP</strong> · Centro Educativo GEA, acreditado ante el MEP</p>
+    <ul class="bio-footer-links">
+      <li><a href="/">Catálogo</a></li>
+      <li><a href="/ayuda/estudiantes/">Ayuda</a></li>
+      <li><a href="/privacy/">Privacidad</a></li>
+      <li><a href="/dashboard/">🔐 Docentes</a></li>
+    </ul>
+  </div>
+</footer>
+<script src="/device-view.js" defer></script>
 </body>
 </html>

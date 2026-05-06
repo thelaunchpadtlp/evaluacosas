@@ -320,6 +320,7 @@ const html = `<!doctype html>
   <meta name="theme-color" content="#07111d">
   <meta name="color-scheme" content="dark light">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="TLP Biología 10">
   <meta name="format-detection" content="telephone=no">
@@ -327,6 +328,8 @@ const html = `<!doctype html>
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <title>${esc(assessment.institution)} — ${esc(assessment.title)}</title>
   <meta name="description" content="${esc(assessment.title)} — ${esc(assessment.subtitle)} (${esc(assessment.institution)}, ${esc(assessment.institutionLong)}, ${esc(assessment.course)} ${esc(assessment.grade)})">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/favicon.svg">
   <link rel="manifest" href="data:application/manifest+json;charset=utf-8,${encodeURIComponent(JSON.stringify({
     name: `${assessment.institution} — ${assessment.title}`,
     short_name: "TLP Biología 10",
@@ -336,10 +339,24 @@ const html = `<!doctype html>
     theme_color: "#07111d",
     description: assessment.subtitle
   }))}">
+  <link rel="stylesheet" href="/device-view.css">
   <style>${css}</style>
 </head>
 <body>
   <a class="skip-to-content" href="#contenido-principal">Saltar al contenido</a>
+  <nav class="globalnav" aria-label="Navegación principal">
+    <div class="globalnav-inner">
+      <a class="globalnav-brand" href="/" aria-label="Volver al catálogo">
+        <span class="globalnav-mark" aria-hidden="true">✺</span>
+        <span class="globalnav-name">evaluacosas <span class="globalnav-sub">TLP</span></span>
+      </a>
+      <ul class="globalnav-links" role="list">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/#catalog">Catálogo</a></li>
+        <li><a href="/ayuda/estudiantes/">Ayuda</a></li>
+      </ul>
+    </div>
+  </nav>
   <canvas id="bio-canvas" aria-hidden="true"></canvas>
   <button class="toc-fab" id="toc-fab" type="button" aria-label="Abrir mapa del examen" aria-controls="toc-panel" aria-expanded="false" title="Mapa del examen — atajo: ?">
     <span class="toc-fab-icon" aria-hidden="true">☰</span>
@@ -622,6 +639,18 @@ drawCanvas();
 ${app}
 initAssessment();
 </script>
+<footer class="bio-site-footer">
+  <div class="bio-site-footer-inner">
+    <p class="bio-footer-brand"><strong>${esc(assessment.institution)}</strong> · ${esc(assessment.institutionLong)}</p>
+    <ul class="bio-footer-links">
+      <li><a href="/">Catálogo</a></li>
+      <li><a href="/ayuda/estudiantes/">Ayuda</a></li>
+      <li><a href="/privacy/">Privacidad</a></li>
+      <li><a href="/dashboard/">🔐 Docentes</a></li>
+    </ul>
+  </div>
+</footer>
+<script src="/device-view.js" defer></script>
 </body>
 </html>`;
 

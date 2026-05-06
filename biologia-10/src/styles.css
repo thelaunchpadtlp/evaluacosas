@@ -1,18 +1,139 @@
 :root {
-  color-scheme: dark;
+  color-scheme: dark light;
+  /* Apple Liquid Glass tokens (macOS Tahoe / iOS 26 / iPadOS 26 / visionOS) */
   --bg: #07111d;
   --bg-2: #102018;
+  --bg-3: #0a1420;
   --surface: rgba(255, 255, 255, 0.08);
   --surface-strong: rgba(255, 255, 255, 0.14);
+  --glass-tint: rgba(255, 255, 255, 0.06);
+  --glass-tint-strong: rgba(255, 255, 255, 0.12);
+  --glass-blur: 32px;
+  --glass-blur-strong: 48px;
+  --glass-saturate: 180%;
   --line: rgba(255, 255, 255, 0.18);
+  --hairline: rgba(255, 255, 255, 0.12);
   --text: #eef6ff;
   --muted: #a9bacf;
   --accent: #39d98a;
   --accent-2: #67d1ff;
+  --accent-3: #c4a7ff;
   --danger: #ff8d8d;
   --warning: #ffd166;
   --shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+  --shadow-elevated: 0 30px 100px rgba(0, 0, 0, 0.5);
+  /* Squircle radii */
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 24px;
+  --r-xl: 32px;
+  --r-pill: 999px;
+  /* Spring easings */
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 150ms;
+  --dur-base: 280ms;
+  --dur-slow: 480ms;
+  /* Safe areas (iPhone notch / iPad / visionOS) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
 }
+
+/* Global nav (sticky liquid glass) — sync con landing/dashboard/ayuda */
+.globalnav {
+  position: sticky; top: var(--safe-top); z-index: 60;
+  width: 100%; padding: 10px 0;
+  background: linear-gradient(180deg,
+    color-mix(in oklab, var(--bg) 78%, transparent) 0%,
+    color-mix(in oklab, var(--bg) 50%, transparent) 100%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border-bottom: 1px solid var(--hairline);
+}
+.globalnav-inner {
+  width: min(1180px, calc(100% - 32px)); margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.globalnav-brand {
+  display: inline-flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--text); font-weight: 700;
+  padding: 6px 10px; border-radius: var(--r-md);
+  letter-spacing: -0.01em;
+}
+.globalnav-brand:hover { background: var(--glass-tint); }
+.globalnav-mark {
+  display: inline-grid; place-items: center; width: 26px; height: 26px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #06110b; font-weight: 900; font-size: 0.95rem;
+  box-shadow: 0 4px 14px rgba(57, 217, 138, 0.4);
+}
+.globalnav-name { font-size: 1.02rem; }
+.globalnav-sub { color: var(--muted); font-weight: 500; font-size: 0.9em; }
+.globalnav-links {
+  display: flex; align-items: center; gap: 4px;
+  list-style: none; margin: 0; padding: 0;
+}
+.globalnav-links a {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: var(--r-pill);
+  color: var(--text); text-decoration: none;
+  font-size: 0.94rem; font-weight: 500;
+  transition: background var(--dur-fast) var(--ease-spring);
+}
+.globalnav-links a:hover { background: var(--glass-tint); color: var(--accent); }
+@media (max-width: 720px) { .globalnav-name { display: none; } }
+
+/* Footer del examen — cross-link al sistema */
+.bio-site-footer {
+  margin-top: 64px;
+  padding: 32px 24px calc(24px + var(--safe-bottom));
+  border-top: 1px solid var(--hairline);
+  background: rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+.bio-site-footer-inner {
+  width: min(1180px, calc(100% - 32px)); margin: 0 auto;
+  display: flex; flex-wrap: wrap; gap: 18px;
+  justify-content: space-between; align-items: center;
+}
+.bio-footer-brand { margin: 0; color: var(--muted); font-size: 0.92rem; }
+.bio-footer-brand strong { color: var(--text); }
+.bio-footer-links {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.bio-footer-links a {
+  color: var(--text); text-decoration: none;
+  padding: 8px 14px; border-radius: var(--r-pill);
+  background: var(--glass-tint); border: 1px solid var(--hairline);
+  font-size: 0.86rem; font-weight: 500;
+  transition: all var(--dur-fast) var(--ease-spring);
+}
+.bio-footer-links a:hover {
+  background: rgba(57, 217, 138, 0.14);
+  color: var(--accent);
+  border-color: rgba(57, 217, 138, 0.3);
+}
+
+/* Padding global para safe-area en notched devices */
+body {
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+}
+/* SF Pro stack */
+body, html {
+  font-family:
+    "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont,
+    "Inter", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif !important;
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+h1, h2, h3, h4, h5, h6 { letter-spacing: -0.01em; }
 
 * {
   box-sizing: border-box;
