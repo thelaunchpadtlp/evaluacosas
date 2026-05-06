@@ -1,0 +1,1120 @@
+{
+  "startedAt": "2026-05-06T10:30:26.021Z",
+  "elapsedSec": 9,
+  "total": 167,
+  "passed": 164,
+  "failed": 3,
+  "score": 98,
+  "sprints": [
+    {
+      "id": "17",
+      "name": "Hero welcome message",
+      "checks": [
+        {
+          "category": "functional",
+          "name": "welcome-strip in landing index.html",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "welcome title 'central de evaluaciones'",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "visual",
+          "name": "welcome-cta button class",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "visual",
+          "name": "Pura vida text + flag",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "a11y",
+          "name": "skip-to-content present",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "a11y",
+          "name": "aria-labelledby on welcome",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "docs",
+          "name": "welcome documented in CHANGELOG",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "18",
+      "name": "OAuth Client ID dashboard docente",
+      "checks": [
+        {
+          "category": "functional",
+          "name": "config.json with client_id",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "security",
+          "name": "client_id en formato Web App",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "security",
+          "name": "allowedDomain set",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "docs",
+          "name": "PLAN_OAUTH_DASHBOARD documented",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "operability",
+          "name": "tlp-set-oauth-client-id.sh tool",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "backend /admin/whoami expects auth",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "19",
+      "name": "UX checklists + Apple Liquid Glass",
+      "checks": [
+        {
+          "category": "visual",
+          "name": "SF Pro stack in CSS",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "visual",
+          "name": "squircle radii defined",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "visual",
+          "name": "glass-blur token",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "visual",
+          "name": "spring easing",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "visual",
+          "name": "safe-area insets",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "visual",
+          "name": "prefers-color-scheme support",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "a11y",
+          "name": "focus-visible rings",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "a11y",
+          "name": "min-height 44 touch targets",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "a11y",
+          "name": "prefers-reduced-motion respected",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "manifest.webmanifest",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "favicon.svg",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "docs",
+          "name": "DESIGN_SYSTEM.md",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "20",
+      "name": "Dashboard discoverability",
+      "checks": [
+        {
+          "category": "functional",
+          "name": "globalnav in landing",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "globalnav in dashboard",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "teachers-callout in landing",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "footer-grid 4 cols",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "/ayuda/ exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "/ayuda/dashboard/ exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "/ayuda/estudiantes/ exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "/privacy/ exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "deploy.yml copies static folders",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "ux",
+          "name": "onboarding amigable en auth-gate",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "ux",
+          "name": "FAQ details en auth-gate",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "22",
+      "name": "Hybrid AI + heuristic search",
+      "checks": [
+        {
+          "category": "functional",
+          "name": "operadores parser en dashboard",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "Levenshtein fuzzy matching",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "AI search runAiSearch",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "filter chips renderFilterChips",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "saved searches localStorage",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "ux",
+          "name": "atajos / r ?",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "ux",
+          "name": "highlight matched tokens",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "operability",
+          "name": "backend /admin/search endpoint not exposed yet (acceptable)",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "23-X",
+      "name": "Multi device-view toggle + fix close/minimize",
+      "checks": [
+        {
+          "category": "functional",
+          "name": "device-view.js exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "device-view.css exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "16 devices in DEVICES map",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "auto-detect via UA",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "event delegation single handler",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "closest() routing",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "fix",
+          "name": "no legacy individual listeners",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "visual",
+          "name": "corner ✕ always visible (not hover-only)",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "device-view loaded in landing HTML",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "device-view loaded in dashboard HTML",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "device-view loaded in biology-10 build",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "device-view in apex public",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "security",
+          "name": "localStorage key namespaced",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "24-25",
+      "name": "F.1 + F.2 GCP audit + labels",
+      "checks": [
+        {
+          "category": "docs",
+          "name": "GCP_AUDIT doc exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "docs",
+          "name": "audit menciona 17 proyectos",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "docs",
+          "name": "categorías clasificadas",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "operability",
+          "name": "labels aplicados a 5/7",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "26-27",
+      "name": "G.1 + G.2 biology-10 design + device-view",
+      "checks": [
+        {
+          "category": "functional",
+          "name": "biology-10 globalnav inyectado",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "biology-10 footer cross-link",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "visual",
+          "name": "biology-10 SF Pro stack",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "visual",
+          "name": "biology-10 squircle radii",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "visual",
+          "name": "biology-10 safe-area-insets",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "biology-10 build outputs index.html",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "28",
+      "name": "Sitemap auto-actualizable",
+      "checks": [
+        {
+          "category": "functional",
+          "name": "build-sitemap.mjs script",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "sitemap.xml generated",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "robots.txt generated",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "/sitemap/index.html generated",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "sitemap.xml has urlset",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "robots.txt has Sitemap reference",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "robots.txt disallow /dashboard/",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "ux",
+          "name": "sitemap HTML has search filter",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "ux",
+          "name": "sitemap HTML has section grouping",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "operability",
+          "name": "deploy.yml includes sitemap step",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "seo",
+          "name": "sitemap online",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "29",
+      "name": "F.3 GCP Health Dashboard apex",
+      "checks": [
+        {
+          "category": "functional",
+          "name": "blueprint exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "sync-gcp-health.mjs script",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "gcp-health.json data file",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "API route exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "page exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "API live in apex",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "Page live in apex",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "JSON has 7 projects",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "JSON syncedAt recent",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "30",
+      "name": "G.3 Help drawer estudiante",
+      "checks": [
+        {
+          "category": "functional",
+          "name": "drawer markup en build.mjs",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "6 tabs presentes",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "JS init init en build.mjs",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "a11y",
+          "name": "aria-label en drawer",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "ux",
+          "name": "atajo ? sin conflicto con TOC",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "visual",
+          "name": "estilos drawer en CSS",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "build outputs incluye drawer",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "31",
+      "name": "G.4 UX por ítem",
+      "checks": [
+        {
+          "category": "functional",
+          "name": "progress ring init",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "smart resume init",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "atajos g/s/n init",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "draft badge init",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "focus mode init",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "visual",
+          "name": "ring-grad SVG",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "visual",
+          "name": "draft badge styles",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "visual",
+          "name": "focus-mode styles",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "a11y",
+          "name": "ring button aria-label",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "a11y",
+          "name": "reduced-motion respeta ring",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "32",
+      "name": "Backend hardening",
+      "checks": [
+        {
+          "category": "functional",
+          "name": "/terms/ exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "/ayuda/problemas/ exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "/ayuda/privacidad/ exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "security",
+          "name": "rate limit middleware",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "security",
+          "name": "audit log function",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "security",
+          "name": "ALLOWED_TEACHERS check",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "security",
+          "name": "no token logging",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "backend health OK",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "backend admin returns 401 sin auth",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "CORS allows Authorization",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "33",
+      "name": "Cleanup + roadmap",
+      "checks": [
+        {
+          "category": "docs",
+          "name": "ROADMAP.md exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "docs",
+          "name": "CHANGELOG.md exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "docs",
+          "name": "ROADMAP menciona Sprint 33",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "docs",
+          "name": "CHANGELOG menciona Sprint 32",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "docs",
+          "name": "HANDOFF doc exists",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "_memory",
+      "name": "Memorias persistentes",
+      "checks": [
+        {
+          "category": "docs",
+          "name": "MEMORY.md index exists",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "docs",
+          "name": "evaluacosas_state memory",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "docs",
+          "name": "event-delegation pattern memory",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "docs",
+          "name": "gcp_health memory",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "docs",
+          "name": "biology10_help_drawer memory",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "_perf",
+      "name": "Performance + HTTP headers",
+      "checks": [
+        {
+          "category": "perf",
+          "name": "landing TTFB < 2s",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "perf",
+          "name": "device-view.js < 30KB",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "perf",
+          "name": "device-view.css < 30KB",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "security",
+          "name": "HSTS header en landing",
+          "pass": false,
+          "error": null
+        },
+        {
+          "category": "security",
+          "name": "X-Content-Type-Options nosniff",
+          "pass": false,
+          "error": null
+        },
+        {
+          "category": "operability",
+          "name": "GitHub Pages canonical en headers",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "backend health respose < 1s",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "backend /health returns 200",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "backend /health JSON valid",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "backend /health all sinks enabled",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "_git",
+      "name": "Git history + backups",
+      "checks": [
+        {
+          "category": "operability",
+          "name": "main branch clean",
+          "pass": false,
+          "error": null
+        },
+        {
+          "category": "operability",
+          "name": "remote up to date",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "operability",
+          "name": "más de 30 commits en main",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "operability",
+          "name": "CHANGELOG con git history",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "operability",
+          "name": "ROADMAP con git history",
+          "pass": true,
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "_global",
+      "name": "Cross-cutting global",
+      "checks": [
+        {
+          "category": "functional",
+          "name": "landing online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "dashboard online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "ayuda hub online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "ayuda dashboard online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "ayuda estudiantes online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "ayuda problemas online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "ayuda privacidad online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "privacy online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "terms online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "biology-10 online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "sitemap.xml online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "/sitemap/ online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "robots.txt online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "device-view.js online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "device-view.css online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "favicon online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "manifest online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "apex root online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "apex registry online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "apex gcp-health online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "functional",
+          "name": "apex /api/gcp-health online",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "security",
+          "name": "https redirect from http",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "security",
+          "name": "no Set-Cookie en landing",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "seo",
+          "name": "landing has og:title",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "seo",
+          "name": "landing has canonical",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "a11y",
+          "name": "lang=es declared",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "operability",
+          "name": "CHANGELOG y ROADMAP committed",
+          "pass": true,
+          "error": null
+        },
+        {
+          "category": "cost",
+          "name": "infra dentro free tier (audit doc)",
+          "pass": true,
+          "error": null
+        }
+      ]
+    }
+  ]
+}
