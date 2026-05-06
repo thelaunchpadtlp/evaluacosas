@@ -1414,7 +1414,7 @@ button, a, [role="button"], input[type="checkbox"], input[type="radio"] {
   border-bottom: 1px solid var(--hairline);
   margin-bottom: 22px;
 }
-.footer-col h4 {
+.footer-col h3, .footer-col h4 {
   margin: 0 0 12px;
   font-size: 0.85rem;
   font-weight: 700;
