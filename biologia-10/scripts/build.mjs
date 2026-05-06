@@ -1,4 +1,4 @@
-import { assessment, performanceLevels, evaluationCriteria, cognitiveLevelDefinitions, cognitiveLevelByQuestion, verbGlossary, passingThreshold, mepMapByQuestion } from "../src/questions.js";
+import { assessment, performanceLevels, evaluationCriteria, cognitiveLevelDefinitions, cognitiveLevelByQuestion, verbGlossary, passingThreshold, mepMapByQuestion, tlpStudents } from "../src/questions.js";
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -388,6 +388,13 @@ const html = `<!doctype html>
       </div>
     </header>
     <section class="student-grid" aria-label="Datos del estudiante">
+      <label class="student-picker-wrap">¿Quién está resolviendo?
+        <select id="student-picker" autocomplete="off">
+          <option value="">— elegir de la lista o registrarse manualmente —</option>
+          ${tlpStudents.map((s) => `<option value="${esc(s.email)}" data-name="${esc(s.name)}">${esc(s.name)} · ${esc(s.email)}</option>`).join("")}
+          <option value="__other__">Otro / registro manual</option>
+        </select>
+      </label>
       <label>Nombre completo<input id="student-name" autocomplete="name" placeholder="Nombre y apellidos"></label>
       <label>Identificador / cédula<input id="student-id" autocomplete="off" placeholder="Carnet o cédula"></label>
       <label>Correo institucional<input id="student-email" type="email" autocomplete="email" placeholder="@thelaunchpadtlp.education"></label>
@@ -489,28 +496,19 @@ const html = `<!doctype html>
   <section class="handoff-screen" id="handoff-screen" hidden aria-labelledby="handoff-title">
     <div class="handoff-card">
       <div class="handoff-icon" aria-hidden="true">✓</div>
-      <h2 id="handoff-title">Entrega registrada y archivo descargado</h2>
-      <p class="handoff-lead">Tus respuestas se guardaron en un archivo de respaldo. El siguiente paso es adjuntarlo a tu tarea de Google Classroom y entregarla allí.</p>
-      <p id="handoff-filename" class="handoff-filename"></p>
-      <h3>Resumen de tu entrega</h3>
+      <h2 id="handoff-title">¡Entrega registrada!</h2>
+      <p class="handoff-lead">Tu evaluación quedó registrada con tu docente. No tenés que descargar ni subir nada — todo se guardó automáticamente.</p>
+      <h3>Resumen</h3>
       <ul class="handoff-summary" id="handoff-summary"></ul>
       <div class="handoff-backend-status" id="handoff-backend-status" data-state="idle" aria-live="polite"></div>
       <div class="handoff-pregrade" id="handoff-pregrade"></div>
-      <h3>Cómo entregar en Google Classroom</h3>
-      <ol class="handoff-steps">
-        <li>Buscá el archivo <code>.json</code> en tu carpeta de <strong>Descargas</strong>.</li>
-        <li>Entrá a <strong>Google Classroom</strong> y abrí la tarea de Biología 10.</li>
-        <li>En el panel <em>Tu trabajo</em>, hacé clic en <strong>Agregar o crear → Archivo</strong>.</li>
-        <li>Seleccioná el archivo <code>.json</code> que acabás de descargar y subilo.</li>
-        <li>Hacé clic en <strong>Entregar</strong> y confirmá la entrega en Classroom.</li>
-      </ol>
-      <div class="handoff-actions">
-        <button id="redownload" type="button">Volver a descargar el archivo</button>
-        <button class="secondary" id="back-to-test" type="button">Volver a la prueba</button>
-      </div>
-      <p class="handoff-note">El archivo descargado contiene tus respuestas y los datos institucionales necesarios para que tu docente pueda calificar la entrega. Tus respuestas siguen guardadas en este navegador; si algo sale mal podés volver atrás y descargar el archivo de nuevo.</p>
       <p class="handoff-grading-info"><strong>Tu docente recibirá la entrega y registrará tu nota</strong> según el criterio TLP (1 punto por ítem, sin parciales, línea de aprobación 80 %).</p>
+      <div class="handoff-actions">
+        <button class="secondary" id="back-to-test" type="button">Revisar tus respuestas</button>
+      </div>
       <p class="handoff-back"><a href="https://evaluacosas.thelaunchpadtlp.education/" class="handoff-back-link"><span aria-hidden="true">←</span> Volver al catálogo de <strong>evaluacosas</strong></a></p>
+      <p id="handoff-filename" class="handoff-filename" hidden></p>
+      <button id="redownload" type="button" hidden></button>
       <div class="handoff-toast" id="handoff-toast" role="status" aria-live="polite" hidden></div>
     </div>
   </section>

@@ -47,6 +47,24 @@ const evolutionArt = `
   <path d="M236 153 l18 -11 l-3 11 l3 11 Z" fill="#ff8d8d" opacity=".72"/>
 </svg>`;
 
+// Lista de estudiantes TLP predefinidos para selección rápida en el examen.
+// Si la persona no está en la lista, puede elegir "Otro / registro manual"
+// y completar nombre + email a mano.
+export const tlpStudents = [
+  { name: "Joaquín Muñoz", email: "joaquin.munoz@thelaunchpadtlp.education" },
+  { name: "Anyssa Salazar", email: "anyssa.salazar@thelaunchpadtlp.education" },
+  { name: "Jose Joaquín Ortiz", email: "josejoaquin.ortiz@thelaunchpadtlp.education" },
+  { name: "María José Ortiz", email: "mariajose.ortiz@thelaunchpadtlp.education" },
+  { name: "María Paz Ortiz", email: "maripaz.ortiz@thelaunchpadtlp.education" },
+  { name: "Sebastián Villalobos", email: "sebastian.villalobos@thelaunchpadtlp.education" },
+  { name: "Marisol Ortiz", email: "marisol.ortiz@thelaunchpadtlp.education" },
+  { name: "Carlos Enrique Ortiz", email: "carlosenrique.ortiz@thelaunchpadtlp.education" },
+  { name: "Julieta Chan", email: "julieta.chan@thelaunchpadtlp.education" },
+  { name: "Marcela Rojas", email: "marcela.rojas@thelaunchpadtlp.education" },
+  { name: "Lorna Martínez", email: "lorna.martinez@thelaunchpadtlp.education" },
+  { name: "Diego Escalante", email: "diego.escalante@thelaunchpadtlp.education" }
+];
+
 // Mapping de cada una de las 80 preguntas a su subtema MEP correspondiente.
 // Basado en el programa de Biología 10 del Ministerio de Educación Pública (MEP) de Costa Rica,
 // cruzado con los temas del banco canónico questions.js. Trazable por questionId.

@@ -61,6 +61,7 @@ export function initAssessment() {
 
   textareas.forEach((textarea) => textarea.addEventListener("input", () => updateMeta(textarea)));
   textareas.forEach(updateMeta);
+  initStudentPicker();
   ["#student-name", "#student-id", "#student-email", "#student-section", "#teacher-name", "#student-date"].forEach((sel) => {
     document.querySelector(sel)?.addEventListener("input", updateContextBarStatus);
   });
@@ -581,32 +582,60 @@ export function initAssessment() {
 
   const SUBMIT_ENDPOINT = "https://evaluacosas-submit-handler-441768184201.us-central1.run.app/submit";
 
+  function initStudentPicker() {
+    const picker = document.querySelector("#student-picker");
+    const nameInput = document.querySelector("#student-name");
+    const emailInput = document.querySelector("#student-email");
+    if (!picker) return;
+    // Restore prior selection if already saved
+    const savedEmail = localStorage.getItem("evaluacosas:lastEmail") || "";
+    if (savedEmail) {
+      const opt = Array.from(picker.options).find((o) => o.value === savedEmail);
+      if (opt) picker.value = savedEmail;
+    }
+    picker.addEventListener("change", () => {
+      const v = picker.value;
+      if (!v) return;
+      if (v === "__other__") {
+        if (nameInput) { nameInput.disabled = false; nameInput.placeholder = "Escribí tu nombre completo"; nameInput.focus(); }
+        if (emailInput) { emailInput.disabled = false; emailInput.placeholder = "tu.correo@..."; emailInput.value = ""; }
+        nameInput.value = "";
+        return;
+      }
+      const opt = picker.options[picker.selectedIndex];
+      const name = opt?.dataset?.name || "";
+      if (nameInput) { nameInput.value = name; nameInput.disabled = true; }
+      if (emailInput) { emailInput.value = v; emailInput.disabled = true; }
+      try { localStorage.setItem("evaluacosas:lastEmail", v); } catch {}
+      // dispatch input events para que autosave + status pickeen el cambio
+      nameInput?.dispatchEvent(new Event("input", { bubbles: true }));
+      emailInput?.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+  }
+
   function finalizeSubmit() {
     closeConfirmModal();
     const data = collectData();
-    // clientDocId estable: si el mismo estudiante con los mismos datos institucionales reentrega
-    // en la misma franja de 5 min, el backend lo trata como idempotente (no duplica issues).
     const slot5m = Math.floor(Date.now() / 300000);
     const studentKey = `${data.student?.["student-name"] || ""}|${data.student?.["student-id"] || ""}|${data.student?.["student-date"] || ""}|${slot5m}`;
     const clientDocId = `${data.assessment?.title?.slice(0, 16).replace(/[^\w-]+/g, "_") || "exam"}__${cheapHash(studentKey)}`;
     data.clientDocId = clientDocId;
 
-    // Descarga local (siempre, fallback offline si el backend cae).
-    const filename = exportJsonFromData(data);
-    if (handoffFilename) handoffFilename.textContent = filename;
     populateHandoffSummary();
 
     if (handoffScreen) {
       lastFocusBeforeHandoff = document.activeElement;
       handoffScreen.hidden = false;
       window.scrollTo({ top: 0, behavior: "smooth" });
-      requestAnimationFrame(() => redownload?.focus());
     }
 
-    // Backend submit (paralelo, no bloquea UX).
+    // Backend submit (entrega oficial). El estudiante NO descarga nada
+    // a menos que el backend falle — descarga es solo respaldo.
     sendToBackend(data).catch((err) => {
-      console.warn("[evaluacosas] backend POST failed (UX continúa):", err?.message || err);
-      showHandoffToast("El servidor de entregas está temporalmente inaccesible. Tu archivo se descargó OK; subilo manualmente a Classroom como respaldo.");
+      console.warn("[evaluacosas] backend POST failed:", err?.message || err);
+      // Fallback: forzar descarga local para que el estudiante tenga el archivo
+      const filename = exportJsonFromData(data);
+      showHandoffToast(`No pudimos registrar tu entrega en este momento. Bajamos un respaldo (${filename}). Avisá a tu docente o reintentá refrescando.`);
     });
   }
 

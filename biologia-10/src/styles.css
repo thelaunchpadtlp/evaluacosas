@@ -502,6 +502,46 @@ button {
   min-width: 0;
 }
 
+.student-picker-wrap {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(57, 217, 138, .3);
+  border-radius: 8px;
+  background: rgba(57, 217, 138, .04);
+  padding: 12px 14px;
+}
+
+.student-picker-wrap select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid rgba(57, 217, 138, .35);
+  border-radius: 7px;
+  background: rgba(0, 0, 0, .3);
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 6px;
+  cursor: pointer;
+}
+
+.student-picker-wrap select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(57, 217, 138, .2);
+}
+
+.student-picker-wrap select option {
+  background: var(--bg);
+  color: var(--text);
+}
+
+#student-name:disabled,
+#student-email:disabled {
+  background: rgba(57, 217, 138, .05);
+  color: var(--accent);
+  border-color: rgba(57, 217, 138, .25);
+  cursor: not-allowed;
+}
+
 .score-box.criterion {
   background: rgba(103, 209, 255, .12);
   border-color: rgba(103, 209, 255, .28);
