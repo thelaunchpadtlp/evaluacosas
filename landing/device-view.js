@@ -144,66 +144,42 @@
 
     const btn = host.querySelector(".tlp-device-toggle-btn");
     const menu = host.querySelector(".tlp-device-toggle-menu");
-    const collapse = () => {
-      host.setAttribute("data-collapsed", "1");
-      localStorage.setItem(COLLAPSED_KEY, "1");
-    };
-    const expand = () => {
-      host.removeAttribute("data-collapsed");
-      localStorage.setItem(COLLAPSED_KEY, "0");
-    };
-    const open = () => { menu.hidden = false; btn.setAttribute("aria-expanded", "true"); expand(); };
-    const close = () => { menu.hidden = true; btn.setAttribute("aria-expanded", "false"); };
-    const toggle = () => menu.hidden ? open() : close();
 
-    btn.addEventListener("click", () => {
-      // If collapsed, first click opens menu directly. If expanded, toggles menu.
-      if (host.hasAttribute("data-collapsed")) { open(); }
-      else { toggle(); }
-    });
-    host.querySelector("[data-collapse]")?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      close();
-      collapse();
-    });
-    host.querySelector("[data-menu-close]")?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      close();
-      collapse();
-    });
-    document.addEventListener("click", (e) => {
-      if (!host.contains(e.target)) {
-        if (!menu.hidden) { close(); collapse(); }
-      }
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && !menu.hidden) { close(); collapse(); }
-      if (e.key === "D" && e.shiftKey && !["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName)) {
-        e.preventDefault(); toggle();
-      }
-    });
-    host.querySelectorAll("[data-key]").forEach(b => {
-      b.addEventListener("click", () => {
-        const k = b.dataset.key;
-        localStorage.setItem(STORAGE_KEY, k);
-        applyDevice(k);
-        // After picking, close menu + collapse to icon (con pequeña pausa para feedback visual)
-        setTimeout(() => { close(); collapse(); }, 220);
-        // Re-render (cheap: replace label)
-        const d = DEVICES[k];
-        host.querySelector(".tlp-device-toggle-icon").textContent = d.icon;
-        host.querySelector(".tlp-device-toggle-label").textContent = d.label;
-        host.querySelector(".tlp-device-toggle-sub").textContent = d.sub;
-        host.querySelectorAll(".tlp-device-toggle-option").forEach(opt => {
-          opt.classList.toggle("is-active", opt.dataset.key === k);
-          opt.setAttribute("aria-selected", opt.dataset.key === k ? "true" : "false");
-        });
+    function collapse() {
+      host.setAttribute("data-collapsed", "1");
+      try { localStorage.setItem(COLLAPSED_KEY, "1"); } catch {}
+    }
+    function expand() {
+      host.removeAttribute("data-collapsed");
+      try { localStorage.setItem(COLLAPSED_KEY, "0"); } catch {}
+    }
+    function openMenu() {
+      menu.hidden = false;
+      btn.setAttribute("aria-expanded", "true");
+      expand();
+    }
+    function closeMenu() {
+      menu.hidden = true;
+      btn.setAttribute("aria-expanded", "false");
+    }
+    function toggleMenu() { return menu.hidden ? openMenu() : closeMenu(); }
+
+    function selectDevice(k) {
+      try { localStorage.setItem(STORAGE_KEY, k); } catch {}
+      applyDevice(k);
+      const d = DEVICES[k];
+      host.querySelector(".tlp-device-toggle-icon").textContent = d.icon;
+      host.querySelector(".tlp-device-toggle-label").textContent = d.label;
+      host.querySelector(".tlp-device-toggle-sub").textContent = d.sub;
+      host.querySelectorAll(".tlp-device-toggle-option").forEach(opt => {
+        opt.classList.toggle("is-active", opt.dataset.key === k);
+        opt.setAttribute("aria-selected", opt.dataset.key === k ? "true" : "false");
       });
-    });
-    host.querySelector("[data-reset]")?.addEventListener("click", () => {
-      localStorage.removeItem(STORAGE_KEY);
+      setTimeout(() => { closeMenu(); collapse(); }, 220);
+    }
+    function resetToAuto() {
+      try { localStorage.removeItem(STORAGE_KEY); } catch {}
       applyDevice("auto");
-      setTimeout(() => { close(); collapse(); }, 220);
       const d = DEVICES.auto;
       host.querySelector(".tlp-device-toggle-icon").textContent = d.icon;
       host.querySelector(".tlp-device-toggle-label").textContent = d.label;
@@ -212,6 +188,68 @@
         opt.classList.toggle("is-active", opt.dataset.key === "auto");
         opt.setAttribute("aria-selected", opt.dataset.key === "auto" ? "true" : "false");
       });
+      setTimeout(() => { closeMenu(); collapse(); }, 220);
+    }
+
+    // SINGLE event-delegation handler — bulletproof, sobrevive cualquier
+    // re-render del DOM y maneja todos los clicks dentro del host.
+    host.addEventListener("click", (e) => {
+      // Cerrar/minimizar (corner ✕)
+      if (e.target.closest("[data-collapse]")) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeMenu();
+        collapse();
+        return;
+      }
+      // Cerrar menú (X header)
+      if (e.target.closest("[data-menu-close]")) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeMenu();
+        collapse();
+        return;
+      }
+      // Reset a Auto
+      if (e.target.closest("[data-reset]")) {
+        e.preventDefault();
+        e.stopPropagation();
+        resetToAuto();
+        return;
+      }
+      // Pick device
+      const opt = e.target.closest("[data-key]");
+      if (opt) {
+        e.preventDefault();
+        e.stopPropagation();
+        selectDevice(opt.dataset.key);
+        return;
+      }
+      // Click en el pill — abre o togglea
+      if (e.target.closest(".tlp-device-toggle-btn")) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (host.hasAttribute("data-collapsed")) openMenu();
+        else toggleMenu();
+        return;
+      }
+    });
+
+    // Click fuera del host: cierra Y minimiza
+    document.addEventListener("click", (e) => {
+      if (host.contains(e.target)) return;
+      if (!menu.hidden) { closeMenu(); collapse(); }
+    });
+
+    // Atajos globales
+    document.addEventListener("keydown", (e) => {
+      const inField = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName);
+      if (e.key === "Escape" && !menu.hidden) { closeMenu(); collapse(); return; }
+      if (!inField && e.key === "D" && e.shiftKey) {
+        e.preventDefault();
+        if (host.hasAttribute("data-collapsed")) openMenu();
+        else toggleMenu();
+      }
     });
   }
 
