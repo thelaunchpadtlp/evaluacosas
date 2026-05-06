@@ -287,6 +287,9 @@ const html = `<!doctype html>
     <span class="context-bar-status" id="context-bar-status" data-status="incomplete">En progreso</span>
   </div>
   <main class="shell" id="contenido-principal">
+    <a class="back-to-evaluacosas" href="https://evaluacosas.thelaunchpadtlp.education/" title="Volver al catálogo de evaluacosas">
+      <span aria-hidden="true">←</span> <span>evaluacosas</span><span class="back-to-evaluacosas-sep" aria-hidden="true"> · </span><span class="back-to-evaluacosas-tag">catálogo TLP</span>
+    </a>
     <header class="hero">
       <div class="brand-block">
         <p class="brand-line brand-primary">${esc(assessment.institution)}</p>
@@ -434,6 +437,7 @@ const html = `<!doctype html>
         <a class="llm-link" href="https://www.perplexity.ai" target="_blank" rel="noopener">Abrir Perplexity</a>
       </div>
       <p class="handoff-note">El archivo contiene tus datos institucionales, tus respuestas y el blueprint completo de la tarea (criterios <em>Debe incluir</em> y <em>No hacer</em> por pregunta) más una pre-calificación heurística de referencia. Tus respuestas siguen guardadas en este navegador; si algo sale mal podés volver atrás y descargar el archivo de nuevo.</p>
+      <p class="handoff-back"><a href="https://evaluacosas.thelaunchpadtlp.education/" class="handoff-back-link"><span aria-hidden="true">←</span> Volver al catálogo de <strong>evaluacosas</strong></a></p>
       <div class="handoff-toast" id="handoff-toast" role="status" aria-live="polite" hidden></div>
     </div>
   </section>

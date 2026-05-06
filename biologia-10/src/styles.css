@@ -101,6 +101,68 @@ a:focus-visible {
   transform: translateY(0);
 }
 
+.back-to-evaluacosas {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 14px 0 -8px;
+  padding: 6px 12px;
+  border: 1px solid rgba(103, 209, 255, .26);
+  border-radius: 999px;
+  background: rgba(103, 209, 255, .07);
+  color: var(--accent-2);
+  font-size: .78rem;
+  font-weight: 700;
+  text-decoration: none;
+  width: max-content;
+  transition: all .15s ease;
+  letter-spacing: .02em;
+}
+
+.back-to-evaluacosas:hover {
+  background: rgba(103, 209, 255, .14);
+  border-color: rgba(103, 209, 255, .45);
+  transform: translateX(-2px);
+}
+
+.back-to-evaluacosas-sep {
+  color: rgba(103, 209, 255, .45);
+}
+
+.back-to-evaluacosas-tag {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: .72rem;
+}
+
+.handoff-back {
+  margin: 14px 0 0;
+  text-align: center;
+}
+
+.handoff-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid rgba(103, 209, 255, .35);
+  border-radius: 8px;
+  color: var(--accent-2);
+  font-size: .9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all .15s ease;
+}
+
+.handoff-back-link:hover {
+  background: rgba(103, 209, 255, .14);
+  border-color: rgba(103, 209, 255, .55);
+}
+
+.handoff-back-link strong {
+  color: var(--accent);
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -2394,7 +2456,9 @@ body.teacher-view .final-check {
   .handoff-screen,
   .teacher-toggle,
   .toc-fab,
-  .toc-panel {
+  .toc-panel,
+  .back-to-evaluacosas,
+  .handoff-back {
     display: none !important;
   }
 
