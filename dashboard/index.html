@@ -3,9 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#07111d">
+  <meta name="theme-color" content="#07111d" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f4f6fb" media="(prefers-color-scheme: light)">
   <meta name="color-scheme" content="dark light">
   <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Dashboard institucional para docentes de The Launch Pad — TLP. Acceso restringido a cuentas @thelaunchpadtlp.education.">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Dashboard TLP">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
   <title>Dashboard del docente · evaluacosas TLP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,30 +23,108 @@
 </head>
 <body>
   <a class="skip-to-content" href="#main">Saltar al contenido</a>
-  <header class="dash-header">
+
+  <nav class="globalnav" aria-label="Navegación principal">
+    <div class="globalnav-inner">
+      <a class="globalnav-brand" href="/" aria-label="Volver al inicio">
+        <span class="globalnav-mark" aria-hidden="true">✺</span>
+        <span class="globalnav-name">evaluacosas <span class="globalnav-sub">TLP</span></span>
+      </a>
+      <ul class="globalnav-links" role="list">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/#catalog">Catálogo</a></li>
+        <li><a href="/ayuda/dashboard/">Ayuda</a></li>
+        <li><a class="globalnav-current" href="/dashboard/" aria-current="page">
+          <span aria-hidden="true">🔐</span> Dashboard
+        </a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="dash-header" role="banner">
     <div class="dash-header-inner">
-      <a class="dash-back" href="/" title="Volver al catálogo evaluacosas">← evaluacosas</a>
-      <h1 class="dash-title">Dashboard del docente</h1>
-      <div class="dash-account" id="dash-account"></div>
+      <div class="dash-header-titles">
+        <p class="dash-eyebrow">Consola institucional · solo docentes</p>
+        <h1 class="dash-title">Dashboard del docente</h1>
+        <p class="dash-subtitle">Revisá entregas, abrí cada respuesta, calificá con criterio binario TLP y registrá la nota.</p>
+      </div>
+      <div class="dash-account" id="dash-account" aria-live="polite"></div>
     </div>
   </header>
 
   <main class="dash-main" id="main">
-    <section class="auth-gate" id="auth-gate">
-      <h2>Acceso restringido</h2>
-      <p>Solo para docentes con cuenta institucional <code>@thelaunchpadtlp.education</code>. Iniciá sesión con tu cuenta de Google del Workspace.</p>
-      <div id="g_id_signin"></div>
-      <p class="auth-note" id="auth-note"></p>
+
+    <section class="auth-gate" id="auth-gate" aria-labelledby="auth-title">
+      <div class="auth-gate-inner">
+        <div class="auth-gate-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="3"/>
+            <path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+        </div>
+        <h2 id="auth-title">Bienvenido al Dashboard del Docente</h2>
+        <p class="auth-lead">Esta es la consola institucional de <strong>The Launch Pad — TLP</strong> para revisar las entregas de los estudiantes.</p>
+
+        <div class="auth-explain">
+          <h3>¿Qué podés hacer aquí?</h3>
+          <ul class="auth-explain-list">
+            <li><span aria-hidden="true">📥</span> <span>Ver todas las entregas recibidas (en vivo).</span></li>
+            <li><span aria-hidden="true">🔍</span> <span>Abrir cada entrega completa con respuestas, criterios y rúbrica MEP.</span></li>
+            <li><span aria-hidden="true">📊</span> <span>Ver pre-calificación heurística + calificación opcional con Gemini.</span></li>
+            <li><span aria-hidden="true">⬇️</span> <span>Descargar el JSON de la entrega para tu archivo personal.</span></li>
+            <li><span aria-hidden="true">✅</span> <span>Calificar y registrar la nota en tu sistema habitual.</span></li>
+          </ul>
+        </div>
+
+        <div class="auth-cta">
+          <p class="auth-cta-text">Iniciá sesión con tu cuenta del Workspace TLP <code>@thelaunchpadtlp.education</code>:</p>
+          <div id="g_id_signin" aria-label="Iniciar sesión con Google"></div>
+          <p class="auth-note" id="auth-note" role="status"></p>
+        </div>
+
+        <details class="auth-help">
+          <summary>¿Tenés problemas para entrar?</summary>
+          <div class="auth-help-body">
+            <p><strong>Casos comunes y cómo resolverlos:</strong></p>
+            <ul>
+              <li><strong>"App restricted by your administrator":</strong> tu cuenta no está habilitada. Contactá a <a href="mailto:joaquin.munoz@thelaunchpadtlp.education">joaquin.munoz@thelaunchpadtlp.education</a>.</li>
+              <li><strong>El botón no aparece:</strong> tu navegador puede estar bloqueando scripts de Google. Probá desactivar bloqueadores o usar Chrome/Safari.</li>
+              <li><strong>Entré pero veo "no tenés permisos":</strong> tu email aún no está en la lista de docentes autorizados. Contactá al administrador.</li>
+              <li><strong>El popup no abre:</strong> activá popups para este sitio en la configuración de tu navegador.</li>
+            </ul>
+            <p>Más información en el <a href="/ayuda/dashboard/">centro de ayuda del dashboard</a>.</p>
+          </div>
+        </details>
+
+        <p class="auth-privacy">Tu sesión es válida por 1 hora. Cerrar la pestaña o pulsar "Salir" termina la sesión. No usamos cookies de tracking.</p>
+      </div>
     </section>
 
     <section class="dash-content" id="dash-content" hidden>
+      <div class="dash-tips" id="dash-tips" hidden>
+        <div class="dash-tip">
+          <span class="dash-tip-icon" aria-hidden="true">💡</span>
+          <div>
+            <strong>Atajos:</strong>
+            <kbd>?</kbd> ayuda · <kbd>r</kbd> refrescar · <kbd>Esc</kbd> cerrar modal · <kbd>↓</kbd>/<kbd>↑</kbd> navegar tabla · <kbd>Enter</kbd> abrir entrega
+          </div>
+          <button type="button" class="dash-tip-dismiss" id="dash-tip-dismiss" aria-label="Ocultar atajos">×</button>
+        </div>
+      </div>
+
       <div class="dash-toolbar">
         <div class="dash-search">
-          <input id="dash-search-input" type="search" placeholder="Buscar por nombre, email, sección, app…" autocomplete="off">
+          <span class="dash-search-icon" aria-hidden="true">⌕</span>
+          <input id="dash-search-input" type="search" placeholder="Buscar por nombre, email, sección, app…" autocomplete="off" aria-label="Buscar en entregas">
         </div>
         <div class="dash-filters">
-          <label>App: <select id="filter-app"><option value="">Todas</option></select></label>
-          <button type="button" id="dash-refresh">↻ Refrescar</button>
+          <label>
+            <span class="dash-filter-label">App</span>
+            <select id="filter-app" aria-label="Filtrar por aplicación"><option value="">Todas</option></select>
+          </label>
+          <button type="button" id="dash-refresh" title="Refrescar entregas (atajo: R)" aria-label="Refrescar entregas">
+            <span aria-hidden="true">↻</span> Refrescar
+          </button>
         </div>
         <p class="dash-stats" id="dash-stats" aria-live="polite">Cargando…</p>
       </div>
@@ -46,16 +133,23 @@
         <table class="dash-table" id="dash-table">
           <thead>
             <tr>
-              <th>Recibido</th>
-              <th>App</th>
-              <th>Estudiante</th>
-              <th>Sección</th>
-              <th>Pre-grade</th>
-              <th>Pasa 80%</th>
-              <th>Acciones</th>
+              <th scope="col">Recibido</th>
+              <th scope="col">App</th>
+              <th scope="col">Estudiante</th>
+              <th scope="col">Sección</th>
+              <th scope="col">Pre-grade</th>
+              <th scope="col">Pasa 80%</th>
+              <th scope="col">Acciones</th>
             </tr>
           </thead>
-          <tbody id="dash-tbody"><tr><td colspan="7" class="dash-empty">Cargando entregas…</td></tr></tbody>
+          <tbody id="dash-tbody">
+            <tr><td colspan="7" class="dash-empty">
+              <div class="dash-empty-state">
+                <span class="dash-empty-icon" aria-hidden="true">⏳</span>
+                <p>Cargando entregas…</p>
+              </div>
+            </td></tr>
+          </tbody>
         </table>
       </div>
     </section>
@@ -64,7 +158,7 @@
       <div class="dash-modal-card">
         <header class="dash-modal-head">
           <h3 id="modal-title">Detalle de entrega</h3>
-          <button type="button" class="dash-modal-close" id="modal-close" aria-label="Cerrar">×</button>
+          <button type="button" class="dash-modal-close" id="modal-close" aria-label="Cerrar (atajo: Esc)">×</button>
         </header>
         <div class="dash-modal-body" id="modal-body"></div>
       </div>
@@ -72,7 +166,7 @@
   </main>
 
   <footer class="dash-footer">
-    <p>The Launch Pad — TLP · Centro Educativo GEA · acceso restringido al docente.</p>
+    <p>The Launch Pad — TLP · Centro Educativo GEA · acceso restringido al docente. <a href="/">Volver al inicio</a> · <a href="/ayuda/dashboard/">Ayuda</a></p>
   </footer>
 
   <script src="https://accounts.google.com/gsi/client" async defer></script>

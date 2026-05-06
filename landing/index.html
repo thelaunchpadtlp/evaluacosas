@@ -2,13 +2,31 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#07111d">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="theme-color" content="#07111d" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f4f6fb" media="(prefers-color-scheme: light)">
   <meta name="color-scheme" content="dark light">
   <meta name="description" content="Catálogo de evaluaciones, prácticas y tareas de The Launch Pad — TLP / Centro Educativo GEA. Instrumentos académicos serios servidos como sitios estáticos.">
+  <meta name="format-detection" content="telephone=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="evaluacosas TLP">
+  <meta name="application-name" content="evaluacosas TLP">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="evaluacosas — The Launch Pad TLP">
+  <meta property="og:description" content="Central de instrumentos y actividades de evaluación de The Launch Pad — TLP / Centro Educativo GEA.">
+  <meta property="og:url" content="https://evaluacosas.thelaunchpadtlp.education/">
+  <meta property="og:locale" content="es_CR">
+  <meta property="og:site_name" content="evaluacosas TLP">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="evaluacosas — The Launch Pad TLP">
+  <meta name="twitter:description" content="Central de instrumentos y actividades de evaluación de TLP.">
+  <link rel="canonical" href="https://evaluacosas.thelaunchpadtlp.education/">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="mask-icon" href="/favicon.svg" color="#39d98a">
+  <link rel="apple-touch-icon" href="/favicon.svg">
   <title>evaluacosas — The Launch Pad TLP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,6 +36,23 @@
 <body>
   <a class="skip-to-content" href="#catalog">Saltar al catálogo</a>
   <canvas id="bio-canvas" aria-hidden="true"></canvas>
+
+  <nav class="globalnav" id="globalnav" aria-label="Navegación principal">
+    <div class="globalnav-inner">
+      <a class="globalnav-brand" href="/" aria-label="Ir al inicio">
+        <span class="globalnav-mark" aria-hidden="true">✺</span>
+        <span class="globalnav-name">evaluacosas <span class="globalnav-sub">TLP</span></span>
+      </a>
+      <ul class="globalnav-links" role="list">
+        <li><a href="/#catalog">Catálogo</a></li>
+        <li><a href="/#why-title">Cómo funciona</a></li>
+        <li><a href="/ayuda/">Ayuda</a></li>
+        <li><a class="globalnav-dashboard" href="/dashboard/" title="Solo para docentes con cuenta @thelaunchpadtlp.education">
+          <span aria-hidden="true">🔒</span> Docentes
+        </a></li>
+      </ul>
+    </div>
+  </nav>
   <button class="toc-fab" id="toc-fab" type="button" aria-label="Abrir mapa de la página" aria-controls="toc-panel" aria-expanded="false" title="Mapa de la página — atajo: ?">
     <span class="toc-fab-icon" aria-hidden="true">☰</span>
     <span class="toc-fab-label">Mapa</span>
@@ -38,6 +73,7 @@
           <li class="toc-question"><a class="toc-q-btn" href="#welcome"><span class="toc-q-num">✺</span><span class="toc-q-prompt">Bienvenida · ¡Pura vida!</span></a></li>
           <li class="toc-question"><a class="toc-q-btn" href="#catalog"><span class="toc-q-num">▦</span><span class="toc-q-prompt">Catálogo de evaluaciones</span></a></li>
           <li class="toc-question"><a class="toc-q-btn" href="#why-title"><span class="toc-q-num">i</span><span class="toc-q-prompt">Cómo funciona</span></a></li>
+          <li class="toc-question"><a class="toc-q-btn" href="#teachers-callout"><span class="toc-q-num">🔐</span><span class="toc-q-prompt">Para docentes</span></a></li>
         </ul>
       </div>
       <div class="toc-section">
@@ -168,13 +204,63 @@
     </div>
   </section>
 
+  <section class="teachers-callout" id="teachers-callout" aria-labelledby="teachers-title">
+    <div class="teachers-inner">
+      <div class="teachers-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7l9-4 9 4-9 4-9-4z"/>
+          <path d="M3 7v6c0 2 4 4 9 4s9-2 9-4V7"/>
+          <path d="M12 11v6"/>
+        </svg>
+      </div>
+      <div class="teachers-copy">
+        <h2 id="teachers-title" class="teachers-title">¿Sos docente de TLP?</h2>
+        <p>Entrá al <strong>dashboard institucional</strong> para ver las entregas de tus estudiantes, abrir cada respuesta completa, revisar la pre-calificación y calificar con Gemini. Acceso solo con cuenta <code>@thelaunchpadtlp.education</code>.</p>
+        <div class="teachers-actions">
+          <a class="teachers-btn teachers-btn-primary" href="/dashboard/">
+            <span aria-hidden="true">🔐</span> Abrir dashboard
+          </a>
+          <a class="teachers-btn teachers-btn-ghost" href="/ayuda/dashboard/">¿Cómo funciona?</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <footer class="site-footer">
     <div class="site-footer-inner">
-      <p class="footer-brand">
-        <strong>The Launch Pad — TLP</strong> · Centro Educativo GEA, acreditado ante el MEP · Curso personalizado e individualizado por tutorías
-      </p>
+      <div class="footer-grid">
+        <div class="footer-col footer-col-brand">
+          <p class="footer-brand">
+            <strong>The Launch Pad — TLP</strong>
+          </p>
+          <p class="footer-brand-sub">Centro Educativo GEA · acreditado ante el MEP · Curso personalizado e individualizado por tutorías.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Estudiantes</h4>
+          <ul>
+            <li><a href="/#catalog">Ver catálogo</a></li>
+            <li><a href="/#why-title">Cómo funciona</a></li>
+            <li><a href="/ayuda/estudiantes/">Ayuda</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Docentes</h4>
+          <ul>
+            <li><a href="/dashboard/">Dashboard</a></li>
+            <li><a href="/ayuda/dashboard/">Cómo usar el dashboard</a></li>
+            <li><a href="/ayuda/">Centro de ayuda</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Privacidad</h4>
+          <ul>
+            <li><a href="/privacy/">Política de privacidad</a></li>
+            <li><a href="/terms/">Términos de uso</a></li>
+          </ul>
+        </div>
+      </div>
       <p class="footer-tech">
-        Sitio estático con privacidad por diseño. Sin tracking, sin cookies, sin servidores intermedios. Tus respuestas se guardan localmente en tu navegador y solo viajan cuando vos descargás el archivo de entrega.
+        Sitio con privacidad por diseño. Sin tracking de terceros, sin cookies de marketing. Tus respuestas se guardan localmente y se envían cifradas cuando completás la entrega.
       </p>
     </div>
   </footer>

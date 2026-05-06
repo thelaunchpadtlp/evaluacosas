@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07111d" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="Cómo usar el dashboard del docente de evaluacosas TLP — guía paso a paso.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <title>Cómo usar el dashboard · Ayuda · evaluacosas TLP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800;900&display=swap">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/ayuda/ayuda.css">
+</head>
+<body class="ayuda-body">
+  <a class="skip-to-content" href="#main">Saltar al contenido</a>
+
+  <nav class="globalnav" aria-label="Navegación principal">
+    <div class="globalnav-inner">
+      <a class="globalnav-brand" href="/">
+        <span class="globalnav-mark" aria-hidden="true">✺</span>
+        <span class="globalnav-name">evaluacosas <span class="globalnav-sub">TLP</span></span>
+      </a>
+      <ul class="globalnav-links" role="list">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/ayuda/">Ayuda</a></li>
+        <li><a class="globalnav-dashboard" href="/dashboard/">🔐 Dashboard</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="ayuda-main" id="main">
+    <article class="ayuda-article">
+      <a class="ayuda-back" href="/ayuda/">← Volver al centro de ayuda</a>
+      <h1>🔐 Cómo usar el dashboard del docente</h1>
+      <p>Guía paso a paso, sin jerga técnica. Si ya estás en el dashboard, podés saltar a la sección que necesitás desde el índice.</p>
+
+      <h2>1. ¿Qué es el dashboard?</h2>
+      <p>Es la <strong>consola institucional para docentes</strong> de TLP. Sirve para una sola cosa: revisar las entregas que los estudiantes envían cuando completan una evaluación.</p>
+      <p>Lo que vas a ver:</p>
+      <ul>
+        <li>📥 <strong>Lista de entregas</strong> recibidas, ordenables por fecha.</li>
+        <li>👤 <strong>Datos del estudiante</strong> (nombre, sección, hora de entrega).</li>
+        <li>📊 <strong>Pre-calificación heurística</strong> (cálculo automático determinista, sin IA).</li>
+        <li>🤖 <strong>Calificación con Gemini</strong> (opcional, si querés segunda opinión).</li>
+        <li>📄 <strong>Respuestas completas</strong> de cada ítem con criterios MEP y rúbrica.</li>
+        <li>⬇️ <strong>Botón para descargar</strong> la entrega como JSON.</li>
+      </ul>
+
+      <h2>2. Cómo entrar</h2>
+      <ol>
+        <li>Andá a <a href="/dashboard/"><strong>evaluacosas.thelaunchpadtlp.education/dashboard/</strong></a> en cualquier navegador.</li>
+        <li>Vas a ver una pantalla de bienvenida con un botón de <strong>Sign in with Google</strong>.</li>
+        <li>Pulsalo y elegí tu cuenta <code>@thelaunchpadtlp.education</code>.</li>
+        <li>Si tu email está en la lista de docentes autorizados, entrás. Si no, recibís un mensaje claro y tenés que pedirle al admin que te agregue.</li>
+      </ol>
+
+      <blockquote>
+        <strong>Importante:</strong> solo se aceptan cuentas del Workspace TLP. Cuentas personales de Gmail o de otros dominios no funcionan, por seguridad.
+      </blockquote>
+
+      <h2>3. Atajos de teclado útiles</h2>
+      <ul>
+        <li><kbd>?</kbd> abre/cierra la lista de atajos</li>
+        <li><kbd>r</kbd> refresca la lista de entregas</li>
+        <li><kbd>↓</kbd> / <kbd>↑</kbd> navegan filas de la tabla</li>
+        <li><kbd>Enter</kbd> abre la entrega seleccionada</li>
+        <li><kbd>Esc</kbd> cierra el modal abierto</li>
+      </ul>
+
+      <h2>4. Flujo típico de calificación</h2>
+      <ol>
+        <li><strong>Refrescá</strong> la tabla (<kbd>r</kbd>) para ver entregas nuevas.</li>
+        <li><strong>Buscá</strong> al estudiante por nombre o email en la barra de búsqueda.</li>
+        <li><strong>Click en la fila</strong> → se abre un modal con el detalle completo.</li>
+        <li>Mirá la <strong>pre-calificación heurística</strong> como guía rápida.</li>
+        <li>Si querés segunda opinión: <strong>Calificar con Gemini</strong> (usa cuota gratis del proyecto TLP).</li>
+        <li>Aplicá tu <strong>criterio docente final</strong> (binario: 1 punto por ítem, sin parciales).</li>
+        <li>Registrá la nota en tu sistema habitual (Classroom, planilla, etc.).</li>
+        <li>Si querés respaldo, descargá el <strong>JSON</strong> con todo el detalle.</li>
+      </ol>
+
+      <h2>5. ¿Qué es la "pre-calificación heurística"?</h2>
+      <p>Es un cálculo automático <strong>sin IA</strong> que evalúa cada respuesta contra los criterios deterministas que definiste:</p>
+      <ul>
+        <li>Verbos accionables presentes (incluir → tiene que estar)</li>
+        <li>Anti-patterns ausentes (no hacer → no tiene que estar)</li>
+        <li>Cantidad mínima de elementos requeridos</li>
+        <li>Nivel cognitivo Bloom esperado</li>
+      </ul>
+      <p>El resultado es un porcentaje y un score por ítem. <strong>No reemplaza tu criterio</strong>, solo te ayuda a priorizar qué revisar primero.</p>
+
+      <h2>6. ¿Qué es la calificación con Gemini?</h2>
+      <p>Cuando pulsás <strong>Calificar con Gemini</strong>, el sistema le pasa la entrega + el skill TLP/Piqui Parte II al modelo Gemini 2.5 Flash y vuelve con:</p>
+      <ul>
+        <li>Calificación por ítem según skill</li>
+        <li>Justificación textual</li>
+        <li>Sugerencias para el estudiante</li>
+        <li>Score total recomendado</li>
+      </ul>
+      <p>Usa la <strong>cuota gratis</strong> del proyecto TLP en Google Cloud (1500 calificaciones/día sin costo).</p>
+
+      <h2>7. Privacidad de los datos</h2>
+      <p>Las entregas se almacenan en 5 lugares redundantes (Cloud Storage, Firestore, GitHub espejo privado, Supabase, Linear). Solo docentes autorizados pueden acceder al dashboard. Más detalles en <a href="/privacy/">la política de privacidad</a>.</p>
+
+      <h2>8. Problemas comunes</h2>
+
+      <h3>"App restricted by your administrator"</h3>
+      <p>Tu cuenta no está habilitada para esta app. Contactá a <a href="mailto:joaquin.munoz@thelaunchpadtlp.education">joaquin.munoz@thelaunchpadtlp.education</a> para que te agregue.</p>
+
+      <h3>El botón Sign-in no aparece</h3>
+      <p>Probablemente tu navegador bloquea scripts de Google. Probá:</p>
+      <ul>
+        <li>Desactivar bloqueadores de anuncios para este sitio.</li>
+        <li>Usar Chrome o Safari.</li>
+        <li>Abrir en pestaña incógnita.</li>
+      </ul>
+
+      <h3>"No tenés permisos para acceder"</h3>
+      <p>Tu email no está en la lista de docentes autorizados. Pedile al administrador que ejecute el procedimiento de onboarding.</p>
+
+      <h3>El popup no se abre</h3>
+      <p>Activá los popups para este sitio:</p>
+      <ul>
+        <li><strong>Chrome</strong>: ícono del candado en la URL → Configuración del sitio → Pop-ups → Permitir.</li>
+        <li><strong>Safari</strong>: Preferencias → Sitios web → Ventanas emergentes → Permitir.</li>
+      </ul>
+
+      <h2>9. Salir del dashboard</h2>
+      <p>Pulsá <strong>Salir</strong> en la esquina superior derecha (o cerrá la pestaña). La sesión expira automáticamente después de 1 hora de inactividad.</p>
+
+      <h2>10. Soporte</h2>
+      <p>Cualquier duda, problema o sugerencia: escribinos a <a href="mailto:joaquin.munoz@thelaunchpadtlp.education"><strong>joaquin.munoz@thelaunchpadtlp.education</strong></a>.</p>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <p class="footer-tech">The Launch Pad — TLP · Centro Educativo GEA, acreditado ante el MEP.</p>
+    </div>
+  </footer>
+</body>
+</html>

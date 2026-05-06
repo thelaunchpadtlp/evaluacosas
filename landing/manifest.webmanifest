@@ -1,0 +1,32 @@
+{
+  "name": "evaluacosas — The Launch Pad TLP",
+  "short_name": "evaluacosas",
+  "description": "Central de instrumentos y actividades de evaluación de The Launch Pad — TLP.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "browser"],
+  "orientation": "any",
+  "background_color": "#07111d",
+  "theme_color": "#07111d",
+  "lang": "es-CR",
+  "dir": "ltr",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Catálogo",
+      "short_name": "Catálogo",
+      "url": "/#catalog",
+      "description": "Ver el catálogo de evaluaciones"
+    },
+    {
+      "name": "Dashboard del docente",
+      "short_name": "Dashboard",
+      "url": "/dashboard/",
+      "description": "Dashboard institucional"
+    }
+  ]
+}

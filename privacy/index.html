@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07111d" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="Política de privacidad de evaluacosas TLP — qué datos recolectamos, dónde y por cuánto tiempo.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <title>Política de privacidad · evaluacosas TLP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800;900&display=swap">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/ayuda/ayuda.css">
+</head>
+<body class="ayuda-body">
+  <a class="skip-to-content" href="#main">Saltar al contenido</a>
+
+  <nav class="globalnav" aria-label="Navegación principal">
+    <div class="globalnav-inner">
+      <a class="globalnav-brand" href="/">
+        <span class="globalnav-mark" aria-hidden="true">✺</span>
+        <span class="globalnav-name">evaluacosas <span class="globalnav-sub">TLP</span></span>
+      </a>
+      <ul class="globalnav-links" role="list">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/ayuda/">Ayuda</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="ayuda-main" id="main">
+    <article class="ayuda-article">
+      <a class="ayuda-back" href="/">← Volver al inicio</a>
+      <h1>🛡️ Política de privacidad</h1>
+      <p><strong>Última actualización:</strong> 2026-05-06</p>
+
+      <h2>Resumen for-dummies</h2>
+      <ul>
+        <li>Recolectamos solo los datos que necesitamos para que el docente pueda calificar tu entrega.</li>
+        <li>No usamos cookies de marketing, ni tracking de terceros, ni Google Analytics.</li>
+        <li>Tus datos se almacenan en infraestructura institucional de TLP.</li>
+        <li>Solo docentes autorizados pueden ver tus entregas.</li>
+        <li>Tus datos pueden ser borrados a pedido.</li>
+      </ul>
+
+      <h2>Qué datos recolectamos</h2>
+      <h3>Cuando hacés una evaluación:</h3>
+      <ul>
+        <li><strong>Tu nombre completo</strong> (4 campos): para identificarte y registrar tu nota.</li>
+        <li><strong>Email</strong>: cuando lo provees voluntariamente.</li>
+        <li><strong>Cédula</strong> (opcional): solo si activás el lookup TSE.</li>
+        <li><strong>Tus respuestas</strong>: el contenido que respondés en cada ítem.</li>
+        <li><strong>Metadata técnica</strong>: timestamp, navegador, hash de tu sesión local.</li>
+      </ul>
+
+      <h3>Cuando un docente entra al dashboard:</h3>
+      <ul>
+        <li><strong>Email institucional</strong>: <code>@thelaunchpadtlp.education</code>.</li>
+        <li><strong>Nombre y foto</strong> de Google.</li>
+        <li><strong>Token de sesión</strong> de corta duración (1 hora).</li>
+      </ul>
+
+      <h2>Dónde se guardan tus datos</h2>
+      <p>Tu entrega se almacena con <strong>redundancia para no perderse</strong>:</p>
+      <ol>
+        <li><strong>Google Cloud Storage</strong> (us-central1, EE. UU.) — proyecto institucional TLP.</li>
+        <li><strong>Firestore</strong> (us-central1) — base de datos NoSQL.</li>
+        <li><strong>GitHub privado</strong> (espejo cifrado) — repo institucional.</li>
+        <li><strong>Supabase</strong> (us-east-1) — base de datos relacional Postgres.</li>
+        <li><strong>Linear</strong> (workspace privado TLP) — tracking de revisión docente.</li>
+      </ol>
+
+      <h2>Por cuánto tiempo</h2>
+      <ul>
+        <li><strong>Entregas activas</strong>: durante el ciclo lectivo en curso.</li>
+        <li><strong>Archivo histórico</strong>: hasta 2 años después del cierre del curso, para auditoría académica.</li>
+        <li><strong>Logs técnicos</strong>: hasta 30 días.</li>
+        <li><strong>Cache de TSE</strong>: 24 horas máximo.</li>
+      </ul>
+
+      <h2>Quién puede ver tus datos</h2>
+      <ul>
+        <li>El <strong>docente del curso</strong> con cuenta institucional autorizada.</li>
+        <li>El <strong>administrador del Workspace TLP</strong> (joaquin.munoz@) por necesidad operacional.</li>
+        <li><strong>Nadie más</strong>. No vendemos ni compartimos tus datos.</li>
+      </ul>
+
+      <h2>Servicios de terceros</h2>
+      <ul>
+        <li><strong>Google Sign-In</strong>: para autenticar al docente. Sujeto a la <a href="https://policies.google.com/privacy">política de privacidad de Google</a>.</li>
+        <li><strong>Google Cloud + Firestore</strong>: almacenamiento bajo el contrato Workspace TLP.</li>
+        <li><strong>TSE de Costa Rica</strong> (a través de gometa.org o ApifyCR): solo si activás el lookup voluntario.</li>
+        <li><strong>Gemini</strong>: solo cuando un docente pide calificación con IA. Se envía la entrega anónimamente al modelo. Google no entrena modelos con datos de Workspace.</li>
+      </ul>
+
+      <h2>Tus derechos</h2>
+      <p>Podés pedir:</p>
+      <ul>
+        <li><strong>Acceder</strong> a una copia de tus datos.</li>
+        <li><strong>Corregir</strong> datos incorrectos.</li>
+        <li><strong>Borrar</strong> tu entrega (después de calificada y registrada).</li>
+        <li><strong>Exportar</strong> tu entrega como JSON.</li>
+      </ul>
+      <p>Escribí a <a href="mailto:joaquin.munoz@thelaunchpadtlp.education"><strong>joaquin.munoz@thelaunchpadtlp.education</strong></a> y respondemos en máximo 7 días.</p>
+
+      <h2>Seguridad</h2>
+      <ul>
+        <li>HTTPS en todas las páginas.</li>
+        <li>HSTS Preload activado.</li>
+        <li>OAuth 2.0 con dominio restringido para docentes.</li>
+        <li>No se almacenan tokens en localStorage del navegador.</li>
+        <li>Auditoría de cada acceso al dashboard.</li>
+      </ul>
+
+      <h2>Cambios a esta política</h2>
+      <p>Si hay cambios materiales, los publicamos en esta página y notificamos al Workspace TLP.</p>
+
+      <h2>Contacto</h2>
+      <p><strong>Responsable de datos</strong>: Joaquín Antonio Muñoz Ortiz, fundador de The Launch Pad — TLP.</p>
+      <p><strong>Email</strong>: <a href="mailto:joaquin.munoz@thelaunchpadtlp.education">joaquin.munoz@thelaunchpadtlp.education</a></p>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <p class="footer-tech">The Launch Pad — TLP · Centro Educativo GEA, acreditado ante el MEP.</p>
+    </div>
+  </footer>
+</body>
+</html>
