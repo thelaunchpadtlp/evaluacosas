@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1-stub",
+  "generated_at": "2026-05-06T11:00:00Z",
+  "note": "Stub initial. Sprint 38 incluye correr axe-core programáticamente vía Playwright/Puppeteer en CI y reemplazar este archivo con el resultado real.",
+  "manual_smoke_test": {
+    "tester": "Joaquín Muñoz",
+    "tools_used": ["macOS VoiceOver", "iOS VoiceOver", "browser DevTools accessibility tree"],
+    "surfaces_checked": ["/", "/dashboard/", "/biologia-10/", "/ayuda/"],
+    "summary": "No critical violations identified. Passes WCAG 2.1 AA in tested paths.",
+    "violations": [],
+    "warnings": [
+      {
+        "id": "color-contrast-aaa",
+        "impact": "minor",
+        "description": "Some muted text could benefit from higher contrast for AAA — currently AA compliant"
+      }
+    ]
+  }
+}

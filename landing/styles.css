@@ -56,6 +56,13 @@
   --safe-left: env(safe-area-inset-left, 0px);
 }
 
+/* font-display: swap para evitar FOIT (flash of invisible text) */
+@font-face {
+  font-family: "Inter-Local-Fallback";
+  src: local("Inter"), local("system-ui");
+  font-display: swap;
+}
+
 @media (prefers-color-scheme: light) {
   :root.allow-light {
     --bg: #f4f6fb;

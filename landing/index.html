@@ -13,6 +13,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="evaluacosas TLP">
   <meta name="application-name" content="evaluacosas TLP">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://accounts.google.com https://*.googleapis.com https://*.run.app https://generativelanguage.googleapis.com; frame-src https://accounts.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
+  <meta http-equiv="X-DNS-Prefetch-Control" content="off">
+  <meta http-equiv="X-Permitted-Cross-Domain-Policies" content="none">
   <meta property="og:type" content="website">
   <meta property="og:title" content="evaluacosas — The Launch Pad TLP">
   <meta property="og:description" content="Central de instrumentos y actividades de evaluación de The Launch Pad — TLP / Centro Educativo GEA.">
@@ -59,9 +62,11 @@
   <link rel="mask-icon" href="/favicon.svg" color="#39d98a">
   <link rel="apple-touch-icon" href="/favicon.svg">
   <title>evaluacosas — The Launch Pad TLP</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800;900&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800;900&display=swap" crossorigin="anonymous">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="/device-view.css">
 </head>
@@ -300,5 +305,13 @@
 
   <script src="app.js" defer></script>
   <script src="/device-view.js" defer></script>
+  <script>
+    // PWA Service Worker registration (offline-first, cache critical assets)
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

@@ -16,6 +16,7 @@ import { OAuth2Client } from "google-auth-library";
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));
+app.disable("x-powered-by"); // Sprint 36: no info leak
 
 // ============================================================
 // SPRINT 32 — Audit log + rate limiting middleware
@@ -64,12 +65,60 @@ function auditLog(req, eventName, extra = {}) {
     method: req.method,
     path: req.path,
     ua: (req.headers["user-agent"] || "").slice(0, 120),
+    request_id: req.headers["x-cloud-trace-context"] || req.headers["x-request-id"] || "",
     ...extra
   };
   console.log("AUDIT", JSON.stringify(entry));
+  // Persist to Firestore async (best-effort)
+  persistAudit(entry).catch(() => {});
 }
 // Rate limit global generoso para todo
 app.use(rateLimitMiddleware(RATE_LIMIT_MAX_PER_IP));
+
+// ────────────────────────────────────────────────────────────
+// Sprint 36: per-email rate limit + failed auth lockout
+// ────────────────────────────────────────────────────────────
+const _emailBuckets = new Map(); // email → {resetAt, count}
+const _failedAttempts = new Map(); // email|ip → {count, lockUntil}
+const RATE_LIMIT_PER_EMAIL = 60; // 60 admin reqs/min per teacher
+const LOCKOUT_THRESHOLD = 5; // 5 failed attempts
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 min lockout
+
+function rateLimitByEmail(email) {
+  if (!email) return true;
+  const now = Date.now();
+  const bucket = _emailBuckets.get(email) || { resetAt: now + RATE_LIMIT_WINDOW_MS, count: 0 };
+  if (now > bucket.resetAt) { bucket.resetAt = now + RATE_LIMIT_WINDOW_MS; bucket.count = 0; }
+  bucket.count += 1;
+  _emailBuckets.set(email, bucket);
+  return bucket.count <= RATE_LIMIT_PER_EMAIL;
+}
+
+function recordFailedAttempt(key) {
+  const now = Date.now();
+  const r = _failedAttempts.get(key) || { count: 0, lockUntil: 0 };
+  r.count += 1;
+  if (r.count >= LOCKOUT_THRESHOLD) r.lockUntil = now + LOCKOUT_DURATION_MS;
+  _failedAttempts.set(key, r);
+}
+function isLockedOut(key) {
+  const r = _failedAttempts.get(key);
+  if (!r) return false;
+  if (Date.now() > r.lockUntil) { _failedAttempts.delete(key); return false; }
+  return r.lockUntil > Date.now();
+}
+function clearFailedAttempts(key) { _failedAttempts.delete(key); }
+
+// Audit log persistente a Firestore (best-effort, no bloquea)
+async function persistAudit(entry) {
+  try {
+    const fs = (await import("@google-cloud/firestore")).Firestore;
+    if (!global.__auditFs) global.__auditFs = new fs();
+    await global.__auditFs.collection("audit_log").add({ ...entry, _ts: new Date() });
+  } catch (e) {
+    // Solo log a stdout si Firestore falla (no bloquear el request)
+  }
+}
 
 const ORIGIN_ALLOWLIST = (process.env.ALLOWED_ORIGINS || "").split(",").map((s) => s.trim()).filter(Boolean);
 const BUCKET = process.env.STORAGE_BUCKET || "evaluacosas-entregas";
@@ -536,6 +585,12 @@ function sanitize(s) {
 // Sprint 32: rate limiting estricto + audit log de cada acceso.
 async function requireAdmin(req, res, next) {
   setCors(res, req.headers.origin || "");
+  const ip = getClientIp(req);
+  // Lockout check primero (por IP) — evita ataques de fuerza bruta
+  if (isLockedOut(ip)) {
+    auditLog(req, "admin_locked_out_ip");
+    return res.status(429).json({ error: "locked_out", retry_after_seconds: 900 });
+  }
   // Rate limit estricto admin (200 req/min IP)
   if (!rateLimitCheck(req, RATE_LIMIT_MAX_ADMIN)) {
     auditLog(req, "admin_rate_limited");
@@ -550,30 +605,40 @@ async function requireAdmin(req, res, next) {
     const token = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
     if (!token) {
       auditLog(req, "admin_missing_token");
+      recordFailedAttempt(ip);
       return res.status(401).json({ error: "missing_token" });
     }
     const ticket = await oauthClient.verifyIdToken({ idToken: token, audience: ADMIN_OAUTH_CLIENT_ID });
     const payload = ticket.getPayload();
     if (!payload?.email_verified) {
       auditLog(req, "admin_email_not_verified", { email: payload?.email });
+      recordFailedAttempt(ip);
       return res.status(403).json({ error: "email_not_verified" });
     }
     const hd = payload.hd || (payload.email || "").split("@").pop();
     if (!ALLOWED_HD.includes(hd)) {
       auditLog(req, "admin_domain_blocked", { email: payload.email, hd });
+      recordFailedAttempt(ip);
       return res.status(403).json({ error: "domain_not_allowed", hd });
     }
-    // Verificación adicional: ALLOWED_TEACHERS (allowlist explícita)
     const allowedTeachers = (process.env.ALLOWED_TEACHERS || "").split(",").map(s => s.trim()).filter(Boolean);
     if (allowedTeachers.length && !allowedTeachers.includes(payload.email)) {
       auditLog(req, "admin_email_not_authorized", { email: payload.email });
+      recordFailedAttempt(ip);
       return res.status(403).json({ error: "not_a_teacher" });
     }
+    // Per-email rate limit (Sprint 36)
+    if (!rateLimitByEmail(payload.email)) {
+      auditLog(req, "admin_rate_limited_email", { email: payload.email });
+      return res.status(429).json({ error: "rate_limited_email" });
+    }
     req.admin = { email: payload.email, name: payload.name, picture: payload.picture, hd };
+    clearFailedAttempts(ip); // auth exitoso → resetea lockout counter
     auditLog(req, "admin_auth_ok", { email: payload.email });
     next();
   } catch (err) {
     auditLog(req, "admin_auth_error", { msg: String(err?.message || err).slice(0, 120) });
+    recordFailedAttempt(ip);
     return res.status(401).json({ error: "auth_failed", detail: String(err?.message || err) });
   }
 }
@@ -615,12 +680,46 @@ app.get("/admin/submits", requireAdmin, async (req, res) => {
 // GET /admin/submit/:docId — detalle de un submit con respuestas completas
 app.get("/admin/submit/:docId", requireAdmin, async (req, res) => {
   try {
-    const docId = String(req.params.docId);
+    // Sprint 36: sanitización path traversal (solo alfanumerico+_-)
+    const rawDocId = String(req.params.docId);
+    if (!/^[A-Za-z0-9_-]{1,128}$/.test(rawDocId)) {
+      auditLog(req, "admin_invalid_docid", { docId: rawDocId.slice(0, 30) });
+      return res.status(400).json({ error: "invalid_docid" });
+    }
+    const docId = rawDocId;
     const doc = await firestore.collection(FIRESTORE_COLLECTION).doc(docId).get();
     if (!doc.exists) return res.status(404).json({ error: "not_found" });
     res.json({ ok: true, admin: req.admin, doc: doc.data() });
   } catch (err) {
     res.status(500).json({ error: "fetch_failed", detail: String(err?.message || err) });
+  }
+});
+
+// GET /data-export?email=...&token=... — Sprint 36 GDPR Art. 20 portability
+// El usuario puede pedir su propio export con email + token de verificación
+app.get("/data-export", async (req, res) => {
+  setCors(res, req.headers.origin || "");
+  try {
+    const email = String(req.query.email || "").trim().toLowerCase();
+    const token = String(req.query.token || "").trim();
+    if (!email || !token) {
+      return res.status(400).json({ error: "missing_params", hint: "Necesitás email + token. Pedí token a joaquin.munoz@thelaunchpadtlp.education" });
+    }
+    // Verify token (HMAC-SHA256 of email + secret) to prevent enumeration
+    const crypto = await import("node:crypto");
+    const expected = crypto.createHmac("sha256", process.env.DSAR_SECRET || "set-DSAR_SECRET-env").update(email).digest("hex").slice(0, 32);
+    if (token !== expected) {
+      auditLog(req, "data_export_bad_token", { email });
+      return res.status(403).json({ error: "invalid_token" });
+    }
+    // Snapshot all submits with this email
+    const snap = await firestore.collection(FIRESTORE_COLLECTION).where("payload.student.email", "==", email).get();
+    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    auditLog(req, "data_export_ok", { email, count: docs.length });
+    res.setHeader("Content-Disposition", `attachment; filename="evaluacosas-export-${email}.json"`);
+    res.json({ ok: true, schema_version: "1.0", exported_at: new Date().toISOString(), email, count: docs.length, submissions: docs });
+  } catch (err) {
+    res.status(500).json({ error: "export_failed", detail: String(err?.message || err) });
   }
 });
 
