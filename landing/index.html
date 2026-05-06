@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07111d">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="Catálogo de evaluaciones, prácticas y tareas de The Launch Pad — TLP / Centro Educativo GEA. Instrumentos académicos serios servidos como sitios estáticos.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="evaluacosas TLP">
+  <title>evaluacosas — The Launch Pad TLP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800;900&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-to-content" href="#catalog">Saltar al catálogo</a>
+  <canvas id="bio-canvas" aria-hidden="true"></canvas>
+
+  <header class="hero" id="hero">
+    <div class="hero-inner">
+      <div class="brand-block">
+        <p class="brand-line brand-primary" id="brand-institution">The Launch Pad — TLP</p>
+        <p class="brand-line brand-secondary" id="brand-long">Centro Educativo GEA, acreditado ante el MEP</p>
+        <p class="brand-line brand-tertiary" id="brand-program">Curso personalizado e individualizado por tutorías</p>
+      </div>
+      <h1 class="hero-title">
+        <span class="hero-title-word" data-delay="0">evalua</span><span class="hero-title-word hero-title-accent" data-delay="120">cosas</span>
+      </h1>
+      <p class="hero-tagline" id="hero-tagline">Evaluaciones, prácticas y tareas — instrumentos académicos serios.</p>
+      <div class="hero-meta">
+        <div class="hero-meta-item">
+          <span class="hero-meta-label">Política de calificación</span>
+          <strong>1 punto · binario · sin parciales</strong>
+        </div>
+        <div class="hero-meta-item">
+          <span class="hero-meta-label">Línea de aprobación TLP</span>
+          <strong>80 %</strong>
+        </div>
+        <div class="hero-meta-item">
+          <span class="hero-meta-label">Skill aplicado</span>
+          <strong>TLP / Piqui · Parte I + Parte II</strong>
+        </div>
+      </div>
+      <div class="hero-arrow" aria-hidden="true">↓</div>
+    </div>
+  </header>
+
+  <main class="shell" id="catalog">
+    <section class="catalog-controls" aria-label="Controles del catálogo">
+      <div class="catalog-search">
+        <span class="catalog-search-icon" aria-hidden="true">⌕</span>
+        <input id="search-input" type="search" placeholder="Buscar por nombre, materia, grado, etiqueta…" autocomplete="off">
+      </div>
+      <div class="catalog-filters" role="toolbar" aria-label="Filtros">
+        <button type="button" class="filter-btn is-active" data-filter="all">Todos</button>
+        <button type="button" class="filter-btn" data-filter="Biología">Biología</button>
+        <button type="button" class="filter-btn" data-filter="live">En vivo</button>
+      </div>
+      <p class="catalog-count" id="catalog-count" aria-live="polite">—</p>
+    </section>
+
+    <section class="catalog-grid" id="catalog-grid" aria-label="Catálogo de evaluaciones"></section>
+
+    <section class="catalog-empty" id="catalog-empty" hidden>
+      <p>No hay resultados para tu búsqueda. Probá con otra palabra clave.</p>
+    </section>
+  </main>
+
+  <section class="info-section" aria-labelledby="why-title">
+    <div class="info-inner">
+      <h2 id="why-title">Cómo funciona</h2>
+      <ol class="info-steps">
+        <li>
+          <span class="info-step-num">1</span>
+          <div>
+            <h3>Elegís el examen</h3>
+            <p>Cada card del catálogo lleva a un instrumento autocontenido en tu navegador. Andan en iPhone, iPad, Mac, Android, Chrome, Safari, Firefox.</p>
+          </div>
+        </li>
+        <li>
+          <span class="info-step-num">2</span>
+          <div>
+            <h3>Resolvés con guías visibles</h3>
+            <p>Cada pregunta lleva sus criterios <em>Debe incluir</em> y <em>No hacer</em>. Hay autosave local, indicador de progreso, mapa flotante y atajos de teclado.</p>
+          </div>
+        </li>
+        <li>
+          <span class="info-step-num">3</span>
+          <div>
+            <h3>Entregás con pre-calificación</h3>
+            <p>Al finalizar bajás un archivo <code>.json</code> con tus respuestas, una pre-calificación heurística (sin IA, determinística) y el blueprint completo. Lo subís a Google Classroom y listo.</p>
+          </div>
+        </li>
+        <li>
+          <span class="info-step-num">4</span>
+          <div>
+            <h3>El docente califica con LLM (opcional)</h3>
+            <p>Un click copia un prompt-template basado en la Parte II del skill TLP/Piqui. El profesor pega en Claude / Gemini / ChatGPT / Perplexity / Codex / Manus y obtiene calificación trazable y didáctica.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <p class="footer-brand">
+        <strong>The Launch Pad — TLP</strong> · Centro Educativo GEA, acreditado ante el MEP · Curso personalizado e individualizado por tutorías
+      </p>
+      <p class="footer-tech">
+        Hospedado como sitio estático en GitHub Pages. Sin tracking, sin cookies, sin servidores intermedios. Tus respuestas viajan solo cuando vos descargás el JSON. Código abierto en <a href="https://github.com/thelaunchpadtlp/evaluacosas" target="_blank" rel="noopener">github.com/thelaunchpadtlp/evaluacosas</a>.
+      </p>
+    </div>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

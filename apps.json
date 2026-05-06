@@ -1,0 +1,41 @@
+{
+  "schema": "tlp.evaluacosas.catalog",
+  "schemaVersion": "1.0",
+  "institution": "The Launch Pad — TLP",
+  "institutionLong": "Centro Educativo GEA, acreditado ante el MEP",
+  "program": "Curso personalizado e individualizado por tutorías",
+  "tagline": "Evaluaciones, prácticas y tareas — instrumentos académicos serios.",
+  "apps": [
+    {
+      "slug": "biologia-10",
+      "url": "biologia-10/",
+      "title": "Tarea Integral Avanzada — Biología 10",
+      "subtitle": "Procesos de la vida y sus entornos · Décimo Año",
+      "description": "Instrumento de rango de examen con 80 preguntas que cubren los 3 ejes del programa MEP de Biología 10: seres vivos en entornos saludables, genética y biotecnología, origen y evolución de la vida.",
+      "subject": "Biología",
+      "grade": "Décimo / 10°",
+      "category": "Evaluación sumativa",
+      "modality": "Híbrida (texto didáctico + ítems exigentes)",
+      "questions": 80,
+      "sections": 3,
+      "points": 80,
+      "passingThreshold": 80,
+      "duration": "180–240 min",
+      "source": "Programa MEP de Biología 10 (3 ejes)",
+      "status": "live",
+      "version": "skill-v2 + cloudmandate-A",
+      "schemaVersion": "2.2",
+      "accent": "#39d98a",
+      "accent2": "#67d1ff",
+      "tags": ["MEP", "TLP", "Biología", "skill-v2", "binaria", "tarea de rango de examen"],
+      "highlights": [
+        "80 ítems con criterios trazables (Debe incluir / No hacer)",
+        "Niveles cognitivos por pregunta + balance del instrumento",
+        "Anti-skip: bloquea finalizar hasta que todas las obligatorias estén completas",
+        "Pre-calificación heurística determinística (sin IA)",
+        "Share-link para calificación con LLM siguiendo skill TLP/Piqui Parte II",
+        "Vista docente imprimible + autosave local + cross-device"
+      ]
+    }
+  ]
+}
