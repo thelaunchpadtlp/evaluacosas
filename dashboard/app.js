@@ -88,17 +88,356 @@
     document.querySelector("#dash-content").hidden = false;
     const acc = document.querySelector("#dash-account");
     if (acc && admin) {
-      acc.innerHTML = `<img src="${admin.picture || ""}" alt=""><span>${escapeHtml(admin.name || admin.email)}</span><button class="signout">Salir</button>`;
-      acc.querySelector(".signout").addEventListener("click", signOut);
+      acc.innerHTML = `
+        <button class="dash-help-btn" type="button" id="dash-help-btn" title="Ayuda y guía de uso (atajo: ?)" aria-label="Abrir ayuda">
+          <span aria-hidden="true">?</span>
+        </button>
+        <div class="dash-account-info">
+          <img src="${admin.picture || ""}" alt="" />
+          <span class="dash-account-name">${escapeHtml(admin.name || admin.email)}</span>
+        </div>
+        <details class="dash-account-menu">
+          <summary aria-label="Opciones de cuenta">⋯</summary>
+          <div class="dash-account-menu-body">
+            <button type="button" class="dash-menu-item" id="dash-switch-user">
+              <span aria-hidden="true">🔁</span> Cambiar de cuenta
+            </button>
+            <button type="button" class="dash-menu-item" id="dash-tour-replay">
+              <span aria-hidden="true">🎓</span> Ver tour interactivo
+            </button>
+            <hr/>
+            <button type="button" class="dash-menu-item dash-menu-danger" id="dash-signout">
+              <span aria-hidden="true">↩</span> Salir
+            </button>
+          </div>
+        </details>
+      `;
+      document.querySelector("#dash-signout")?.addEventListener("click", signOut);
+      document.querySelector("#dash-switch-user")?.addEventListener("click", switchUser);
+      document.querySelector("#dash-help-btn")?.addEventListener("click", toggleHelpDrawer);
+      document.querySelector("#dash-tour-replay")?.addEventListener("click", () => {
+        try { localStorage.removeItem("tlp.dash.tourSeen"); } catch {}
+        startTour();
+      });
     }
     showTipsIfFirstTime();
+    mountHelpDrawer();
     loadSubmits();
+    // First-login interactive tour
+    const tourSeen = (() => { try { return localStorage.getItem("tlp.dash.tourSeen") === "1"; } catch { return false; } })();
+    if (!tourSeen) setTimeout(startTour, 800);
   }
 
   function signOut() {
-    google.accounts.id.disableAutoSelect();
+    try { google.accounts.id.disableAutoSelect(); } catch {}
     idToken = null; admin = null;
+    try { localStorage.removeItem("tlp.dash.lastLogin"); } catch {}
     location.reload();
+  }
+
+  function switchUser() {
+    // Disable auto-select then revoke + reload con prompt fresh para que aparezca account chooser
+    try {
+      google.accounts.id.disableAutoSelect();
+      if (admin?.email) {
+        google.accounts.id.revoke(admin.email, () => {
+          idToken = null; admin = null;
+          location.reload();
+        });
+      } else {
+        idToken = null; admin = null;
+        location.reload();
+      }
+    } catch {
+      location.reload();
+    }
+  }
+
+  // ============================================================
+  // HELP DRAWER + INTERACTIVE TOUR
+  // ============================================================
+  function mountHelpDrawer() {
+    if (document.querySelector("#dash-help-drawer")) return;
+    const drawer = document.createElement("aside");
+    drawer.id = "dash-help-drawer";
+    drawer.className = "dash-help-drawer";
+    drawer.setAttribute("aria-label", "Ayuda y guía de uso del dashboard");
+    drawer.hidden = true;
+    drawer.innerHTML = `
+      <header class="dash-help-head">
+        <div>
+          <p class="dash-help-eyebrow">Centro de ayuda</p>
+          <h2>Cómo usar el dashboard</h2>
+        </div>
+        <button type="button" class="dash-help-close" id="dash-help-close" aria-label="Cerrar ayuda">×</button>
+      </header>
+      <div class="dash-help-body">
+        <nav class="dash-help-tabs" role="tablist">
+          <button class="dash-help-tab is-active" data-tab="quick" role="tab" type="button">Inicio rápido</button>
+          <button class="dash-help-tab" data-tab="search" role="tab" type="button">Búsqueda</button>
+          <button class="dash-help-tab" data-tab="grading" role="tab" type="button">Calificación</button>
+          <button class="dash-help-tab" data-tab="shortcuts" role="tab" type="button">Atajos</button>
+          <button class="dash-help-tab" data-tab="faq" role="tab" type="button">FAQ</button>
+          <button class="dash-help-tab" data-tab="glossary" role="tab" type="button">Glosario</button>
+        </nav>
+
+        <section class="dash-help-panel is-active" data-panel="quick">
+          <h3>👋 ¡Bienvenido al dashboard!</h3>
+          <p>Esta es la consola institucional para revisar entregas. Acá tenés todo lo que hace en orden:</p>
+          <ol class="dash-help-steps">
+            <li><strong>Refrescá</strong> la lista (botón ↻ Refrescar o tecla <kbd>r</kbd>) cuando esperés entregas nuevas.</li>
+            <li><strong>Buscá</strong> con la barra de arriba. Probá <code>score:&gt;80</code>, <code>passing:no</code>, o un nombre.</li>
+            <li><strong>Click en una fila</strong> para ver el detalle completo de la entrega.</li>
+            <li><strong>Calificá</strong> con criterio binario TLP (1 punto por ítem).</li>
+            <li><strong>Descargá</strong> el JSON si querés respaldo.</li>
+          </ol>
+          <button type="button" class="dash-help-cta" id="dash-tour-from-help">
+            <span aria-hidden="true">🎓</span> Hacer tour interactivo guiado
+          </button>
+        </section>
+
+        <section class="dash-help-panel" data-panel="search">
+          <h3>🔍 Cómo buscar</h3>
+          <p>La búsqueda combina <strong>operadores</strong> + <strong>texto libre</strong> + <strong>IA opcional</strong>.</p>
+          <h4>Operadores</h4>
+          <ul class="dash-help-list">
+            <li><code>score:&gt;80</code> — entregas con score mayor a 80%</li>
+            <li><code>score:&lt;50</code> — score menor a 50%</li>
+            <li><code>score:60..80</code> — score entre 60 y 80%</li>
+            <li><code>app:biologia</code> — solo de la app biología</li>
+            <li><code>passing:yes</code> / <code>passing:no</code> — pasa/no pasa el 80%</li>
+            <li><code>student:juan</code> — nombre contiene "juan"</li>
+            <li><code>email:@anyssa</code> — email contiene</li>
+            <li><code>section:7B</code> — sección</li>
+            <li><code>after:2026-05-01</code> — entregas después de fecha</li>
+            <li><code>before:2026-05-06</code> — entregas antes</li>
+          </ul>
+          <p>Combiná: <code>app:biologia score:&gt;80 passing:yes after:2026-05-01</code>.</p>
+          <h4>Texto libre</h4>
+          <p>Escribí cualquier palabra. Hace fuzzy match (tolera typos), ranquea por relevancia y resalta los matches.</p>
+          <h4>IA ✨</h4>
+          <p>Cuando tu query es lenguaje natural (ej. <em>"entregas que reprobaron de la semana pasada"</em>), pulsá <strong>✨ IA</strong> o <kbd>⌘+Enter</kbd>. Gemini Flash traduce a filtro estructurado. Gratis (free tier 1500/día).</p>
+        </section>
+
+        <section class="dash-help-panel" data-panel="grading">
+          <h3>✅ Cómo calificar</h3>
+          <h4>Pre-calificación heurística</h4>
+          <p>Cálculo automático <strong>sin IA</strong> que ya viene en cada entrega:</p>
+          <ul class="dash-help-list">
+            <li>Verbos accionables presentes (lo que <em>debe incluir</em>)</li>
+            <li>Anti-patterns ausentes (lo que <em>no debe incluir</em>)</li>
+            <li>Cantidad mínima de elementos requeridos</li>
+            <li>Score binario por ítem (1 pto si pasa todos los criterios, 0 si no)</li>
+          </ul>
+          <p>El total porcentual aparece en la columna <strong>Pre-grade</strong>. La columna <strong>Pasa 80%</strong> dice ✓ Sí o ✗ No.</p>
+          <h4>Calificación con Gemini (opcional)</h4>
+          <p>Si querés segunda opinión, abrí el detalle y pulsá <strong>Calificar con Gemini</strong>. Pasa la entrega + el skill TLP/Piqui Parte II al modelo. Devuelve calificación por ítem + justificación + sugerencias.</p>
+          <h4>Tu criterio docente final</h4>
+          <p>La pre-calificación y el Gemini son <strong>guías</strong>. La nota final la definís vos. Registrala en tu sistema de gestión académica habitual (Classroom, planilla, etc.).</p>
+        </section>
+
+        <section class="dash-help-panel" data-panel="shortcuts">
+          <h3>⌨️ Atajos de teclado</h3>
+          <table class="dash-help-table">
+            <tr><td><kbd>/</kbd></td><td>Enfocar búsqueda</td></tr>
+            <tr><td><kbd>r</kbd></td><td>Refrescar lista</td></tr>
+            <tr><td><kbd>?</kbd></td><td>Abrir esta ayuda</td></tr>
+            <tr><td><kbd>Esc</kbd></td><td>Cerrar modal o esta ayuda</td></tr>
+            <tr><td><kbd>↓</kbd> <kbd>↑</kbd></td><td>Navegar filas de la tabla</td></tr>
+            <tr><td><kbd>Enter</kbd></td><td>Abrir entrega seleccionada</td></tr>
+            <tr><td><kbd>⌘</kbd>+<kbd>Enter</kbd></td><td>Buscar con IA ✨</td></tr>
+            <tr><td><kbd>⇧</kbd>+<kbd>D</kbd></td><td>Toggle vista de dispositivo</td></tr>
+          </table>
+        </section>
+
+        <section class="dash-help-panel" data-panel="faq">
+          <h3>❓ Preguntas frecuentes</h3>
+          <details>
+            <summary>¿Por qué no veo todas las entregas que esperaba?</summary>
+            <p>El backend devuelve las últimas 200. Si necesitás más antiguas, cambiamos el límite del fetch. Avisanos.</p>
+          </details>
+          <details>
+            <summary>¿Puedo agregar otro docente?</summary>
+            <p>Sí. Pedile al admin (joaquin.munoz@) que agregue su email al env var <code>ALLOWED_TEACHERS</code> en Cloud Run. Toma 30 segundos.</p>
+          </details>
+          <details>
+            <summary>¿Cuánto duran las sesiones?</summary>
+            <p>1 hora máx. Después tenés que volver a hacer Sign-in. Esto es por seguridad y no se puede extender más.</p>
+          </details>
+          <details>
+            <summary>¿La IA se equivoca a veces al traducir mi query?</summary>
+            <p>Gemini Flash es muy bueno pero no perfecto. Si el filtro IA queda raro, pulsá la "×" del chip 🤖 IA activa para volver al heurístico.</p>
+          </details>
+          <details>
+            <summary>¿Dónde se guardan las entregas?</summary>
+            <p>5 lugares redundantes: Cloud Storage, Firestore, GitHub privado, Supabase, Linear. Si uno cae, los otros 4 quedan. Más detalle en <a href="/privacy/">privacy</a>.</p>
+          </details>
+        </section>
+
+        <section class="dash-help-panel" data-panel="glossary">
+          <h3>📖 Glosario</h3>
+          <dl class="dash-help-glossary">
+            <dt>Pre-calificación heurística</dt>
+            <dd>Cálculo automático determinístico (sin IA) basado en criterios binarios MEP por ítem.</dd>
+            <dt>Score binario</dt>
+            <dd>Cada ítem vale 1 punto si pasa todos los criterios "debe incluir" + ningún "no hacer". 0 si no.</dd>
+            <dt>Línea de aprobación TLP</dt>
+            <dd>80% del score total. Por debajo = ✗ No pasa. Por encima = ✓ Sí pasa.</dd>
+            <dt>Skill TLP/Piqui</dt>
+            <dd>Documento maestro que define los criterios de evaluación de cada ítem. Parte I = diseño, Parte II = grading, Parte III = QA.</dd>
+            <dt>Sink</dt>
+            <dd>Cada destino donde se guarda una entrega. Tenemos 5 (GCS, Firestore, GitHub, Supabase, Linear).</dd>
+            <dt>Idempotente</dt>
+            <dd>Si un estudiante reenvía la misma entrega, no se duplica en ningún sink.</dd>
+            <dt>Hd claim</dt>
+            <dd>"Hosted domain" en el JWT de Google. Verifica que el email es @thelaunchpadtlp.education.</dd>
+          </dl>
+        </section>
+      </div>
+      <footer class="dash-help-foot">
+        <span>Más info: <a href="/ayuda/dashboard/" target="_blank" rel="noopener">centro de ayuda completo ↗</a></span>
+        <span class="dash-help-version">v1.0</span>
+      </footer>
+    `;
+    document.body.appendChild(drawer);
+
+    // Wire interactions
+    drawer.querySelector("#dash-help-close")?.addEventListener("click", closeHelpDrawer);
+    drawer.querySelector("#dash-tour-from-help")?.addEventListener("click", () => { closeHelpDrawer(); startTour(); });
+    drawer.querySelectorAll(".dash-help-tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        const target = tab.dataset.tab;
+        drawer.querySelectorAll(".dash-help-tab").forEach(t => t.classList.toggle("is-active", t === tab));
+        drawer.querySelectorAll(".dash-help-panel").forEach(p => p.classList.toggle("is-active", p.dataset.panel === target));
+      });
+    });
+
+    // ESC to close, ? to toggle
+    document.addEventListener("keydown", (e) => {
+      const inField = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName);
+      if (e.key === "Escape" && !drawer.hidden) closeHelpDrawer();
+      if (e.key === "?" && !inField && !e.shiftKey === false) {
+        e.preventDefault();
+        toggleHelpDrawer();
+      }
+    });
+  }
+
+  function toggleHelpDrawer() {
+    const drawer = document.querySelector("#dash-help-drawer");
+    if (!drawer) return;
+    if (drawer.hidden) {
+      drawer.hidden = false;
+      requestAnimationFrame(() => drawer.classList.add("is-open"));
+    } else {
+      closeHelpDrawer();
+    }
+  }
+  function closeHelpDrawer() {
+    const drawer = document.querySelector("#dash-help-drawer");
+    if (!drawer) return;
+    drawer.classList.remove("is-open");
+    setTimeout(() => { drawer.hidden = true; }, 280);
+  }
+
+  // ============================================================
+  // INTERACTIVE TOUR — spotlight overlay con steps
+  // ============================================================
+  const TOUR_STEPS = [
+    { selector: "#dash-account", title: "Tu cuenta", body: "Acá ves quién está logueado. Click en ⋯ para cambiar de cuenta o salir.", placement: "bottom" },
+    { selector: ".dash-search", title: "Búsqueda híbrida", body: "Escribí texto libre o usá operadores tipo <code>score:&gt;80</code>. Tolera typos, resalta matches.", placement: "bottom" },
+    { selector: "#dash-ai-btn", title: "Búsqueda con IA ✨", body: "Cuando tu query sea lenguaje natural, pulsá esto. Gemini lo traduce a filtro. Gratis.", placement: "bottom" },
+    { selector: "#filter-app", title: "Filtro por app", body: "Restringí a una app específica (biología, etc.).", placement: "bottom" },
+    { selector: "#dash-refresh", title: "Refrescar", body: "Carga entregas nuevas. Atajo: tecla <kbd>r</kbd>.", placement: "bottom" },
+    { selector: ".dash-table-wrap", title: "Tabla de entregas", body: "Cada fila es una entrega. Click para abrir el detalle. Columnas ordenables próximamente.", placement: "top" },
+    { selector: "#dash-help-btn", title: "Ayuda integrada", body: "Pulsá el ? cuando tengas dudas. Tour, FAQ, glosario, atajos.", placement: "bottom" }
+  ];
+
+  function startTour() {
+    const overlay = document.createElement("div");
+    overlay.className = "dash-tour-overlay";
+    overlay.innerHTML = `
+      <div class="dash-tour-spotlight" data-spotlight></div>
+      <div class="dash-tour-tooltip" data-tooltip>
+        <p class="dash-tour-step-num"><span data-step-num>1</span> de <span data-step-total>${TOUR_STEPS.length}</span></p>
+        <h4 data-tour-title></h4>
+        <p data-tour-body></p>
+        <div class="dash-tour-actions">
+          <button type="button" data-tour-skip class="dash-tour-skip">Saltar tour</button>
+          <div class="dash-tour-nav">
+            <button type="button" data-tour-prev class="dash-tour-btn">← Anterior</button>
+            <button type="button" data-tour-next class="dash-tour-btn dash-tour-btn-primary">Siguiente →</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    let idx = 0;
+    const render = () => {
+      const step = TOUR_STEPS[idx];
+      const target = document.querySelector(step.selector);
+      const spot = overlay.querySelector("[data-spotlight]");
+      const tip = overlay.querySelector("[data-tooltip]");
+      overlay.querySelector("[data-step-num]").textContent = String(idx + 1);
+      overlay.querySelector("[data-tour-title]").textContent = step.title;
+      overlay.querySelector("[data-tour-body]").innerHTML = step.body;
+      overlay.querySelector("[data-tour-prev]").disabled = idx === 0;
+      const nextBtn = overlay.querySelector("[data-tour-next]");
+      nextBtn.textContent = idx === TOUR_STEPS.length - 1 ? "Terminar" : "Siguiente →";
+
+      if (target) {
+        const r = target.getBoundingClientRect();
+        const pad = 8;
+        spot.style.top = `${r.top - pad}px`;
+        spot.style.left = `${r.left - pad}px`;
+        spot.style.width = `${r.width + pad * 2}px`;
+        spot.style.height = `${r.height + pad * 2}px`;
+        // Position tooltip
+        const tipRect = { width: 320, height: 200 };
+        let top, left;
+        if (step.placement === "top") {
+          top = r.top - tipRect.height - 16;
+          left = Math.max(16, r.left + r.width / 2 - tipRect.width / 2);
+        } else {
+          top = r.bottom + 16;
+          left = Math.max(16, r.left + r.width / 2 - tipRect.width / 2);
+        }
+        // Clamp
+        if (left + tipRect.width > window.innerWidth - 16) left = window.innerWidth - tipRect.width - 16;
+        if (top + tipRect.height > window.innerHeight - 16) top = window.innerHeight - tipRect.height - 16;
+        if (top < 16) top = 16;
+        tip.style.top = `${top}px`;
+        tip.style.left = `${left}px`;
+        target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      } else {
+        // Target not found, hide spot, center tooltip
+        spot.style.display = "none";
+        tip.style.top = "50%";
+        tip.style.left = "50%";
+        tip.style.transform = "translate(-50%, -50%)";
+      }
+    };
+    const finish = () => {
+      try { localStorage.setItem("tlp.dash.tourSeen", "1"); } catch {}
+      overlay.remove();
+    };
+    overlay.querySelector("[data-tour-skip]").addEventListener("click", finish);
+    overlay.querySelector("[data-tour-prev]").addEventListener("click", () => { if (idx > 0) { idx--; render(); } });
+    overlay.querySelector("[data-tour-next]").addEventListener("click", () => {
+      if (idx < TOUR_STEPS.length - 1) { idx++; render(); }
+      else finish();
+    });
+    document.addEventListener("keydown", function tourKeys(e) {
+      if (!document.body.contains(overlay)) {
+        document.removeEventListener("keydown", tourKeys);
+        return;
+      }
+      if (e.key === "Escape") finish();
+      if (e.key === "ArrowRight" || e.key === "Enter") overlay.querySelector("[data-tour-next]").click();
+      if (e.key === "ArrowLeft") overlay.querySelector("[data-tour-prev]").click();
+    });
+    window.addEventListener("resize", render);
+    render();
   }
 
   async function loadSubmits() {
