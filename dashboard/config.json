@@ -1,7 +1,7 @@
 {
-  "oauthClientId": "441768184201-fin0vlse7j45kndc4qiv13jig3vhqeka.apps.googleusercontent.com",
+  "oauthClientId": "441768184201-ftmct59hdbt3dhsc9u3qfsks7l2125vc.apps.googleusercontent.com",
   "backendUrl": "https://evaluacosas-submit-handler-441768184201.us-central1.run.app",
   "allowedDomain": "thelaunchpadtlp.education",
-  "version": "1.0",
+  "version": "1.1",
   "updatedAt": "2026-05-06"
 }
