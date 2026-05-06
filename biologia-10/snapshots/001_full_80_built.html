@@ -1,0 +1,1792 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TLP - Biología 10 - Tarea Integral Avanzada</title>
+  <style>:root {
+  color-scheme: dark;
+  --bg: #07111d;
+  --bg-2: #102018;
+  --surface: rgba(255, 255, 255, 0.08);
+  --surface-strong: rgba(255, 255, 255, 0.14);
+  --line: rgba(255, 255, 255, 0.18);
+  --text: #eef6ff;
+  --muted: #a9bacf;
+  --accent: #39d98a;
+  --accent-2: #67d1ff;
+  --danger: #ff8d8d;
+  --warning: #ffd166;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(57, 217, 138, .18), transparent 26%),
+    radial-gradient(circle at 84% 10%, rgba(255, 141, 141, .16), transparent 25%),
+    radial-gradient(circle at 76% 72%, rgba(255, 209, 102, .12), transparent 29%),
+    linear-gradient(145deg, var(--bg), #10151c 42%, var(--bg-2));
+  color: var(--text);
+  letter-spacing: 0;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
+}
+
+#bio-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: .38;
+}
+
+.shell {
+  position: relative;
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 56px;
+}
+
+.hero {
+  min-height: 58vh;
+  display: grid;
+  align-content: center;
+  border-bottom: 1px solid var(--line);
+  padding: 56px 0 38px;
+}
+
+.brand,
+.eyebrow {
+  margin: 0 0 12px;
+  color: var(--accent);
+  font-size: .78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.hero h1 {
+  max-width: 900px;
+  margin: 0;
+  font-size: clamp(2.45rem, 7vw, 5.9rem);
+  line-height: .96;
+  letter-spacing: 0;
+}
+
+.hero p:last-child {
+  max-width: 720px;
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.65;
+}
+
+.student-grid,
+.instructions,
+.content-section,
+.final-check {
+  margin-top: 24px;
+  border: 1px solid var(--line);
+  background: linear-gradient(145deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .055));
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+  border-radius: 8px;
+}
+
+.student-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+
+label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 7px;
+  background: rgba(5, 11, 20, .72);
+  color: var(--text);
+  outline: 0;
+}
+
+input {
+  min-height: 42px;
+  padding: 9px 11px;
+}
+
+textarea {
+  min-height: 132px;
+  resize: vertical;
+  padding: 13px 14px;
+  line-height: 1.55;
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(103, 209, 255, .16);
+}
+
+.score-box {
+  min-height: 66px;
+  display: grid;
+  align-content: center;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(57, 217, 138, .12);
+  border: 1px solid rgba(57, 217, 138, .28);
+}
+
+.score-box span {
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.score-box strong {
+  color: var(--accent);
+  font-size: 1.25rem;
+}
+
+.instructions,
+.final-check {
+  padding: 24px;
+}
+
+.instructions h2,
+.content-section h2,
+.final-check h2 {
+  margin: 0 0 12px;
+  font-size: clamp(1.45rem, 3vw, 2.25rem);
+  letter-spacing: 0;
+}
+
+.instructions p,
+.section-intro p {
+  color: var(--muted);
+  line-height: 1.72;
+}
+
+.criteria-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.criteria-row span {
+  padding: 9px 11px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .07);
+  color: #dbe9f8;
+  font-size: .85rem;
+  font-weight: 800;
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 18px 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(7, 17, 29, .82);
+  backdrop-filter: blur(18px);
+}
+
+.progress-wrap {
+  min-width: 180px;
+  flex: 1;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: .8rem;
+  font-weight: 800;
+}
+
+.progress-track {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .11);
+}
+
+.progress-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--warning));
+  transition: width .25s ease;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.actions button,
+.final-check button {
+  min-height: 40px;
+  padding: 9px 13px;
+  border-radius: 7px;
+  background: var(--accent);
+  color: #06110b;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.actions button.secondary {
+  background: rgba(255, 255, 255, .1);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+.content-section {
+  overflow: hidden;
+}
+
+.section-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(220px, .75fr);
+  gap: 22px;
+  align-items: center;
+  padding: 26px;
+  border-bottom: 1px solid var(--line);
+}
+
+.section-art svg {
+  display: block;
+  width: 100%;
+  max-height: 230px;
+}
+
+.questions-list {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.question-card {
+  border: 1px solid rgba(255, 255, 255, .15);
+  border-radius: 8px;
+  background: rgba(5, 11, 20, .54);
+  padding: 18px;
+}
+
+.question-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 13px;
+  align-items: start;
+}
+
+.number {
+  display: inline-grid;
+  min-width: 52px;
+  min-height: 42px;
+  place-items: center;
+  border-radius: 7px;
+  background: rgba(103, 209, 255, .14);
+  color: var(--accent-2);
+  font-weight: 950;
+}
+
+.question-card h3 {
+  margin: 0;
+  font-size: clamp(1.02rem, 1.8vw, 1.22rem);
+  line-height: 1.42;
+  letter-spacing: 0;
+}
+
+.criteria-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.must-block,
+.avoid-block {
+  border-radius: 8px;
+  padding: 13px;
+  line-height: 1.52;
+}
+
+.must-block {
+  border: 1px solid rgba(57, 217, 138, .25);
+  background: rgba(57, 217, 138, .1);
+}
+
+.avoid-block {
+  border: 1px solid rgba(255, 141, 141, .24);
+  background: rgba(255, 141, 141, .09);
+}
+
+.must-block strong {
+  color: var(--accent);
+}
+
+.avoid-block strong {
+  color: var(--danger);
+}
+
+ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+li + li {
+  margin-top: 4px;
+}
+
+.answer-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.final-check {
+  display: grid;
+  gap: 13px;
+}
+
+.final-check label {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  color: var(--text);
+}
+
+.final-check input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+}
+
+@media (max-width: 850px) {
+  .student-grid,
+  .section-intro,
+  .criteria-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar {
+    position: static;
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 560px) {
+  .shell {
+    width: min(100% - 20px, 1180px);
+    padding-top: 18px;
+  }
+
+  .hero {
+    min-height: 52vh;
+  }
+
+  .questions-list,
+  .question-card,
+  .section-intro,
+  .instructions,
+  .final-check {
+    padding: 14px;
+  }
+
+  .question-head {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  body {
+    background: #fff;
+    color: #111;
+  }
+
+  #bio-canvas,
+  .toolbar,
+  .actions {
+    display: none;
+  }
+
+  .shell {
+    width: 100%;
+  }
+
+  .hero,
+  .student-grid,
+  .instructions,
+  .content-section,
+  .final-check,
+  .question-card {
+    box-shadow: none;
+    background: #fff;
+    border-color: #999;
+  }
+
+  .section-art {
+    display: none;
+  }
+
+  textarea {
+    min-height: 110px;
+    color: #111;
+    background: #fff;
+  }
+}
+</style>
+</head>
+<body>
+  <canvas id="bio-canvas" aria-hidden="true"></canvas>
+  <main class="shell">
+    <header class="hero">
+      <p class="brand">THE LAUNCH PAD - TLP</p>
+      <h1>Biología 10 - Tarea Integral Avanzada</h1>
+      <p>Procesos de la vida y sus entornos - Décimo Año</p>
+    </header>
+    <section class="student-grid" aria-label="Datos del estudiante">
+      <label>Nombre<input id="student-name" autocomplete="name"></label>
+      <label>Fecha<input id="student-date" type="date"></label>
+      <label>Profesor<input id="teacher-name"></label>
+      <div class="score-box"><span>Puntaje</span><strong>80 puntos</strong></div>
+    </section>
+    <section class="instructions">
+      <h2>Instrucciones Generales</h2>
+      <p>Respondé cada pregunta con oraciones completas, vocabulario propio de Biología y explicación de procesos, relaciones, evidencias o consecuencias. Las respuestas vagas, incompletas o copiadas sin comprensión pueden calificarse como incorrectas.</p>
+      <div class="criteria-row">
+        <span>80 preguntas</span>
+        <span>1 punto por pregunta</span>
+        <span>Sin medios puntos</span>
+        <span>3 a 6 líneas cuando corresponda</span>
+      </div>
+    </section>
+    <nav class="toolbar" aria-label="Herramientas de trabajo">
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Progreso</span>
+          <span id="progress-text">0/80 respuestas con avance</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
+      <div class="actions">
+        <button id="export-json" type="button">Guardar JSON</button>
+        <button class="secondary" id="print-page" type="button">Imprimir</button>
+        <button class="secondary" id="clear-local" type="button">Borrar local</button>
+      </div>
+    </nav>
+    
+    <section class="content-section" id="eje-1">
+      <div class="section-intro">
+        <div>
+          <p class="eyebrow">Eje I</p>
+          <h2>Seres vivos en entornos saludables</h2>
+          <p>Este eje analiza la Biología como ciencia y la relación entre las formas de vida, sus adaptaciones y el entorno biofísico. Incluye especie, población, biodiversidad, nicho, hábitat, interacciones ecológicas, factores ambientales, conservación y amenazas a la biodiversidad. En el contexto costarricense, estos conceptos se vuelven concretos al estudiar bosques, manglares, corredores biológicos, áreas protegidas y comunidades locales.</p>
+        </div>
+        <div class="section-art" aria-hidden="true">
+<svg viewBox="0 0 320 220" role="img" aria-label="Ecosistema costarricense">
+  <defs>
+    <linearGradient id="ecoSky" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#67d1ff"/>
+      <stop offset="1" stop-color="#39d98a"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="220" rx="8" fill="rgba(255,255,255,.06)"/>
+  <circle cx="260" cy="42" r="22" fill="#ffd166"/>
+  <path d="M0 155 C70 112 105 148 155 108 C207 66 244 104 320 64 V220 H0 Z" fill="url(#ecoSky)" opacity=".22"/>
+  <path d="M0 172 C75 136 139 168 202 124 C245 94 279 116 320 96 V220 H0 Z" fill="#39d98a" opacity=".28"/>
+  <path d="M67 180 V88" stroke="#8a5a34" stroke-width="10" stroke-linecap="round"/>
+  <path d="M67 105 C32 100 28 62 67 55 C105 62 106 101 67 105 Z" fill="#39d98a"/>
+  <path d="M73 118 C39 122 36 88 70 76 C109 82 112 118 73 118 Z" fill="#1fbf75"/>
+  <path d="M186 171 C202 146 224 146 239 171 C226 180 202 181 186 171 Z" fill="#67d1ff" opacity=".7"/>
+  <path d="M229 168 l22 -15 l-4 16 l4 16 Z" fill="#67d1ff" opacity=".7"/>
+  <path d="M118 172 c18 -36 39 -34 58 0" fill="none" stroke="#f2a65a" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="143" cy="149" r="7" fill="#f7f7f0"/>
+</svg></div>
+      </div>
+      <div class="questions-list">
+        
+    <article class="question-card" id="pregunta-1">
+      <div class="question-head">
+        <span class="number">#1</span>
+        <h3>Identificá el campo de estudio de la Biología y explicá por qué se considera una ciencia.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Objeto de estudio: seres vivos, sus procesos, relaciones y evolución</li><li>Uso de observación, hipótesis, experimentación, evidencia y revisión</li><li>Ejemplo de una pregunta biológica que pueda investigarse científicamente</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No reducir la Biología a memorizar nombres de seres vivos</li><li>No confundir ciencia con opinión personal</li><li>No omitir el papel de la evidencia</li></ul></div>
+      </div>
+      <label for="q1">Respuesta del estudiante</label>
+      <textarea id="q1" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q1">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-2">
+      <div class="question-head">
+        <span class="number">#2</span>
+        <h3>Explicá cómo se diseña una investigación biológica sencilla a partir de una observación del entorno.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Observación inicial y pregunta investigable</li><li>Hipótesis, variables, control y recolección de datos</li><li>Conclusión basada en resultados y no en suposiciones</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No presentar una receta sin explicar el propósito de cada paso</li><li>No confundir hipótesis con conclusión</li><li>No omitir el control de variables</li></ul></div>
+      </div>
+      <label for="q2">Respuesta del estudiante</label>
+      <textarea id="q2" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q2">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-3">
+      <div class="question-head">
+        <span class="number">#3</span>
+        <h3>Explicá qué se entiende por adaptación biológica y por qué aumenta la probabilidad de supervivencia o reproducción.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Definición de adaptación como rasgo heredable favorecido en un ambiente</li><li>Relación con supervivencia, reproducción y éxito en el hábitat</li><li>Ejemplo concreto en planta, animal u otro organismo</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir adaptación evolutiva con aprendizaje individual</li><li>No decir solo que el organismo se acostumbra</li><li>No usar ejemplos sin explicar su ventaja</li></ul></div>
+      </div>
+      <label for="q3">Respuesta del estudiante</label>
+      <textarea id="q3" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q3">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-4">
+      <div class="question-head">
+        <span class="number">#4</span>
+        <h3>Diferenciá adaptaciones morfológicas, fisiológicas y conductuales usando ejemplos claros.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Adaptación morfológica como estructura corporal</li><li>Adaptación fisiológica como funcionamiento interno</li><li>Adaptación conductual o etológica como comportamiento</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No mezclar los tres tipos sin distinguirlos</li><li>No poner solo un ejemplo para todos</li><li>No omitir la relación con el ambiente</li></ul></div>
+      </div>
+      <label for="q4">Respuesta del estudiante</label>
+      <textarea id="q4" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q4">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-5">
+      <div class="question-head">
+        <span class="number">#5</span>
+        <h3>Analizá dos adaptaciones de animales tropicales y explicá cómo se relacionan con depredación, alimentación o clima.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Dos organismos o grupos animales concretos</li><li>Rasgo adaptativo y función ecológica</li><li>Relación con presión ambiental como depredadores, alimento, humedad o temperatura</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No limitarse a describir apariencia</li><li>No afirmar que la adaptación aparece por necesidad inmediata</li><li>No omitir el efecto sobre supervivencia o reproducción</li></ul></div>
+      </div>
+      <label for="q5">Respuesta del estudiante</label>
+      <textarea id="q5" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q5">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-6">
+      <div class="question-head">
+        <span class="number">#6</span>
+        <h3>Explicá cómo las plantas presentan adaptaciones para captar luz, conservar agua o evitar herbívoros.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Ejemplo de adaptación en hojas, raíces, tallos, cutícula, espinas o sustancias químicas</li><li>Relación con luz, agua, suelo o herbivoría</li><li>Comparación entre ambientes como bosque húmedo, bosque seco o zona costera</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No responder solo que las plantas hacen fotosíntesis</li><li>No omitir el factor ambiental</li><li>No confundir adaptación vegetal con cuidado humano</li></ul></div>
+      </div>
+      <label for="q6">Respuesta del estudiante</label>
+      <textarea id="q6" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q6">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-7">
+      <div class="question-head">
+        <span class="number">#7</span>
+        <h3>Describí cómo factores ambientales climáticos, energéticos y de sustrato influyen en las poblaciones.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Factores climáticos como temperatura, lluvia, luz o viento</li><li>Factores energéticos como disponibilidad de alimento</li><li>Factores de sustrato como agua, suelo, aire o salinidad</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No tratar los factores como elementos aislados sin relación</li><li>No confundir clima con tiempo atmosférico de un día</li><li>No omitir consecuencias sobre distribución o abundancia</li></ul></div>
+      </div>
+      <label for="q7">Respuesta del estudiante</label>
+      <textarea id="q7" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q7">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-8">
+      <div class="question-head">
+        <span class="number">#8</span>
+        <h3>Diferenciá especie, población y comunidad ecológica con ejemplos costarricenses.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Definición de especie</li><li>Definición de población como individuos de la misma especie en un área</li><li>Definición de comunidad como conjunto de poblaciones que interactúan</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir especie con especia</li><li>No usar población como sinónimo de cantidad total de animales</li><li>No omitir ejemplos</li></ul></div>
+      </div>
+      <label for="q8">Respuesta del estudiante</label>
+      <textarea id="q8" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q8">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-9">
+      <div class="question-head">
+        <span class="number">#9</span>
+        <h3>Explicá la diferencia entre hábitat y nicho ecológico, e indicá por qué ambos conceptos son necesarios.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Hábitat como lugar físico donde vive el organismo</li><li>Nicho como función, recursos, condiciones e interacciones</li><li>Ejemplo donde dos especies compartan hábitat pero no nicho</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No usar hábitat y nicho como sinónimos</li><li>No responder solo que el nicho es donde vive</li><li>No omitir interacciones bióticas y factores abióticos</li></ul></div>
+      </div>
+      <label for="q9">Respuesta del estudiante</label>
+      <textarea id="q9" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q9">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-10">
+      <div class="question-head">
+        <span class="number">#10</span>
+        <h3>Analizá cómo los seres vivos modifican su ambiente y también son afectados por él.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Ejemplo de organismo que transforma el ambiente</li><li>Ejemplo de factor ambiental que limita o favorece una población</li><li>Relación recíproca entre organismo y entorno</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No presentar al ambiente como algo pasivo</li><li>No hablar solo de contaminación humana</li><li>No omitir efectos sobre otras especies</li></ul></div>
+      </div>
+      <label for="q10">Respuesta del estudiante</label>
+      <textarea id="q10" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q10">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-11">
+      <div class="question-head">
+        <span class="number">#11</span>
+        <h3>Compará mutualismo, competencia y depredación como interacciones ecológicas.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Definición de cada interacción</li><li>Efecto sobre las poblaciones involucradas</li><li>Ejemplo concreto de al menos dos interacciones</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir depredación con parasitismo</li><li>No reducir mutualismo a ayuda voluntaria</li><li>No omitir consecuencias ecológicas</li></ul></div>
+      </div>
+      <label for="q11">Respuesta del estudiante</label>
+      <textarea id="q11" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q11">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-12">
+      <div class="question-head">
+        <span class="number">#12</span>
+        <h3>Analizá cómo la relación depredador-presa puede influir en la diversidad de una comunidad.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Papel de cadenas o redes tróficas</li><li>Control de tamaños poblacionales y equilibrio ecológico</li><li>Posible coevolución entre depredadores y presas</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No describir una persecución sin análisis</li><li>No afirmar que el depredador siempre elimina a la presa</li><li>No omitir el efecto sobre otras especies</li></ul></div>
+      </div>
+      <label for="q12">Respuesta del estudiante</label>
+      <textarea id="q12" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q12">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-13">
+      <div class="question-head">
+        <span class="number">#13</span>
+        <h3>Explicá la capacidad de carga de un ecosistema y su relación con factores limitantes.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Definición de capacidad de carga</li><li>Factores limitantes como alimento, espacio, agua, refugio o enfermedades</li><li>Consecuencia de superar la capacidad de carga</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir capacidad de carga con número máximo deseado por humanos</li><li>No omitir cambios en crecimiento poblacional</li><li>No responder solo con una cifra</li></ul></div>
+      </div>
+      <label for="q13">Respuesta del estudiante</label>
+      <textarea id="q13" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q13">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-14">
+      <div class="question-head">
+        <span class="number">#14</span>
+        <h3>Describí los niveles de biodiversidad genética, de especies y de ecosistemas.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Biodiversidad genética dentro de poblaciones</li><li>Biodiversidad de especies en una comunidad</li><li>Biodiversidad de ecosistemas en un territorio</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No mezclar los niveles sin definirlos</li><li>No omitir su importancia para resiliencia</li><li>No usar biodiversidad solo como cantidad de animales</li></ul></div>
+      </div>
+      <label for="q14">Respuesta del estudiante</label>
+      <textarea id="q14" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q14">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-15">
+      <div class="question-head">
+        <span class="number">#15</span>
+        <h3>Explicá la diferencia entre diversidad alfa, beta y gamma con ejemplos aplicables a Costa Rica.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Diversidad alfa dentro de un sitio</li><li>Diversidad beta como recambio entre sitios</li><li>Diversidad gamma como diversidad regional total</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir alfa, beta y gamma con niveles genéticos</li><li>No responder sin ejemplos</li><li>No omitir su utilidad para comparar ambientes</li></ul></div>
+      </div>
+      <label for="q15">Respuesta del estudiante</label>
+      <textarea id="q15" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q15">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-16">
+      <div class="question-head">
+        <span class="number">#16</span>
+        <h3>Explicá cómo índices como Shannon o Simpson ayudan a evaluar la salud de un ecosistema.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Relación entre riqueza de especies y abundancia relativa</li><li>Interpretación de valores altos o bajos</li><li>Uso para monitoreo y toma de decisiones</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir índice con simple conteo de individuos</li><li>No explicar solo una fórmula sin interpretación</li><li>No omitir limitaciones del muestreo</li></ul></div>
+      </div>
+      <label for="q16">Respuesta del estudiante</label>
+      <textarea id="q16" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q16">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-17">
+      <div class="question-head">
+        <span class="number">#17</span>
+        <h3>Analizá por qué las especies endémicas requieren atención especial en conservación.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Definición de especie endémica</li><li>Distribución geográfica limitada y riesgo de pérdida irreversible</li><li>Ejemplo o situación relacionada con Costa Rica</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir endémica con invasora</li><li>No decir solo que es una especie bonita o rara</li><li>No omitir el riesgo global de extinción</li></ul></div>
+      </div>
+      <label for="q17">Respuesta del estudiante</label>
+      <textarea id="q17" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q17">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-18">
+      <div class="question-head">
+        <span class="number">#18</span>
+        <h3>Explicá por qué Costa Rica se considera un país megadiverso y qué responsabilidad implica.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Alta biodiversidad en poco territorio</li><li>Factores como clima, relieve, posición geográfica y variedad de ecosistemas</li><li>Responsabilidad de conservación, investigación y uso sostenible</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No presentar megadiversidad como simple abundancia sin contexto</li><li>No omitir relación entre área y diversidad</li><li>No ignorar amenazas actuales</li></ul></div>
+      </div>
+      <label for="q18">Respuesta del estudiante</label>
+      <textarea id="q18" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q18">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-19">
+      <div class="question-head">
+        <span class="number">#19</span>
+        <h3>Analizá tres servicios ecosistémicos que la biodiversidad brinda a las comunidades humanas.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Servicio de provisión, regulación, soporte o cultural</li><li>Ejemplos como agua, polinización, control de erosión, alimentos o recreación</li><li>Relación entre conservación y bienestar humano</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No reducir la biodiversidad a turismo</li><li>No listar servicios sin explicar su beneficio</li><li>No separar ambiente y sociedad como si no interactuaran</li></ul></div>
+      </div>
+      <label for="q19">Respuesta del estudiante</label>
+      <textarea id="q19" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q19">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-20">
+      <div class="question-head">
+        <span class="number">#20</span>
+        <h3>Identificá una amenaza a la biodiversidad en tu comunidad y proponé dos acciones concretas para reducirla.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Amenaza específica como contaminación, fragmentación, cambio climático, cacería o invasoras</li><li>Causa y consecuencia ecológica</li><li>Dos acciones realistas con justificación</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No culpar de forma general sin análisis</li><li>No proponer acciones vagas como cuidar la naturaleza</li><li>No omitir actores responsables o posibles</li></ul></div>
+      </div>
+      <label for="q20">Respuesta del estudiante</label>
+      <textarea id="q20" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q20">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-21">
+      <div class="question-head">
+        <span class="number">#21</span>
+        <h3>Explicá cómo la fragmentación del hábitat afecta poblaciones silvestres.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>División de hábitats continuos en parches</li><li>Aislamiento, menor flujo genético y mayor vulnerabilidad</li><li>Consecuencias como borde, mortalidad vial o pérdida de recursos</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir fragmentación con pérdida total de hábitat</li><li>No omitir efectos genéticos</li><li>No responder solo que hay menos espacio</li></ul></div>
+      </div>
+      <label for="q21">Respuesta del estudiante</label>
+      <textarea id="q21" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q21">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-22">
+      <div class="question-head">
+        <span class="number">#22</span>
+        <h3>Discutí la importancia de los corredores biológicos para la conservación de la biodiversidad.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Conectividad entre parches o áreas protegidas</li><li>Flujo genético, movimiento, dispersión y recolonización</li><li>Ejemplo de corredor biológico o caso costarricense</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir corredor biológico con carretera</li><li>No decir que reemplaza áreas protegidas</li><li>No omitir su función frente a fragmentación</li></ul></div>
+      </div>
+      <label for="q22">Respuesta del estudiante</label>
+      <textarea id="q22" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q22">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-23">
+      <div class="question-head">
+        <span class="number">#23</span>
+        <h3>Analizá cómo una especie invasora puede alterar un ecosistema nativo.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Definición de especie invasora</li><li>Mecanismos como competencia, depredación, enfermedad o alteración del hábitat</li><li>Ejemplo o consecuencia ecológica</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir invasora con endémica o migratoria natural</li><li>No afirmar que toda especie extranjera es invasora</li><li>No omitir el efecto sobre especies nativas</li></ul></div>
+      </div>
+      <label for="q23">Respuesta del estudiante</label>
+      <textarea id="q23" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q23">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-24">
+      <div class="question-head">
+        <span class="number">#24</span>
+        <h3>Explicá el papel de las áreas protegidas y del SINAC en la conservación costarricense.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Función de parques nacionales, reservas, refugios u otras categorías</li><li>Protección de hábitats, especies y procesos ecológicos</li><li>Relación con investigación, educación y participación comunitaria</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No reducir áreas protegidas a turismo</li><li>No presentar la conservación como responsabilidad de una sola institución</li><li>No omitir conflictos o desafíos de manejo</li></ul></div>
+      </div>
+      <label for="q24">Respuesta del estudiante</label>
+      <textarea id="q24" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q24">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-25">
+      <div class="question-head">
+        <span class="number">#25</span>
+        <h3>Compará biomas o ecosistemas costarricenses como bosque húmedo, bosque seco, manglar, páramo o arrecife.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Características climáticas o físicas de al menos dos ambientes</li><li>Factores como temperatura, precipitación, salinidad, altitud o suelo</li><li>Adaptaciones de organismos en esos ambientes</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir bioma con una sola especie</li><li>No limitarse a características visuales</li><li>No omitir factores ambientales</li></ul></div>
+      </div>
+      <label for="q25">Respuesta del estudiante</label>
+      <textarea id="q25" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q25">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-26">
+      <div class="question-head">
+        <span class="number">#26</span>
+        <h3>Analizá las funciones ecosistémicas de los manglares costarricenses más allá de servir como hábitat.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Vivero de peces y refugio de biodiversidad</li><li>Protección costera, filtración de contaminantes o retención de sedimentos</li><li>Almacenamiento de carbono azul y beneficio comunitario</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No reducir manglares a árboles en agua salada</li><li>No mencionar un solo servicio</li><li>No omitir amenazas como rellenos, contaminación o tala</li></ul></div>
+      </div>
+      <label for="q26">Respuesta del estudiante</label>
+      <textarea id="q26" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q26">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-27">
+      <div class="question-head">
+        <span class="number">#27</span>
+        <h3>Diseñá un experimento para evaluar cómo la temperatura influye en la germinación de semillas.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Variable independiente, dependiente y variables controladas</li><li>Grupo control, repeticiones y registro de datos</li><li>Conclusión esperada basada en evidencia</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No cambiar varias variables al mismo tiempo</li><li>No omitir repeticiones</li><li>No concluir antes de observar resultados</li></ul></div>
+      </div>
+      <label for="q27">Respuesta del estudiante</label>
+      <textarea id="q27" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q27">0 palabras | 0 líneas</div>
+    </article>
+      </div>
+    </section>
+    <section class="content-section" id="eje-2">
+      <div class="section-intro">
+        <div>
+          <p class="eyebrow">Eje II</p>
+          <h2>Genética, herencia y biotecnología</h2>
+          <p>Este eje estudia la variabilidad genética, la estructura y replicación del ADN, la expresión de la información hereditaria, las mutaciones, la meiosis, la herencia mendeliana y no mendeliana, el código genético y aplicaciones biotecnológicas. También exige valorar beneficios, riesgos, regulación y dilemas éticos de intervenir material genético en medicina, agricultura, investigación y sociedad.</p>
+        </div>
+        <div class="section-art" aria-hidden="true">
+<svg viewBox="0 0 320 220" role="img" aria-label="ADN y biotecnologia">
+  <rect width="320" height="220" rx="8" fill="rgba(255,255,255,.06)"/>
+  <path d="M116 28 C210 72 112 146 204 192" fill="none" stroke="#67d1ff" stroke-width="5"/>
+  <path d="M204 28 C112 72 210 146 116 192" fill="none" stroke="#ff8d8d" stroke-width="5"/>
+  <g stroke="#eef6ff" stroke-width="3" opacity=".86">
+    <path d="M137 44 H183"/><path d="M124 68 H196"/><path d="M122 94 H198"/>
+    <path d="M132 120 H188"/><path d="M148 146 H172"/><path d="M134 172 H186"/>
+  </g>
+  <rect x="38" y="140" width="70" height="42" rx="7" fill="#39d98a" opacity=".22" stroke="#39d98a"/>
+  <path d="M54 160 h38 M73 148 v24" stroke="#39d98a" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="260" cy="66" r="32" fill="#ffd166" opacity=".18" stroke="#ffd166"/>
+  <path d="M245 66 h30 M260 51 v30" stroke="#ffd166" stroke-width="4" stroke-linecap="round"/>
+</svg></div>
+      </div>
+      <div class="questions-list">
+        
+    <article class="question-card" id="pregunta-28">
+      <div class="question-head">
+        <span class="number">#28</span>
+        <h3>Describí la estructura del ADN y explicá cómo su replicación conserva la información genética.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Nucleótidos, bases nitrogenadas, doble hélice y complementariedad</li><li>Replicación semiconservativa con separación de hebras</li><li>Papel de enzimas como helicasa y ADN polimerasa</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir replicación con transcripción</li><li>No decir solo que el ADN se copia</li><li>No omitir bases complementarias</li></ul></div>
+      </div>
+      <label for="q28">Respuesta del estudiante</label>
+      <textarea id="q28" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q28">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-29">
+      <div class="question-head">
+        <span class="number">#29</span>
+        <h3>Explicá el dogma central de la biología molecular relacionando ADN, ARN y proteínas.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Transcripción de ADN a ARNm</li><li>Traducción en ribosomas con tARN, codones y aminoácidos</li><li>Relación entre secuencia genética y proteína funcional</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No mezclar transcripción con traducción</li><li>No omitir ribosomas o código genético</li><li>No presentar el proceso como magia celular</li></ul></div>
+      </div>
+      <label for="q29">Respuesta del estudiante</label>
+      <textarea id="q29" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q29">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-30">
+      <div class="question-head">
+        <span class="number">#30</span>
+        <h3>Explicá los experimentos de Mendel y las leyes de segregación e independencia.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Uso de guisantes y rasgos contrastantes</li><li>Ley de segregación de alelos</li><li>Ley de distribución independiente y proporciones esperadas</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No presentar las leyes como universales sin excepciones</li><li>No omitir generación F1 o F2</li><li>No confundir segregación con mutación</li></ul></div>
+      </div>
+      <label for="q30">Respuesta del estudiante</label>
+      <textarea id="q30" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q30">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-31">
+      <div class="question-head">
+        <span class="number">#31</span>
+        <h3>Diferenciá genotipo y fenotipo usando un ejemplo donde el ambiente influya en la expresión del rasgo.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Genotipo como composición genética</li><li>Fenotipo como rasgo observable o medible</li><li>Ejemplo con influencia ambiental como nutrición, luz, temperatura o salud</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No usar los términos como sinónimos</li><li>No confundir genes con cromosomas completos</li><li>No omitir interacción gen-ambiente</li></ul></div>
+      </div>
+      <label for="q31">Respuesta del estudiante</label>
+      <textarea id="q31" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q31">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-32">
+      <div class="question-head">
+        <span class="number">#32</span>
+        <h3>Construí e interpretá un cruce monohíbrido para explicar proporciones genotípicas y fenotípicas.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Uso correcto de alelos parentales y cuadro de Punnett</li><li>Proporción genotípica 1:2:1 cuando aplica</li><li>Proporción fenotípica 3:1 en dominancia completa</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir genotipo con fenotipo</li><li>No sumar porcentajes incorrectamente</li><li>No omitir explicación de F1 o F2</li></ul></div>
+      </div>
+      <label for="q32">Respuesta del estudiante</label>
+      <textarea id="q32" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q32">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-33">
+      <div class="question-head">
+        <span class="number">#33</span>
+        <h3>Explicá la distribución independiente con un cruce dihíbrido y sus límites.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Dos rasgos heredados simultáneamente</li><li>Proporción fenotípica 9:3:3:1 si los genes no están ligados</li><li>Excepciones como ligamiento génico o epistasis</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No aplicar 9:3:3:1 a cualquier caso</li><li>No ignorar genes ligados</li><li>No confundir dihíbrido con dos cruces separados</li></ul></div>
+      </div>
+      <label for="q33">Respuesta del estudiante</label>
+      <textarea id="q33" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q33">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-34">
+      <div class="question-head">
+        <span class="number">#34</span>
+        <h3>Contrastá herencia dominante y recesiva definiendo homocigoto y heterocigoto.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Alelo dominante y alelo recesivo</li><li>Homocigoto y heterocigoto</li><li>Ejemplo humano o de otro organismo con genotipo y fenotipo</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No decir que dominante significa mejor o más común</li><li>No omitir símbolos de alelos</li><li>No confundir rasgo recesivo con rasgo desaparecido</li></ul></div>
+      </div>
+      <label for="q34">Respuesta del estudiante</label>
+      <textarea id="q34" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q34">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-35">
+      <div class="question-head">
+        <span class="number">#35</span>
+        <h3>Explicá la herencia ligada al sexo y por qué ciertos rasgos recesivos ligados al X aparecen más en varones.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Genes ubicados en cromosoma X</li><li>Hemicigosis en varones y mujeres portadoras</li><li>Ejemplo como daltonismo o hemofilia con proporciones por sexo</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir sexo biológico con género social</li><li>No tratar herencia ligada al sexo como autosómica</li><li>No omitir el papel de cromosomas X e Y</li></ul></div>
+      </div>
+      <label for="q35">Respuesta del estudiante</label>
+      <textarea id="q35" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q35">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-36">
+      <div class="question-head">
+        <span class="number">#36</span>
+        <h3>Diferenciá codominancia y dominancia incompleta usando ejemplos concretos.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Codominancia como expresión simultánea de ambos alelos</li><li>Dominancia incompleta como fenotipo intermedio</li><li>Ejemplos como grupo sanguíneo AB y flores de color intermedio</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No decir que ambos casos son mezcla simple</li><li>No confundir AB con dominancia incompleta</li><li>No omitir genotipos posibles</li></ul></div>
+      </div>
+      <label for="q36">Respuesta del estudiante</label>
+      <textarea id="q36" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q36">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-37">
+      <div class="question-head">
+        <span class="number">#37</span>
+        <h3>Explicá la herencia poligénica y por qué produce variación continua.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Participación de varios genes en un rasgo</li><li>Distribución continua de fenotipos</li><li>Ejemplos como estatura, color de piel o masa corporal con influencia ambiental</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No aplicar proporciones mendelianas simples</li><li>No omitir ambiente</li><li>No confundir poligénico con múltiples alelos en un solo gen</li></ul></div>
+      </div>
+      <label for="q37">Respuesta del estudiante</label>
+      <textarea id="q37" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q37">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-38">
+      <div class="question-head">
+        <span class="number">#38</span>
+        <h3>Analizá cómo la meiosis contribuye a la variabilidad genética en poblaciones.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Entrecruzamiento o recombinación</li><li>Distribución independiente de cromosomas</li><li>Diferencia con mitosis y relación con gametos</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No describir solo división celular sin variabilidad</li><li>No confundir meiosis con fecundación</li><li>No omitir reducción cromosómica</li></ul></div>
+      </div>
+      <label for="q38">Respuesta del estudiante</label>
+      <textarea id="q38" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q38">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-39">
+      <div class="question-head">
+        <span class="number">#39</span>
+        <h3>Explicá el papel de las mutaciones como fuente de variación genética y evolución.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Mutación como cambio en ADN</li><li>Generación de nuevos alelos</li><li>Efectos posibles: perjudicial, neutro o beneficioso según ambiente</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No afirmar que todas las mutaciones son malas</li><li>No confundir mutación con adaptación directa</li><li>No omitir relación con selección natural</li></ul></div>
+      </div>
+      <label for="q39">Respuesta del estudiante</label>
+      <textarea id="q39" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q39">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-40">
+      <div class="question-head">
+        <span class="number">#40</span>
+        <h3>Diferenciá mutaciones puntuales y cromosómicas con ejemplos de cada tipo.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Mutación puntual como sustitución, inserción o deleción de bases</li><li>Mutación cromosómica como deleción, duplicación, inversión, translocación o no disyunción</li><li>Ejemplo y consecuencia de cada nivel</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No mezclar nivel molecular y cromosómico</li><li>No confundir mutación con epigenética</li><li>No omitir efecto posible en proteínas o fenotipo</li></ul></div>
+      </div>
+      <label for="q40">Respuesta del estudiante</label>
+      <textarea id="q40" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q40">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-41">
+      <div class="question-head">
+        <span class="number">#41</span>
+        <h3>Analizá una enfermedad genética identificando gen, mutación y patrón de herencia.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Enfermedad concreta como fibrosis quística, anemia falciforme, Huntington o síndrome de Down</li><li>Gen o alteración cromosómica implicada cuando corresponda</li><li>Patrón de herencia o mecanismo de aparición</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir enfermedad genética con infección</li><li>No describir síntomas sin genética</li><li>No omitir si la mutación es germinal, cromosómica o puntual</li></ul></div>
+      </div>
+      <label for="q41">Respuesta del estudiante</label>
+      <textarea id="q41" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q41">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-42">
+      <div class="question-head">
+        <span class="number">#42</span>
+        <h3>Explicá qué significa que el código genético sea casi universal y por qué apoya el origen común de la vida.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Relación entre codones y aminoácidos compartida por organismos</li><li>Evidencia de ancestro común</li><li>Excepciones menores como variantes mitocondriales</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir código genético con información ética o legal</li><li>No decir que es idéntico en absolutamente todos los casos</li><li>No omitir aplicaciones biotecnológicas</li></ul></div>
+      </div>
+      <label for="q42">Respuesta del estudiante</label>
+      <textarea id="q42" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q42">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-43">
+      <div class="question-head">
+        <span class="number">#43</span>
+        <h3>Analizá el Proyecto Genoma Humano considerando objetivos, descubrimientos y dilemas éticos.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Objetivo de secuenciar el genoma humano y periodo 1990-2003</li><li>Hallazgos como número aproximado de genes y variación genética</li><li>Privacidad, discriminación genética y acceso a información</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No decir que resolvió todas las enfermedades</li><li>No omitir dilemas sociales</li><li>No confundir genoma con una prueba de ADN aislada</li></ul></div>
+      </div>
+      <label for="q43">Respuesta del estudiante</label>
+      <textarea id="q43" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q43">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-44">
+      <div class="question-head">
+        <span class="number">#44</span>
+        <h3>Explicá qué es la biotecnología moderna y cómo se diferencia de usos tradicionales de organismos.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Uso de organismos, células, enzimas o material genético para producir bienes o soluciones</li><li>Diferencia entre fermentación tradicional e ingeniería genética moderna</li><li>Aplicación en medicina, agricultura, ambiente o industria</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir biotecnología con computación</li><li>No mencionar solo un producto sin proceso</li><li>No omitir beneficios y riesgos</li></ul></div>
+      </div>
+      <label for="q44">Respuesta del estudiante</label>
+      <textarea id="q44" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q44">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-45">
+      <div class="question-head">
+        <span class="number">#45</span>
+        <h3>Describí cómo enzimas de restricción, ligasa y plásmidos permiten crear ADN recombinante.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Corte de ADN en secuencias específicas</li><li>Unión de fragmentos mediante ADN ligasa</li><li>Plásmidos como vectores en bacterias</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No presentar el ADN recombinante como mezcla al azar</li><li>No omitir vectores</li><li>No confundir enzima de restricción con enzima digestiva común</li></ul></div>
+      </div>
+      <label for="q45">Respuesta del estudiante</label>
+      <textarea id="q45" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q45">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-46">
+      <div class="question-head">
+        <span class="number">#46</span>
+        <h3>Explicá cómo PCR y electroforesis pueden usarse para identificar ADN en contextos forenses o médicos.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>PCR como amplificación de fragmentos de ADN</li><li>Electroforesis como separación por tamaño</li><li>Interpretación de patrones como STR o bandas</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No decir que PCR inventa ADN nuevo sin molde</li><li>No omitir controles o contaminación</li><li>No confundir identificación genética con certeza absoluta sin análisis</li></ul></div>
+      </div>
+      <label for="q46">Respuesta del estudiante</label>
+      <textarea id="q46" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q46">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-47">
+      <div class="question-head">
+        <span class="number">#47</span>
+        <h3>Analizá ventajas y preocupaciones de los organismos genéticamente modificados en agricultura.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Cómo se introduce o edita un rasgo</li><li>Beneficios como resistencia a plagas, rendimiento o nutrición</li><li>Riesgos o debates sobre ambiente, dependencia económica, regulación o biodiversidad</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No presentar OGM como totalmente buenos o malos sin evidencia</li><li>No confundir OGM con selección artificial tradicional</li><li>No omitir regulación y evaluación de riesgo</li></ul></div>
+      </div>
+      <label for="q47">Respuesta del estudiante</label>
+      <textarea id="q47" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q47">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-48">
+      <div class="question-head">
+        <span class="number">#48</span>
+        <h3>Compará clonación reproductiva y clonación terapéutica usando el caso de Dolly como referencia.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Transferencia nuclear de célula somática</li><li>Diferencia entre producir un organismo y generar tejidos o células</li><li>Limitaciones como baja eficiencia, epigenética y dilemas éticos</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No afirmar que un clon es una copia idéntica en personalidad</li><li>No confundir clonación con gemelos idénticos naturales</li><li>No omitir bienestar animal o riesgos</li></ul></div>
+      </div>
+      <label for="q48">Respuesta del estudiante</label>
+      <textarea id="q48" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q48">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-49">
+      <div class="question-head">
+        <span class="number">#49</span>
+        <h3>Diferenciá terapia génica somática y edición germinal, valorando beneficios y riesgos.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Somática afecta células del paciente y no se hereda</li><li>Germinal afecta gametos o embriones y puede heredarse</li><li>Beneficios médicos, riesgos técnicos y dilemas éticos</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No tratar ambas como equivalentes</li><li>No ignorar herencia a futuras generaciones</li><li>No prometer curas garantizadas</li></ul></div>
+      </div>
+      <label for="q49">Respuesta del estudiante</label>
+      <textarea id="q49" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q49">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-50">
+      <div class="question-head">
+        <span class="number">#50</span>
+        <h3>Explicá cómo funciona CRISPR-Cas9 y por qué genera debates bioéticos.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Guía de ARN, corte de ADN por Cas9 y reparación celular</li><li>Aplicaciones potenciales en salud, agricultura o investigación</li><li>Debates sobre seguridad, acceso, embriones, mejora humana o consentimiento</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No describir CRISPR como tijeras mágicas sin mecanismo</li><li>No omitir errores fuera de objetivo</li><li>No presentar edición genética como siempre aceptable</li></ul></div>
+      </div>
+      <label for="q50">Respuesta del estudiante</label>
+      <textarea id="q50" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q50">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-51">
+      <div class="question-head">
+        <span class="number">#51</span>
+        <h3>Analizá una aplicación médica de la biotecnología como insulina recombinante, vacunas de ARN o anticuerpos monoclonales.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Explicación básica del proceso biotecnológico</li><li>Beneficio para diagnóstico, prevención o tratamiento</li><li>Limitaciones como costo, acceso, almacenamiento o seguridad</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No nombrar la aplicación sin explicar funcionamiento</li><li>No confundir vacuna de ARN con modificación permanente del ADN humano</li><li>No omitir impacto social</li></ul></div>
+      </div>
+      <label for="q51">Respuesta del estudiante</label>
+      <textarea id="q51" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q51">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-52">
+      <div class="question-head">
+        <span class="number">#52</span>
+        <h3>Explicá qué es la epigenética y cómo puede modificar la expresión génica sin cambiar la secuencia del ADN.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Mecanismos como metilación de ADN, histonas o ARN no codificante</li><li>Influencia de ambiente, desarrollo o dieta en expresión génica</li><li>Diferencia entre cambio epigenético y mutación</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No afirmar que la epigenética cambia siempre el ADN</li><li>No usarla para justificar herencia de cualquier rasgo adquirido</li><li>No omitir reversibilidad o regulación</li></ul></div>
+      </div>
+      <label for="q52">Respuesta del estudiante</label>
+      <textarea id="q52" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q52">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-53">
+      <div class="question-head">
+        <span class="number">#53</span>
+        <h3>Describí la interferencia de ARN y su potencial terapéutico.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>ARN pequeño que reconoce ARNm complementario</li><li>Silenciamiento o degradación del mensaje antes de traducirse</li><li>Aplicación posible en enfermedades genéticas, virus o investigación</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir ARN interferente con antibiótico</li><li>No omitir complementariedad de bases</li><li>No presentar la técnica como libre de efectos secundarios</li></ul></div>
+      </div>
+      <label for="q53">Respuesta del estudiante</label>
+      <textarea id="q53" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q53">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-54">
+      <div class="question-head">
+        <span class="number">#54</span>
+        <h3>Evaluá los dilemas éticos de la manipulación genética en seres humanos.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Distinción entre tratamiento y mejora</li><li>Riesgos de desigualdad, eugenesia, consentimiento y efectos hereditarios</li><li>Necesidad de regulación, evidencia y deliberación pública</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No responder solo desde miedo o entusiasmo</li><li>No ignorar beneficios terapéuticos reales</li><li>No omitir quiénes podrían verse afectados</li></ul></div>
+      </div>
+      <label for="q54">Respuesta del estudiante</label>
+      <textarea id="q54" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q54">0 palabras | 0 líneas</div>
+    </article>
+      </div>
+    </section>
+    <section class="content-section" id="eje-3">
+      <div class="section-intro">
+        <div>
+          <p class="eyebrow">Eje III</p>
+          <h2>Origen, evolución y continuidad de la vida</h2>
+          <p>Este eje conecta el origen de la vida con la evolución biológica y la diversificación de especies. Integra teorías sobre química prebiótica, tiempo geológico, evidencias evolutivas, Lamarck, Darwin, neodarwinismo, mecanismos de cambio en poblaciones, especiación, extinción y el impacto humano sobre la trayectoria evolutiva de la biodiversidad.</p>
+        </div>
+        <div class="section-art" aria-hidden="true">
+<svg viewBox="0 0 320 220" role="img" aria-label="Evolucion y origen de la vida">
+  <rect width="320" height="220" rx="8" fill="rgba(255,255,255,.06)"/>
+  <path d="M42 168 C84 125 116 132 154 90 C196 44 242 44 282 76" fill="none" stroke="#67d1ff" stroke-width="5" stroke-linecap="round"/>
+  <g fill="#39d98a">
+    <circle cx="54" cy="157" r="7"/><circle cx="103" cy="129" r="8"/><circle cx="153" cy="92" r="9"/><circle cx="207" cy="61" r="8"/><circle cx="273" cy="74" r="7"/>
+  </g>
+  <path d="M72 184 C98 164 125 164 151 184 C128 195 98 195 72 184 Z" fill="#ffd166" opacity=".55"/>
+  <path d="M103 180 c13 -13 27 -13 41 0" fill="none" stroke="#08111f" stroke-width="5" stroke-linecap="round"/>
+  <path d="M208 154 c20 -18 50 -18 70 0 c-20 18 -50 18 -70 0 Z" fill="#ff8d8d" opacity=".42"/>
+  <path d="M236 153 l18 -11 l-3 11 l3 11 Z" fill="#ff8d8d" opacity=".72"/>
+</svg></div>
+      </div>
+      <div class="questions-list">
+        
+    <article class="question-card" id="pregunta-55">
+      <div class="question-head">
+        <span class="number">#55</span>
+        <h3>Explicá la teoría de síntesis prebiótica de Oparin-Haldane y su importancia para estudiar el origen de la vida.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Tierra primitiva, atmósfera y fuentes de energía</li><li>Formación gradual de moléculas orgánicas en un caldo primordial</li><li>Importancia como explicación química previa a las primeras células</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir origen de la vida con evolución de especies ya formadas</li><li>No atribuir el proceso a generación espontánea moderna</li><li>No omitir condiciones ambientales primitivas</li></ul></div>
+      </div>
+      <label for="q55">Respuesta del estudiante</label>
+      <textarea id="q55" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q55">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-56">
+      <div class="question-head">
+        <span class="number">#56</span>
+        <h3>Analizá el experimento de Miller-Urey indicando qué demostró y cuáles son sus límites.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Simulación de gases y descargas eléctricas</li><li>Producción de aminoácidos u otras moléculas orgánicas</li><li>Limitaciones sobre composición atmosférica y salto de moléculas a células</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No decir que creó vida</li><li>No omitir su valor como evidencia experimental</li><li>No presentar el experimento como prueba definitiva de todo el origen de la vida</li></ul></div>
+      </div>
+      <label for="q56">Respuesta del estudiante</label>
+      <textarea id="q56" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q56">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-57">
+      <div class="question-head">
+        <span class="number">#57</span>
+        <h3>Compará dos teorías o hipótesis sobre el origen de la vida distintas de la síntesis prebiótica.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Panspermia, mundo de ARN, fuentes hidrotermales o hierro-sulfuro</li><li>Fortalezas y evidencias disponibles</li><li>Limitaciones o preguntas sin resolver</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No mezclar hipótesis sin diferenciarlas</li><li>No confundir panspermia con evolución darwiniana</li><li>No omitir evaluación crítica</li></ul></div>
+      </div>
+      <label for="q57">Respuesta del estudiante</label>
+      <textarea id="q57" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q57">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-58">
+      <div class="question-head">
+        <span class="number">#58</span>
+        <h3>Explicá cómo la escala del tiempo geológico ayuda a comprender la continuidad y diversificación de la vida.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Tiempo profundo y secuencia de eras o eones</li><li>Aparición de primeros organismos y grandes cambios biológicos</li><li>Relación con fósiles, extinciones y diversificación</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No tratar la historia de la vida como si ocurriera en poco tiempo</li><li>No omitir registro fósil</li><li>No confundir edad de la Tierra con edad de la humanidad</li></ul></div>
+      </div>
+      <label for="q58">Respuesta del estudiante</label>
+      <textarea id="q58" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q58">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-59">
+      <div class="question-head">
+        <span class="number">#59</span>
+        <h3>Compará las propuestas de Lamarck y Darwin sobre la evolución.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Uso y desuso y herencia de caracteres adquiridos en Lamarck</li><li>Variación heredable y selección natural en Darwin</li><li>Razón por la cual la explicación darwiniana fue fortalecida por evidencia posterior</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No caricaturizar a Lamarck sin explicar</li><li>No decir que Darwin explicó genética mendeliana directamente</li><li>No confundir selección natural con azar puro</li></ul></div>
+      </div>
+      <label for="q59">Respuesta del estudiante</label>
+      <textarea id="q59" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q59">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-60">
+      <div class="question-head">
+        <span class="number">#60</span>
+        <h3>Explicá cómo actúa la selección natural sobre poblaciones.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Variación heredable entre individuos</li><li>Diferencias de supervivencia y reproducción</li><li>Cambio de frecuencias alélicas o rasgos en generaciones</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No decir que los individuos evolucionan durante su vida</li><li>No presentar la selección como intención de la naturaleza</li><li>No omitir éxito reproductivo</li></ul></div>
+      </div>
+      <label for="q60">Respuesta del estudiante</label>
+      <textarea id="q60" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q60">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-61">
+      <div class="question-head">
+        <span class="number">#61</span>
+        <h3>Analizá el registro fósil como evidencia de evolución.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Fósiles en estratos y datación relativa o absoluta</li><li>Formas transicionales o secuencias de cambio</li><li>Relación con extinciones y aparición de grupos</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No decir que un fósil aislado prueba todo</li><li>No omitir condiciones de fosilización</li><li>No confundir fósiles con organismos vivos antiguos</li></ul></div>
+      </div>
+      <label for="q61">Respuesta del estudiante</label>
+      <textarea id="q61" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q61">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-62">
+      <div class="question-head">
+        <span class="number">#62</span>
+        <h3>Diferenciá estructuras homólogas, análogas y vestigiales como evidencias evolutivas.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Homología como origen común con posible función distinta</li><li>Analogía como función similar por convergencia</li><li>Vestigialidad como rasgo heredado con función reducida o modificada</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir semejanza superficial con parentesco</li><li>No usar solo ejemplos humanos</li><li>No omitir relación con ancestro común</li></ul></div>
+      </div>
+      <label for="q62">Respuesta del estudiante</label>
+      <textarea id="q62" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q62">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-63">
+      <div class="question-head">
+        <span class="number">#63</span>
+        <h3>Explicá cómo la biogeografía aporta evidencia sobre la evolución.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Distribución de especies en continentes e islas</li><li>Endemismo, aislamiento y deriva continental o barreras geográficas</li><li>Ejemplo como Galápagos, Australia, Isla del Coco o istmo de Panamá</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No describir mapas sin explicación evolutiva</li><li>No omitir historia geológica</li><li>No confundir distribución actual con origen exacto</li></ul></div>
+      </div>
+      <label for="q63">Respuesta del estudiante</label>
+      <textarea id="q63" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q63">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-64">
+      <div class="question-head">
+        <span class="number">#64</span>
+        <h3>Analizá cómo la biología molecular y la embriología comparada apoyan el origen común.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Comparación de ADN, proteínas o genes conservados</li><li>Similitudes embrionarias entre grupos relacionados</li><li>Interpretación como evidencia independiente de parentesco</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No decir que similitud molecular significa igualdad total</li><li>No omitir divergencia acumulada</li><li>No confundir embriología con desarrollo idéntico</li></ul></div>
+      </div>
+      <label for="q64">Respuesta del estudiante</label>
+      <textarea id="q64" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q64">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-65">
+      <div class="question-head">
+        <span class="number">#65</span>
+        <h3>Diferenciá evolución convergente y divergente con ejemplos.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Convergencia en linajes no cercanos con presiones similares</li><li>Divergencia desde ancestro común hacia formas distintas</li><li>Ejemplos como tiburón-delfín, pinzones, mamíferos o plantas</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir convergencia con parentesco cercano</li><li>No omitir presión selectiva</li><li>No usar ejemplos sin explicar rasgos</li></ul></div>
+      </div>
+      <label for="q65">Respuesta del estudiante</label>
+      <textarea id="q65" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q65">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-66">
+      <div class="question-head">
+        <span class="number">#66</span>
+        <h3>Describí mecanismos de aislamiento reproductivo que pueden llevar a la especiación.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Aislamientos prezigóticos como temporal, conductual, ecológico o mecánico</li><li>Aislamientos postzigóticos como inviabilidad o esterilidad híbrida</li><li>Reducción del flujo génico y acumulación de diferencias</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir aislamiento reproductivo con migración simple</li><li>No omitir antes o después de fecundación</li><li>No presentar especiación como evento instantáneo</li></ul></div>
+      </div>
+      <label for="q66">Respuesta del estudiante</label>
+      <textarea id="q66" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q66">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-67">
+      <div class="question-head">
+        <span class="number">#67</span>
+        <h3>Explicá la radiación adaptativa usando el caso de los pinzones de Darwin u otro ejemplo válido.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Ancestro común</li><li>Ocupación de nichos distintos</li><li>Divergencia de rasgos por selección e aislamiento</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No presentar los picos como diseño deliberado</li><li>No omitir nichos alimentarios</li><li>No confundir radiación adaptativa con migración de una sola especie sin cambio</li></ul></div>
+      </div>
+      <label for="q67">Respuesta del estudiante</label>
+      <textarea id="q67" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q67">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-68">
+      <div class="question-head">
+        <span class="number">#68</span>
+        <h3>Compará deriva genética y selección natural como mecanismos evolutivos.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Deriva como cambio aleatorio en frecuencias alélicas</li><li>Selección como cambio no aleatorio relacionado con aptitud</li><li>Importancia del tamaño poblacional</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No decir que ambas son lo mismo</li><li>No omitir azar en deriva</li><li>No confundir deriva con migración</li></ul></div>
+      </div>
+      <label for="q68">Respuesta del estudiante</label>
+      <textarea id="q68" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q68">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-69">
+      <div class="question-head">
+        <span class="number">#69</span>
+        <h3>Explicá el efecto fundador y el cuello de botella como casos de deriva genética.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Efecto fundador por nueva población iniciada por pocos individuos</li><li>Cuello de botella por reducción drástica del tamaño poblacional</li><li>Pérdida de variabilidad genética</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir con selección artificial</li><li>No omitir poblaciones pequeñas</li><li>No presentar reducción genética como siempre beneficiosa</li></ul></div>
+      </div>
+      <label for="q69">Respuesta del estudiante</label>
+      <textarea id="q69" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q69">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-70">
+      <div class="question-head">
+        <span class="number">#70</span>
+        <h3>Analizá cómo el flujo génico puede aumentar diversidad o impedir diferenciación entre poblaciones.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Migración e intercambio de alelos</li><li>Aumento de variabilidad en una población receptora</li><li>Homogeneización genética si el flujo es constante</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No confundir flujo génico con flujo de energía</li><li>No hablar solo de movimiento físico sin alelos</li><li>No omitir relación con adaptación local</li></ul></div>
+      </div>
+      <label for="q70">Respuesta del estudiante</label>
+      <textarea id="q70" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q70">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-71">
+      <div class="question-head">
+        <span class="number">#71</span>
+        <h3>Explicá la selección sexual y cómo puede favorecer rasgos costosos para la supervivencia.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Competencia por pareja o elección de pareja</li><li>Rasgos que aumentan éxito reproductivo aunque tengan costos</li><li>Ejemplo como cantos, colores, cortejo, astas o plumajes</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No separar selección sexual totalmente de selección natural</li><li>No explicar el rasgo solo por belleza</li><li>No omitir reproducción diferencial</li></ul></div>
+      </div>
+      <label for="q71">Respuesta del estudiante</label>
+      <textarea id="q71" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q71">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-72">
+      <div class="question-head">
+        <span class="number">#72</span>
+        <h3>Diferenciá selección estabilizadora, direccional y disruptiva.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Estabilizadora favorece fenotipos intermedios</li><li>Direccional desplaza la población hacia un extremo</li><li>Disruptiva favorece extremos y reduce intermedios</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No usar nombres sin explicar</li><li>No omitir efecto sobre distribución de rasgos</li><li>No confundir selección disruptiva con extinción</li></ul></div>
+      </div>
+      <label for="q72">Respuesta del estudiante</label>
+      <textarea id="q72" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q72">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-73">
+      <div class="question-head">
+        <span class="number">#73</span>
+        <h3>Explicá qué aportó la síntesis moderna o neodarwinismo a la teoría evolutiva.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Integración de Darwin con genética mendeliana</li><li>Poblaciones, frecuencias alélicas, mutación, recombinación, selección, deriva y flujo génico</li><li>Aportes de biología de poblaciones, sistemática y genética</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No decir que reemplazó por completo a Darwin</li><li>No omitir genética</li><li>No confundir neodarwinismo con una teoría no científica</li></ul></div>
+      </div>
+      <label for="q73">Respuesta del estudiante</label>
+      <textarea id="q73" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q73">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-74">
+      <div class="question-head">
+        <span class="number">#74</span>
+        <h3>Analizá un ejemplo de coevolución entre plantas y polinizadores o entre depredadores y presas.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Definición de coevolución como selección recíproca</li><li>Rasgos de ambas especies que se influyen mutuamente</li><li>Importancia para biodiversidad y redes ecológicas</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No presentar coevolución como acuerdo voluntario</li><li>No omitir las dos partes de la interacción</li><li>No confundir con convivencia casual</li></ul></div>
+      </div>
+      <label for="q74">Respuesta del estudiante</label>
+      <textarea id="q74" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q74">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-75">
+      <div class="question-head">
+        <span class="number">#75</span>
+        <h3>Explicá la teoría endosimbiótica y su relación con el origen de células eucariotas.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Origen bacteriano de mitocondrias y cloroplastos</li><li>Evidencias como ADN circular, ribosomas 70S, doble membrana y división independiente</li><li>Papel de Margulis y simbiosis integrada</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No tratarla como hipótesis marginal sin evidencia</li><li>No confundir con simbiosis temporal entre organismos actuales</li><li>No omitir orgánulos principales</li></ul></div>
+      </div>
+      <label for="q75">Respuesta del estudiante</label>
+      <textarea id="q75" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q75">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-76">
+      <div class="question-head">
+        <span class="number">#76</span>
+        <h3>Explicá cómo se construyen e interpretan árboles filogenéticos o cladogramas.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Uso de homologías, sinapomorfías o datos moleculares</li><li>Nodos como ancestros comunes y ramas como linajes</li><li>Diferencia entre parentesco evolutivo y similitud superficial</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No leer el árbol como escala de progreso</li><li>No asumir que una especie actual viene de otra especie actual</li><li>No omitir ancestro común</li></ul></div>
+      </div>
+      <label for="q76">Respuesta del estudiante</label>
+      <textarea id="q76" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q76">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-77">
+      <div class="question-head">
+        <span class="number">#77</span>
+        <h3>Analizá una extinción masiva como la K-Pg y sus consecuencias evolutivas.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Causa o evidencia principal como impacto de asteroide y cambios ambientales</li><li>Extinción de muchos grupos y supervivencia de otros</li><li>Radiación adaptativa posterior de linajes sobrevivientes</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No reducirla a que murieron dinosaurios</li><li>No omitir cambios ecológicos globales</li><li>No confundir extinción masiva con extinción local</li></ul></div>
+      </div>
+      <label for="q77">Respuesta del estudiante</label>
+      <textarea id="q77" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q77">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-78">
+      <div class="question-head">
+        <span class="number">#78</span>
+        <h3>Explicá cómo la resistencia antibiótica en bacterias demuestra selección natural en tiempo real.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Variación genética previa por mutaciones</li><li>Antibiótico como presión selectiva</li><li>Reproducción diferencial de bacterias resistentes y problema médico</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No decir que las bacterias deciden volverse resistentes</li><li>No omitir uso excesivo o incorrecto de antibióticos</li><li>No confundir resistencia con inmunidad humana</li></ul></div>
+      </div>
+      <label for="q78">Respuesta del estudiante</label>
+      <textarea id="q78" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q78">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-79">
+      <div class="question-head">
+        <span class="number">#79</span>
+        <h3>Analizá cómo las actividades humanas afectan la diversificación y extinción de especies.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Fragmentación, contaminación, cambio climático, cacería, invasoras o sobreexplotación</li><li>Efectos sobre selección, deriva, flujo génico y tamaños poblacionales</li><li>Consecuencias para biodiversidad y propuestas de mitigación</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No decir solo que el ser humano destruye todo</li><li>No separar impacto ecológico de procesos evolutivos</li><li>No omitir soluciones o responsabilidad social</li></ul></div>
+      </div>
+      <label for="q79">Respuesta del estudiante</label>
+      <textarea id="q79" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q79">0 palabras | 0 líneas</div>
+    </article>
+    <article class="question-card" id="pregunta-80">
+      <div class="question-head">
+        <span class="number">#80</span>
+        <h3>Integrá mutación, recombinación, selección natural, deriva genética y flujo génico para explicar la diversidad de especies.</h3>
+      </div>
+      <div class="criteria-grid">
+        <div class="must-block"><strong>Debe incluir:</strong><ul><li>Mutación y recombinación como fuentes de variación</li><li>Selección, deriva y flujo génico como fuerzas que cambian frecuencias</li><li>Acumulación de diferencias, aislamiento y especiación a largo plazo</li></ul></div>
+        <div class="avoid-block"><strong>No hacer:</strong><ul><li>No explicar cada factor de forma aislada</li><li>No presentar la evolución como una línea de progreso</li><li>No omitir tiempo, poblaciones y ambiente</li></ul></div>
+      </div>
+      <label for="q80">Respuesta del estudiante</label>
+      <textarea id="q80" rows="5" spellcheck="true"></textarea>
+      <div class="answer-meta" data-meta-for="q80">0 palabras | 0 líneas</div>
+    </article>
+      </div>
+    </section>
+    <section class="final-check">
+      <h2>Declaración Final del Estudiante</h2>
+      <label><input type="checkbox" id="check-all"> Respondí todas las preguntas.</label>
+      <label><input type="checkbox" id="check-lines"> Mis respuestas tienen entre 3 y 6 líneas cuando corresponde.</label>
+      <label><input type="checkbox" id="check-vocab"> Usé vocabulario de Biología.</label>
+      <label><input type="checkbox" id="check-clarity"> Revisé claridad, precisión científica y ortografía.</label>
+    </section>
+  </main>
+  <script>
+const canvas = document.getElementById("bio-canvas");
+const ctx = canvas.getContext("2d");
+let width = 0;
+let height = 0;
+const particles = Array.from({ length: 72 }, (_, index) => ({
+  x: Math.random(),
+  y: Math.random(),
+  r: 1 + Math.random() * 2.4,
+  hue: index % 3,
+  speed: .12 + Math.random() * .28
+}));
+
+function resizeCanvas() {
+  const ratio = window.devicePixelRatio || 1;
+  width = window.innerWidth;
+  height = window.innerHeight;
+  canvas.width = Math.floor(width * ratio);
+  canvas.height = Math.floor(height * ratio);
+  canvas.style.width = width + "px";
+  canvas.style.height = height + "px";
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+}
+
+function drawCanvas() {
+  ctx.clearRect(0, 0, width, height);
+  particles.forEach((particle) => {
+    particle.y -= particle.speed / Math.max(height, 1);
+    if (particle.y < -0.04) {
+      particle.y = 1.04;
+      particle.x = Math.random();
+    }
+    const color = particle.hue === 0 ? "57,217,138" : particle.hue === 1 ? "103,209,255" : "255,209,102";
+    ctx.beginPath();
+    ctx.arc(particle.x * width, particle.y * height, particle.r, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(" + color + ", .42)";
+    ctx.fill();
+  });
+  requestAnimationFrame(drawCanvas);
+}
+
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+drawCanvas();
+
+const STORAGE_KEY = "tlp_biologia10_integral80_respuestas";
+const COMPLETE_MIN_LENGTH = 28;
+
+function initAssessment() {
+  const inputs = document.querySelectorAll("textarea, input");
+  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+  const progressText = document.querySelector("#progress-text");
+  const progressFill = document.querySelector("#progress-fill");
+  const textareas = Array.from(document.querySelectorAll("textarea[id^='q']"));
+
+  inputs.forEach((input) => {
+    if (saved[input.id] !== undefined) {
+      if (input.type === "checkbox") input.checked = Boolean(saved[input.id]);
+      else input.value = saved[input.id];
+    }
+    input.addEventListener("input", () => {
+      const next = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      next[input.id] = input.type === "checkbox" ? input.checked : input.value;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      updateProgress();
+    });
+  });
+
+  document.querySelector("#export-json")?.addEventListener("click", exportJson);
+  document.querySelector("#print-page")?.addEventListener("click", () => window.print());
+  document.querySelector("#clear-local")?.addEventListener("click", clearLocal);
+  textareas.forEach((textarea) => textarea.addEventListener("input", () => updateMeta(textarea)));
+  textareas.forEach(updateMeta);
+  updateProgress();
+
+  function updateMeta(textarea) {
+    const meta = document.querySelector(`[data-meta-for="${textarea.id}"]`);
+    if (!meta) return;
+    const words = textarea.value.trim() ? textarea.value.trim().split(/\s+/).length : 0;
+    const lines = textarea.value.split(/\n/).filter((line) => line.trim()).length;
+    meta.textContent = `${words} palabras | ${lines} líneas`;
+  }
+
+  function updateProgress() {
+    const complete = textareas.filter((textarea) => textarea.value.trim().length >= COMPLETE_MIN_LENGTH).length;
+    const percent = textareas.length ? Math.round((complete / textareas.length) * 100) : 0;
+    if (progressText) progressText.textContent = `${complete}/${textareas.length} respuestas con avance`;
+    if (progressFill) progressFill.style.width = `${percent}%`;
+    textareas.forEach(updateMeta);
+  }
+
+  function collectData() {
+    const data = {
+      exportedAt: new Date().toISOString(),
+      assessment: "Biología 10 - Tarea Integral Avanzada 80",
+      student: {},
+      checks: {},
+      answers: {}
+    };
+
+    document.querySelectorAll("input").forEach((input) => {
+      const target = input.type === "checkbox" ? data.checks : data.student;
+      target[input.id] = input.type === "checkbox" ? input.checked : input.value;
+    });
+
+    textareas.forEach((textarea) => {
+      data.answers[textarea.id] = textarea.value;
+    });
+
+    return data;
+  }
+
+  function exportJson() {
+    const data = collectData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    const name = (data.student["student-name"] || "estudiante").trim().replace(/[^\w-]+/g, "_");
+    anchor.href = url;
+    anchor.download = `respuestas_biologia10_${name || "estudiante"}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function clearLocal() {
+    const ok = window.confirm("Esto borra las respuestas guardadas en este navegador para esta evaluación.");
+    if (!ok) return;
+    localStorage.removeItem(STORAGE_KEY);
+    inputs.forEach((input) => {
+      if (input.type === "checkbox") input.checked = false;
+      else input.value = "";
+    });
+    updateProgress();
+  }
+}
+
+initAssessment();
+</script>
+</body>
+</html>

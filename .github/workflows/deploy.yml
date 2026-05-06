@@ -1,0 +1,115 @@
+name: Build and Deploy to Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate and build all apps
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Detectar todas las subcarpetas que tengan package.json + scripts/build.mjs
+          for dir in */; do
+            app="${dir%/}"
+            if [ -f "$app/package.json" ] && [ -f "$app/scripts/build.mjs" ]; then
+              echo "::group::Validate + build $app"
+              (cd "$app" && node scripts/validate.mjs && node scripts/build.mjs)
+              echo "::endgroup::"
+            fi
+          done
+
+      - name: Prepare deployment artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          # Página índice mínima en root
+          cat > _site/index.html <<'HTML'
+          <!doctype html>
+          <html lang="es">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <title>evaluacosas — The Launch Pad</title>
+            <style>
+              body{font-family:Inter,system-ui,sans-serif;background:#07111d;color:#eef6ff;margin:0;padding:48px 24px;line-height:1.5;}
+              .wrap{max-width:720px;margin:0 auto;}
+              h1{font-size:2.2rem;margin:0 0 8px;}
+              p{color:#a9bacf;}
+              ul{list-style:none;padding:0;display:grid;gap:12px;margin-top:32px;}
+              a{display:block;padding:18px 22px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(255,255,255,.04);color:#eef6ff;text-decoration:none;font-weight:700;}
+              a:hover{background:rgba(103,209,255,.1);border-color:rgba(103,209,255,.4);color:#67d1ff;}
+              code{padding:2px 6px;background:rgba(255,255,255,.08);border-radius:4px;font-family:ui-monospace,Menlo,monospace;font-size:.9em;}
+            </style>
+          </head>
+          <body>
+            <div class="wrap">
+              <h1>evaluacosas</h1>
+              <p>Macro-proyecto de The Launch Pad — TLP. Apps web educativas servidas como sitios estáticos.</p>
+              <ul id="apps-list"></ul>
+            </div>
+            <script>
+            const apps = [
+          HTML
+          # Añadir cada app encontrada al index
+          for dir in */; do
+            app="${dir%/}"
+            if [ -f "$app/package.json" ] && [ -f "$app/index.html" ]; then
+              # leer titulo del HTML
+              title=$(grep -m1 '<title>' "$app/index.html" | sed -E 's/.*<title>([^<]*)<\/title>.*/\1/' || echo "$app")
+              echo "{slug:\"$app\",title:\"$title\"}," >> _site/index.html
+              # copiar la app entera al artifact
+              mkdir -p "_site/$app"
+              cp -R "$app"/* "_site/$app/"
+            fi
+          done
+          cat >> _site/index.html <<'HTML'
+            ];
+            const list = document.getElementById('apps-list');
+            list.innerHTML = apps.map(a => `<li><a href="${a.slug}/">${a.title}</a></li>`).join('');
+            </script>
+          </body>
+          </html>
+          HTML
+          ls -la _site/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
