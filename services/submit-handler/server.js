@@ -12,6 +12,7 @@ import { Firestore } from "@google-cloud/firestore";
 import { Storage } from "@google-cloud/storage";
 import { Octokit } from "@octokit/rest";
 import { createClient } from "@supabase/supabase-js";
+import { OAuth2Client } from "google-auth-library";
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));
@@ -30,6 +31,10 @@ const SUPABASE_TABLE = process.env.SUPABASE_TABLE || "submits";
 
 const LINEAR_API_KEY = process.env.LINEAR_API_KEY || "";
 const LINEAR_TEAM_ID = process.env.LINEAR_TEAM_ID || "";
+
+const ALLOWED_HD = (process.env.ALLOWED_HD || "thelaunchpadtlp.education").split(",").map((s) => s.trim()).filter(Boolean);
+const ADMIN_OAUTH_CLIENT_ID = process.env.ADMIN_OAUTH_CLIENT_ID || "";
+const oauthClient = ADMIN_OAUTH_CLIENT_ID ? new OAuth2Client(ADMIN_OAUTH_CLIENT_ID) : null;
 
 const firestore = new Firestore();
 const storage = new Storage();
@@ -338,6 +343,78 @@ function sanitize(s) {
   return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "")
     .replace(/[^A-Za-z0-9_-]+/g, "_").slice(0, 80) || "unknown";
 }
+
+// Admin auth middleware: valida Google ID token (Bearer) + restricción de domain.
+async function requireAdmin(req, res, next) {
+  setCors(res, req.headers.origin || "");
+  try {
+    if (!oauthClient) return res.status(503).json({ error: "admin_not_configured" });
+    const auth = req.headers.authorization || "";
+    const token = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
+    if (!token) return res.status(401).json({ error: "missing_token" });
+    const ticket = await oauthClient.verifyIdToken({ idToken: token, audience: ADMIN_OAUTH_CLIENT_ID });
+    const payload = ticket.getPayload();
+    if (!payload?.email_verified) return res.status(403).json({ error: "email_not_verified" });
+    const hd = payload.hd || (payload.email || "").split("@").pop();
+    if (!ALLOWED_HD.includes(hd)) return res.status(403).json({ error: "domain_not_allowed", hd });
+    req.admin = { email: payload.email, name: payload.name, picture: payload.picture, hd };
+    next();
+  } catch (err) {
+    console.error("admin_auth_error", err?.message || err);
+    return res.status(401).json({ error: "auth_failed", detail: String(err?.message || err) });
+  }
+}
+
+// GET /admin/submits — lista submits desde Firestore (auth requerida)
+app.get("/admin/submits", requireAdmin, async (req, res) => {
+  try {
+    const limit = Math.min(Number(req.query.limit) || 100, 500);
+    const app_filter = String(req.query.app || "").trim();
+    const status_filter = String(req.query.status || "").trim();
+    let q = firestore.collection(FIRESTORE_COLLECTION).orderBy("receivedAt", "desc").limit(limit);
+    if (app_filter) q = q.where("app", "==", app_filter);
+    const snap = await q.get();
+    const items = [];
+    snap.forEach((doc) => {
+      const d = doc.data();
+      items.push({
+        docId: doc.id,
+        app: d.app,
+        institution: d.institution,
+        course: d.course,
+        grade: d.grade,
+        assessmentTitle: d.assessmentTitle,
+        student: d.student || {},
+        analytics: d.analytics || {},
+        receivedAt: d.receivedAt,
+        submittedAt: d.submittedAt,
+        filename: d.filename,
+        path: d.path
+      });
+    });
+    res.json({ ok: true, total: items.length, admin: req.admin, items });
+  } catch (err) {
+    console.error("admin_list_error", err?.message || err);
+    res.status(500).json({ error: "list_failed", detail: String(err?.message || err) });
+  }
+});
+
+// GET /admin/submit/:docId — detalle de un submit con respuestas completas
+app.get("/admin/submit/:docId", requireAdmin, async (req, res) => {
+  try {
+    const docId = String(req.params.docId);
+    const doc = await firestore.collection(FIRESTORE_COLLECTION).doc(docId).get();
+    if (!doc.exists) return res.status(404).json({ error: "not_found" });
+    res.json({ ok: true, admin: req.admin, doc: doc.data() });
+  } catch (err) {
+    res.status(500).json({ error: "fetch_failed", detail: String(err?.message || err) });
+  }
+});
+
+// GET /admin/whoami — devuelve la identidad autenticada
+app.get("/admin/whoami", requireAdmin, async (req, res) => {
+  res.json({ ok: true, admin: req.admin });
+});
 
 const port = Number(process.env.PORT || 8080);
 app.listen(port, () => {

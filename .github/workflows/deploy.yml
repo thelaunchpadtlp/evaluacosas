@@ -72,12 +72,11 @@ jobs:
           # apps.json al root del artifact (fuente que la landing puede consumir)
           if [ -f apps.json ]; then cp apps.json _site/apps.json; fi
 
-          # Cada app a su subcarpeta en _site
+          # Cada app a su subcarpeta en _site (apps con package.json + index.html)
           for dir in */; do
             app="${dir%/}"
-            # Skippear carpetas que NO son apps publicables
             case "$app" in
-              landing|services|docs|.github|node_modules) continue ;;
+              landing|services|docs|.github|node_modules|dashboard) continue ;;
             esac
             if [ -f "$app/package.json" ] && [ -f "$app/index.html" ]; then
               echo "  → copying app: $app"
@@ -85,6 +84,13 @@ jobs:
               cp -R "$app"/* "_site/$app/"
             fi
           done
+
+          # Dashboard del docente (estático, sin build) → _site/dashboard/
+          if [ -d dashboard ] && [ -f dashboard/index.html ]; then
+            echo "  → copying dashboard"
+            mkdir -p _site/dashboard
+            cp -R dashboard/. _site/dashboard/
+          fi
 
           # Reemplazar placeholder en fallback index si fue usado
           if grep -q "__APPS__" _site/index.html 2>/dev/null; then

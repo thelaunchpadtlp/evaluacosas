@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07111d">
+  <meta name="color-scheme" content="dark light">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Dashboard del docente · evaluacosas TLP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800;900&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-to-content" href="#main">Saltar al contenido</a>
+  <header class="dash-header">
+    <div class="dash-header-inner">
+      <a class="dash-back" href="/" title="Volver al catálogo evaluacosas">← evaluacosas</a>
+      <h1 class="dash-title">Dashboard del docente</h1>
+      <div class="dash-account" id="dash-account"></div>
+    </div>
+  </header>
+
+  <main class="dash-main" id="main">
+    <section class="auth-gate" id="auth-gate">
+      <h2>Acceso restringido</h2>
+      <p>Solo para docentes con cuenta institucional <code>@thelaunchpadtlp.education</code>. Iniciá sesión con tu cuenta de Google del Workspace.</p>
+      <div id="g_id_signin"></div>
+      <p class="auth-note" id="auth-note"></p>
+    </section>
+
+    <section class="dash-content" id="dash-content" hidden>
+      <div class="dash-toolbar">
+        <div class="dash-search">
+          <input id="dash-search-input" type="search" placeholder="Buscar por nombre, email, sección, app…" autocomplete="off">
+        </div>
+        <div class="dash-filters">
+          <label>App: <select id="filter-app"><option value="">Todas</option></select></label>
+          <button type="button" id="dash-refresh">↻ Refrescar</button>
+        </div>
+        <p class="dash-stats" id="dash-stats" aria-live="polite">Cargando…</p>
+      </div>
+
+      <div class="dash-table-wrap">
+        <table class="dash-table" id="dash-table">
+          <thead>
+            <tr>
+              <th>Recibido</th>
+              <th>App</th>
+              <th>Estudiante</th>
+              <th>Sección</th>
+              <th>Pre-grade</th>
+              <th>Pasa 80%</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="dash-tbody"><tr><td colspan="7" class="dash-empty">Cargando entregas…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="dash-modal" id="dash-modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="dash-modal-card">
+        <header class="dash-modal-head">
+          <h3 id="modal-title">Detalle de entrega</h3>
+          <button type="button" class="dash-modal-close" id="modal-close" aria-label="Cerrar">×</button>
+        </header>
+        <div class="dash-modal-body" id="modal-body"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="dash-footer">
+    <p>The Launch Pad — TLP · Centro Educativo GEA · acceso restringido al docente.</p>
+  </footer>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="app.js" defer></script>
+</body>
+</html>
