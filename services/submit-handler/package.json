@@ -1,0 +1,17 @@
+{
+  "name": "evaluacosas-submit-handler",
+  "version": "1.0.0",
+  "description": "Cloud Run service que recibe submits de evaluacosas y los sube a Drive con la identity del service account.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "googleapis": "^160.0.0"
+  }
+}
