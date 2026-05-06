@@ -3337,6 +3337,105 @@ body.teacher-view .final-check {
   .bio-help-tabs { padding: 10px 14px; }
   .bio-help-panel { padding: 18px 18px 28px; }
 }
+
+/* ============================================================
+   SPRINT 31 — G.4 Progress ring + draft badge + focus mode
+   ============================================================ */
+#bio-progress-ring {
+  position: fixed;
+  top: calc(72px + var(--safe-top));
+  right: calc(16px + var(--safe-right));
+  z-index: 70;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: rgba(15, 22, 32, 0.85);
+  border: 1px solid var(--hairline);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  box-shadow: 0 8px 24px rgba(0,0,0,.32);
+  transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast);
+  min-height: 56px;
+}
+#bio-progress-ring:hover {
+  transform: scale(1.06) translateY(-1px);
+  box-shadow: 0 12px 30px rgba(57,217,138,.32);
+}
+#bio-progress-ring svg { position: absolute; inset: 4px; width: calc(100% - 8px); height: calc(100% - 8px); }
+.bio-ring-pct {
+  position: relative;
+  font-size: .76rem;
+  font-weight: 800;
+  color: var(--text);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (max-width: 600px) {
+  #bio-progress-ring { width: 48px; height: 48px; min-height: 48px; top: calc(60px + var(--safe-top)); right: calc(10px + var(--safe-right)); }
+  .bio-ring-pct { font-size: .68rem; }
+}
+
+#bio-draft-badge {
+  position: fixed;
+  bottom: calc(20px + var(--safe-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9000;
+  padding: 8px 16px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 209, 102, 0.18);
+  border: 1px solid rgba(255, 209, 102, 0.5);
+  color: var(--warning);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: 0 6px 20px rgba(0,0,0,.32);
+  animation: bio-draft-in 220ms var(--ease-spring);
+  pointer-events: none;
+}
+#bio-draft-badge[hidden] { display: none; }
+#bio-draft-badge span { color: var(--warning); margin-right: 4px; }
+@keyframes bio-draft-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Focus mode — fade nav y elementos no esenciales mientras se escribe */
+body.bio-focus-mode .globalnav,
+body.bio-focus-mode .bio-site-footer,
+body.bio-focus-mode #toc-fab,
+body.bio-focus-mode .coach-tip {
+  opacity: 0.18;
+  pointer-events: none;
+  transition: opacity 280ms var(--ease-spring);
+}
+body.bio-focus-mode .globalnav:hover,
+body.bio-focus-mode .bio-site-footer:hover {
+  opacity: 1;
+  pointer-events: auto;
+}
+body:not(.bio-focus-mode) .globalnav,
+body:not(.bio-focus-mode) .bio-site-footer,
+body:not(.bio-focus-mode) #toc-fab,
+body:not(.bio-focus-mode) .coach-tip {
+  opacity: 1;
+  transition: opacity 280ms var(--ease-spring);
+}
+
+/* Spring animation para botón guardar */
+.btn-save:active,
+[data-save-question]:active {
+  transform: scale(0.94);
+  transition: transform 100ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #bio-progress-ring, #bio-draft-badge, body.bio-focus-mode * { transition: none !important; animation: none !important; }
+}
 </style>
 </head>
 <body>
@@ -11314,6 +11413,129 @@ JSON DEL EXAMEN:
       else input.value = "";
     });
     updateProgress();
+  }
+
+  // ============================================================
+  // SPRINT 31 — G.4 UX por ítem
+  // ============================================================
+  initProgressRing();
+  initSmartResume();
+  initShortcutsGsn();
+  initDraftBadge();
+  initFocusMode();
+
+  function initProgressRing() {
+    if (document.querySelector("#bio-progress-ring")) return;
+    const ring = document.createElement("button");
+    ring.id = "bio-progress-ring";
+    ring.type = "button";
+    ring.setAttribute("aria-label", "Progreso global · click para ir al primer ítem sin guardar");
+    ring.innerHTML = '<svg viewBox="0 0 36 36" width="48" height="48" aria-hidden="true">' +
+      '<circle cx="18" cy="18" r="15.91" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"></circle>' +
+      '<circle id="bio-ring-fill" cx="18" cy="18" r="15.91" fill="none" stroke="url(#bio-ring-grad)" stroke-width="3" stroke-linecap="round" stroke-dasharray="0, 100" transform="rotate(-90 18 18)"></circle>' +
+      '<defs><linearGradient id="bio-ring-grad" x1="0" x2="1"><stop offset="0%" stop-color="#39d98a"/><stop offset="100%" stop-color="#67d1ff"/></linearGradient></defs>' +
+      '</svg><span class="bio-ring-pct">0%</span>';
+    document.body.appendChild(ring);
+    ring.addEventListener("click", () => {
+      const first = textareas.find(t => !(t.value || "").trim());
+      if (first) { first.scrollIntoView({ behavior: "smooth", block: "center" }); first.focus(); }
+      else window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    });
+    function syncRing() {
+      const total = textareas.length || 1;
+      const filled = textareas.filter(t => (t.value || "").trim().length > 30).length;
+      const pct = Math.round((filled / total) * 100);
+      const fill = document.querySelector("#bio-ring-fill");
+      if (fill) fill.setAttribute("stroke-dasharray", pct + ", 100");
+      const lbl = document.querySelector(".bio-ring-pct");
+      if (lbl) lbl.textContent = pct + "%";
+    }
+    syncRing();
+    document.addEventListener("input", () => { clearTimeout(window.__bioRingT); window.__bioRingT = setTimeout(syncRing, 220); });
+    document.addEventListener("click", (e) => {
+      if (e.target.closest("[data-save-question]") || e.target.closest(".btn-save") || e.target.closest("#save-and-next")) {
+        setTimeout(syncRing, 50);
+      }
+    });
+  }
+
+  function initSmartResume() {
+    const hasAny = textareas.some(t => (t.value || "").trim().length > 0);
+    if (!hasAny) return;
+    const firstEmpty = textareas.find(t => !(t.value || "").trim());
+    if (firstEmpty && firstEmpty.id !== "q1") {
+      setTimeout(() => firstEmpty.scrollIntoView({ behavior: "smooth", block: "center" }), 300);
+    }
+  }
+
+  function initShortcutsGsn() {
+    document.addEventListener("keydown", (e) => {
+      const inField = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName);
+      const drawerOpen = !document.querySelector("#bio-help-drawer")?.hidden;
+      const tocOpen = !document.querySelector("#toc-panel")?.hidden;
+      if (drawerOpen || tocOpen) return;
+      if (e.key === "g" && !inField) {
+        e.preventDefault();
+        const first = textareas.find(t => !(t.value || "").trim());
+        if (first) { first.scrollIntoView({ behavior: "smooth", block: "center" }); first.focus(); }
+      }
+      if (e.key === "s" && (e.metaKey || e.ctrlKey) && document.activeElement?.tagName === "TEXTAREA") {
+        e.preventDefault();
+        const id = document.activeElement.id;
+        document.querySelector('[data-save-question="' + id + '"]')?.click();
+      }
+      if (e.key === "n" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        document.querySelector("#save-and-next")?.click();
+      }
+    });
+  }
+
+  function initDraftBadge() {
+    const badge = document.createElement("div");
+    badge.id = "bio-draft-badge";
+    badge.hidden = true;
+    badge.innerHTML = '<span aria-hidden="true">●</span> borrador local';
+    document.body.appendChild(badge);
+    let lastSaved = localStorage.getItem(STORAGE_KEY) || "{}";
+    document.addEventListener("input", () => {
+      clearTimeout(window.__bioDraftT);
+      window.__bioDraftT = setTimeout(() => {
+        const now = localStorage.getItem(STORAGE_KEY) || "{}";
+        if (now !== lastSaved) {
+          badge.hidden = false;
+          lastSaved = now;
+          clearTimeout(window.__bioDraftHide);
+          window.__bioDraftHide = setTimeout(() => { badge.hidden = true; }, 1800);
+        }
+      }, 250);
+    });
+  }
+
+  function initFocusMode() {
+    let focused = false;
+    function enter() {
+      if (focused) return;
+      focused = true;
+      document.body.classList.add("bio-focus-mode");
+    }
+    function exit() {
+      if (!focused) return;
+      focused = false;
+      document.body.classList.remove("bio-focus-mode");
+    }
+    textareas.forEach(t => {
+      t.addEventListener("focus", enter);
+      t.addEventListener("blur", () => setTimeout(() => {
+        if (document.activeElement?.tagName !== "TEXTAREA") exit();
+      }, 80));
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && focused) {
+        e.preventDefault();
+        document.activeElement?.blur();
+      }
+    });
   }
 }
 

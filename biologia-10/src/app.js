@@ -1262,4 +1262,127 @@ JSON DEL EXAMEN:
     });
     updateProgress();
   }
+
+  // ============================================================
+  // SPRINT 31 — G.4 UX por ítem
+  // ============================================================
+  initProgressRing();
+  initSmartResume();
+  initShortcutsGsn();
+  initDraftBadge();
+  initFocusMode();
+
+  function initProgressRing() {
+    if (document.querySelector("#bio-progress-ring")) return;
+    const ring = document.createElement("button");
+    ring.id = "bio-progress-ring";
+    ring.type = "button";
+    ring.setAttribute("aria-label", "Progreso global · click para ir al primer ítem sin guardar");
+    ring.innerHTML = '<svg viewBox="0 0 36 36" width="48" height="48" aria-hidden="true">' +
+      '<circle cx="18" cy="18" r="15.91" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"></circle>' +
+      '<circle id="bio-ring-fill" cx="18" cy="18" r="15.91" fill="none" stroke="url(#bio-ring-grad)" stroke-width="3" stroke-linecap="round" stroke-dasharray="0, 100" transform="rotate(-90 18 18)"></circle>' +
+      '<defs><linearGradient id="bio-ring-grad" x1="0" x2="1"><stop offset="0%" stop-color="#39d98a"/><stop offset="100%" stop-color="#67d1ff"/></linearGradient></defs>' +
+      '</svg><span class="bio-ring-pct">0%</span>';
+    document.body.appendChild(ring);
+    ring.addEventListener("click", () => {
+      const first = textareas.find(t => !(t.value || "").trim());
+      if (first) { first.scrollIntoView({ behavior: "smooth", block: "center" }); first.focus(); }
+      else window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    });
+    function syncRing() {
+      const total = textareas.length || 1;
+      const filled = textareas.filter(t => (t.value || "").trim().length > 30).length;
+      const pct = Math.round((filled / total) * 100);
+      const fill = document.querySelector("#bio-ring-fill");
+      if (fill) fill.setAttribute("stroke-dasharray", pct + ", 100");
+      const lbl = document.querySelector(".bio-ring-pct");
+      if (lbl) lbl.textContent = pct + "%";
+    }
+    syncRing();
+    document.addEventListener("input", () => { clearTimeout(window.__bioRingT); window.__bioRingT = setTimeout(syncRing, 220); });
+    document.addEventListener("click", (e) => {
+      if (e.target.closest("[data-save-question]") || e.target.closest(".btn-save") || e.target.closest("#save-and-next")) {
+        setTimeout(syncRing, 50);
+      }
+    });
+  }
+
+  function initSmartResume() {
+    const hasAny = textareas.some(t => (t.value || "").trim().length > 0);
+    if (!hasAny) return;
+    const firstEmpty = textareas.find(t => !(t.value || "").trim());
+    if (firstEmpty && firstEmpty.id !== "q1") {
+      setTimeout(() => firstEmpty.scrollIntoView({ behavior: "smooth", block: "center" }), 300);
+    }
+  }
+
+  function initShortcutsGsn() {
+    document.addEventListener("keydown", (e) => {
+      const inField = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName);
+      const drawerOpen = !document.querySelector("#bio-help-drawer")?.hidden;
+      const tocOpen = !document.querySelector("#toc-panel")?.hidden;
+      if (drawerOpen || tocOpen) return;
+      if (e.key === "g" && !inField) {
+        e.preventDefault();
+        const first = textareas.find(t => !(t.value || "").trim());
+        if (first) { first.scrollIntoView({ behavior: "smooth", block: "center" }); first.focus(); }
+      }
+      if (e.key === "s" && (e.metaKey || e.ctrlKey) && document.activeElement?.tagName === "TEXTAREA") {
+        e.preventDefault();
+        const id = document.activeElement.id;
+        document.querySelector('[data-save-question="' + id + '"]')?.click();
+      }
+      if (e.key === "n" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        document.querySelector("#save-and-next")?.click();
+      }
+    });
+  }
+
+  function initDraftBadge() {
+    const badge = document.createElement("div");
+    badge.id = "bio-draft-badge";
+    badge.hidden = true;
+    badge.innerHTML = '<span aria-hidden="true">●</span> borrador local';
+    document.body.appendChild(badge);
+    let lastSaved = localStorage.getItem(STORAGE_KEY) || "{}";
+    document.addEventListener("input", () => {
+      clearTimeout(window.__bioDraftT);
+      window.__bioDraftT = setTimeout(() => {
+        const now = localStorage.getItem(STORAGE_KEY) || "{}";
+        if (now !== lastSaved) {
+          badge.hidden = false;
+          lastSaved = now;
+          clearTimeout(window.__bioDraftHide);
+          window.__bioDraftHide = setTimeout(() => { badge.hidden = true; }, 1800);
+        }
+      }, 250);
+    });
+  }
+
+  function initFocusMode() {
+    let focused = false;
+    function enter() {
+      if (focused) return;
+      focused = true;
+      document.body.classList.add("bio-focus-mode");
+    }
+    function exit() {
+      if (!focused) return;
+      focused = false;
+      document.body.classList.remove("bio-focus-mode");
+    }
+    textareas.forEach(t => {
+      t.addEventListener("focus", enter);
+      t.addEventListener("blur", () => setTimeout(() => {
+        if (document.activeElement?.tagName !== "TEXTAREA") exit();
+      }, 80));
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && focused) {
+        e.preventDefault();
+        document.activeElement?.blur();
+      }
+    });
+  }
 }
