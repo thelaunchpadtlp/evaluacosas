@@ -644,17 +644,27 @@ async function requireAdmin(req, res, next) {
 }
 
 // GET /admin/submits — lista submits desde Firestore (auth requerida)
+// Sprint 36 IDOR protection: filtra por teacher email salvo si es super-admin.
+// Super-admins (env var SUPER_ADMINS) ven todo. Otros docentes solo ven submits
+// donde student.teacher == su email O assigned_teacher == su email.
 app.get("/admin/submits", requireAdmin, async (req, res) => {
   try {
     const limit = Math.min(Number(req.query.limit) || 100, 500);
     const app_filter = String(req.query.app || "").trim();
     const status_filter = String(req.query.status || "").trim();
+    const superAdmins = (process.env.SUPER_ADMINS || "joaquin.munoz@thelaunchpadtlp.education").split(",").map(s => s.trim());
+    const isSuper = superAdmins.includes(req.admin.email);
     let q = firestore.collection(FIRESTORE_COLLECTION).orderBy("receivedAt", "desc").limit(limit);
     if (app_filter) q = q.where("app", "==", app_filter);
     const snap = await q.get();
     const items = [];
     snap.forEach((doc) => {
       const d = doc.data();
+      // IDOR filter: docente solo ve sus propios submits salvo si es super-admin
+      if (!isSuper) {
+        const t = (d.payload?.student?.teacher || d.student?.teacher || d.assigned_teacher || "").toLowerCase();
+        if (t && t !== req.admin.email.toLowerCase()) return;
+      }
       items.push({
         docId: doc.id,
         app: d.app,

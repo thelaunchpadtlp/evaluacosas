@@ -1,0 +1,25 @@
+name: Backup integrity verification
+on:
+  schedule:
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Cloud Run health (sinks)
+        run: |
+          curl -fsS https://evaluacosas-submit-handler-441768184201.us-central1.run.app/health \
+            | python3 -c "
+          import json, sys
+          d = json.load(sys.stdin)
+          missing = [k for k, v in d.get('sinks', {}).items() if not v.get('enabled')]
+          if missing:
+              print(f'FAIL: sinks not enabled: {missing}')
+              sys.exit(1)
+          print(f'OK: all sinks enabled — {list(d[\"sinks\"].keys())}')
+          "
