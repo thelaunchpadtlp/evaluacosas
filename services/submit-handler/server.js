@@ -11,6 +11,7 @@ import express from "express";
 import { Firestore } from "@google-cloud/firestore";
 import { Storage } from "@google-cloud/storage";
 import { Octokit } from "@octokit/rest";
+import { createClient } from "@supabase/supabase-js";
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));
@@ -23,8 +24,18 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN || ""; // PAT con scope repo
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main";
 const SHARED_SECRET = process.env.SHARED_SECRET || "";
 
+const SUPABASE_URL = process.env.SUPABASE_URL || "";
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || "";
+const SUPABASE_TABLE = process.env.SUPABASE_TABLE || "submits";
+
+const LINEAR_API_KEY = process.env.LINEAR_API_KEY || "";
+const LINEAR_TEAM_ID = process.env.LINEAR_TEAM_ID || "";
+
 const firestore = new Firestore();
 const storage = new Storage();
+const supabase = (SUPABASE_URL && SUPABASE_SERVICE_KEY)
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, { auth: { persistSession: false } })
+  : null;
 
 function setCors(res, origin) {
   if (!ORIGIN_ALLOWLIST.length || ORIGIN_ALLOWLIST.includes("*") || ORIGIN_ALLOWLIST.includes(origin)) {
@@ -36,7 +47,7 @@ function setCors(res, origin) {
   res.setHeader("Access-Control-Max-Age", "600");
 }
 
-app.options("*", (req, res) => {
+app.options(/.*/, (req, res) => {
   setCors(res, req.headers.origin || "");
   res.status(204).end();
 });
@@ -50,7 +61,9 @@ app.get("/health", (req, res) => {
     sinks: {
       cloudStorage: { enabled: true, bucket: BUCKET },
       firestore: { enabled: true, collection: FIRESTORE_COLLECTION },
-      github: { enabled: Boolean(GITHUB_REPO && GITHUB_TOKEN), repo: GITHUB_REPO || null, branch: GITHUB_BRANCH }
+      github: { enabled: Boolean(GITHUB_REPO && GITHUB_TOKEN), repo: GITHUB_REPO || null, branch: GITHUB_BRANCH },
+      supabase: { enabled: Boolean(supabase), table: SUPABASE_TABLE },
+      linear: { enabled: Boolean(LINEAR_API_KEY && LINEAR_TEAM_ID), team: LINEAR_TEAM_ID || null }
     }
   });
 });
@@ -116,13 +129,17 @@ app.post("/submit", async (req, res) => {
     const sinks = await Promise.allSettled([
       writeToCloudStorage(path, data, meta),
       writeToFirestore(docId, data, meta),
-      writeToGitHub(path, data, meta)
+      writeToGitHub(path, data, meta),
+      writeToSupabase(docId, data, meta),
+      writeToLinear(docId, data, meta)
     ]);
 
     const summary = {
       cloudStorage: extractResult(sinks[0]),
       firestore: extractResult(sinks[1]),
-      github: extractResult(sinks[2])
+      github: extractResult(sinks[2]),
+      supabase: extractResult(sinks[3]),
+      linear: extractResult(sinks[4])
     };
 
     const anyOk = Object.values(summary).some((s) => s.ok);
@@ -187,6 +204,95 @@ async function writeToGitHub(path, data, meta) {
   return { ok: true, sink: "github", repo: GITHUB_REPO, path, branch: GITHUB_BRANCH };
 }
 
+async function writeToSupabase(docId, data, meta) {
+  if (!supabase) return { ok: false, sink: "supabase", reason: "disabled" };
+  const row = {
+    doc_id: docId,
+    app: meta.app,
+    schema: meta.schema,
+    schema_version: meta.schemaVersion,
+    student_name: meta.student.name,
+    student_id: meta.student.id,
+    student_email: meta.student.email,
+    student_section: meta.student.section,
+    student_date: meta.student.date,
+    teacher_name: meta.student.teacher,
+    institution: meta.institution,
+    course: meta.course,
+    grade: meta.grade,
+    assessment_title: meta.assessmentTitle,
+    substantive_answers: meta.analytics.substantiveAnswers,
+    empty_answers: meta.analytics.emptyAnswers,
+    pre_grade_score: meta.analytics.preGradeScore,
+    pre_grade_percentage: meta.analytics.preGradePercentage,
+    pre_grade_passing: meta.analytics.preGradePassing,
+    pre_grade_level: meta.analytics.preGradeLevel,
+    payload_size: meta.payloadSize,
+    filename: meta.filename,
+    path: meta.path,
+    submitted_at: meta.submittedAt,
+    payload: data,
+    graded_status: "pending"
+  };
+  const { error } = await supabase.from(SUPABASE_TABLE).upsert(row, { onConflict: "doc_id" });
+  if (error) throw new Error(`supabase: ${error.message}`);
+  return { ok: true, sink: "supabase", table: SUPABASE_TABLE, row: docId };
+}
+
+async function writeToLinear(docId, data, meta) {
+  if (!LINEAR_API_KEY || !LINEAR_TEAM_ID) return { ok: false, sink: "linear", reason: "disabled" };
+  const studentName = meta.student.name || "estudiante";
+  const studentEmail = meta.student.email || "";
+  const teacherName = meta.student.teacher || "";
+  const pre = meta.analytics.preGradePercentage != null ? `${meta.analytics.preGradePercentage}%` : "—";
+  const preLevel = meta.analytics.preGradeLevel || "—";
+  const passing = meta.analytics.preGradePassing ? "✅ supera 80%" : "⚠️ no supera 80%";
+  const description = `**Entrega automática desde evaluacosas**
+
+| Campo | Valor |
+|-------|-------|
+| App | ${meta.app} |
+| Estudiante | ${studentName} |
+| Email | ${studentEmail} |
+| Docente | ${teacherName} |
+| Sección | ${meta.student.section || "—"} |
+| Fecha | ${meta.student.date || "—"} |
+| Pre-calificación heurística | ${pre} (${preLevel}) — ${passing} |
+| Preguntas sustantivas | ${meta.analytics.substantiveAnswers} |
+| Vacías | ${meta.analytics.emptyAnswers} |
+| docId | \`${docId}\` |
+
+**Sinks de almacenamiento:**
+- Cloud Storage: \`gs://${BUCKET}/${meta.path}\`
+- Firestore: \`${FIRESTORE_COLLECTION}/${docId}\`
+${GITHUB_REPO ? `- GitHub: [${GITHUB_REPO}/${meta.path}](https://github.com/${GITHUB_REPO}/blob/${GITHUB_BRANCH}/${meta.path})` : ""}
+${supabase ? `- Supabase: ${SUPABASE_URL}/project/sql/new (table: ${SUPABASE_TABLE}, doc_id=${docId})` : ""}
+
+**Próximo paso:** mover este Issue a "In Progress" cuando empieces a calificar, y "Done" cuando termines.`;
+
+  const title = `[${meta.app}] ${studentName} · ${meta.student.date || ""}`;
+  const labelInput = `app:${meta.app},status:pending`;
+  const query = `mutation IssueCreate($input: IssueCreateInput!) { issueCreate(input: $input) { success issue { id identifier url } } }`;
+  const variables = {
+    input: {
+      teamId: LINEAR_TEAM_ID,
+      title,
+      description,
+      priority: 3
+    }
+  };
+  const resp = await fetch("https://api.linear.app/graphql", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": LINEAR_API_KEY },
+    body: JSON.stringify({ query, variables })
+  });
+  const j = await resp.json();
+  if (!j.data?.issueCreate?.success) {
+    throw new Error(`linear: ${JSON.stringify(j.errors || j)}`);
+  }
+  return { ok: true, sink: "linear", issueId: j.data.issueCreate.issue.id, identifier: j.data.issueCreate.issue.identifier, url: j.data.issueCreate.issue.url };
+}
+
 function extractResult(settled) {
   if (settled.status === "fulfilled") return settled.value;
   return { ok: false, error: String(settled.reason?.message || settled.reason) };
@@ -204,4 +310,6 @@ app.listen(port, () => {
   console.log(`  BUCKET=${BUCKET}`);
   console.log(`  FIRESTORE_COLLECTION=${FIRESTORE_COLLECTION}`);
   console.log(`  GITHUB=${GITHUB_REPO || "(disabled)"} branch=${GITHUB_BRANCH}`);
+  console.log(`  SUPABASE=${supabase ? SUPABASE_URL : "(disabled)"} table=${SUPABASE_TABLE}`);
+  console.log(`  LINEAR=${LINEAR_TEAM_ID || "(disabled)"}`);
 });
