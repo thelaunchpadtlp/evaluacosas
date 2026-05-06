@@ -87,10 +87,10 @@ function rubricBlock(question, section) {
   const r = buildRubric(question, section);
   const concepts = (r.mepConcepts || []).map((c) => `<span class="rubric-concept">${esc(c)}</span>`).join("");
   return `
-      <details class="rubric-block" open>
+      <details class="rubric-block">
         <summary class="rubric-summary">
           <span class="rubric-summary-icon" aria-hidden="true">📋</span>
-          <span class="rubric-summary-text">Cómo se evalúa este ítem · 1 punto binario · MEP ${esc((r.mepReference || "—").split(" · ")[0])}</span>
+          <span class="rubric-summary-text">Cómo se evalúa este ítem <span class="rubric-summary-cta">— pasá el mouse o tocá para ver</span> · 1 punto binario · MEP ${esc((r.mepReference || "—").split(" · ")[0])}</span>
           <span class="rubric-summary-toggle" aria-hidden="true">▾</span>
         </summary>
         <div class="rubric-grid">
