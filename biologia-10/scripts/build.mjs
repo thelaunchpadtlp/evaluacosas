@@ -287,7 +287,7 @@ const html = `<!doctype html>
     <span class="context-bar-status" id="context-bar-status" data-status="incomplete">En progreso</span>
   </div>
   <main class="shell" id="contenido-principal">
-    <a class="back-to-evaluacosas" href="https://evaluacosas.thelaunchpadtlp.education/" title="Volver al catálogo de evaluacosas">
+    <a class="back-to-evaluacosas" href="https://evaluacosas.thelaunchpadtlp.education/" title="Volver al catálogo de evaluacosas" aria-label="Volver al catálogo de evaluacosas — sitio principal con todas las evaluaciones TLP">
       <span aria-hidden="true">←</span> <span>evaluacosas</span><span class="back-to-evaluacosas-sep" aria-hidden="true"> · </span><span class="back-to-evaluacosas-tag">catálogo TLP</span>
     </a>
     <header class="hero">

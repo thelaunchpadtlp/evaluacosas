@@ -106,12 +106,13 @@ a:focus-visible {
   align-items: center;
   gap: 6px;
   margin: 14px 0 -8px;
-  padding: 6px 12px;
+  padding: 10px 14px;
+  min-height: 44px;
   border: 1px solid rgba(103, 209, 255, .26);
   border-radius: 999px;
   background: rgba(103, 209, 255, .07);
   color: var(--accent-2);
-  font-size: .78rem;
+  font-size: .82rem;
   font-weight: 700;
   text-decoration: none;
   width: max-content;
