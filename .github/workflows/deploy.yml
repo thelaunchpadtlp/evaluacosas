@@ -40,6 +40,16 @@ jobs:
             fi
           done
 
+      - name: Build sitemap (auto-update)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f scripts/build-sitemap.mjs ]; then
+            echo "::group::Build sitemap"
+            node scripts/build-sitemap.mjs
+            echo "::endgroup::"
+          fi
+
       - name: Prepare deployment artifact
         shell: bash
         run: |
@@ -93,7 +103,7 @@ jobs:
           fi
 
           # Carpetas estáticas de docs/ayuda/legal (sin build, solo HTML)
-          for static_dir in ayuda privacy terms ayuda/dashboard ayuda/estudiantes ayuda/problemas ayuda/privacidad; do
+          for static_dir in ayuda privacy terms ayuda/dashboard ayuda/estudiantes ayuda/problemas ayuda/privacidad sitemap; do
             if [ -d "$static_dir" ] && [ -f "$static_dir/index.html" ]; then
               echo "  → copying static: $static_dir"
               mkdir -p "_site/$static_dir"
