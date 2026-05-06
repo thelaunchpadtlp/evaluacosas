@@ -45,57 +45,64 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _site
-          # Copiar CNAME al artifact si existe (custom domain)
+
+          # CNAME al root del artifact si existe (custom domain)
           if [ -f CNAME ]; then cp CNAME _site/CNAME; fi
-          # Página índice mínima en root
-          cat > _site/index.html <<'HTML'
+
+          # Landing page (root del catálogo TLP). Si existe carpeta landing/ con
+          # index.html, copiamos ese árbol al root del artifact. Si no existe,
+          # generamos un index.html mínimo de fallback.
+          if [ -d landing ] && [ -f landing/index.html ]; then
+            echo "Using landing/ as root index"
+            cp -R landing/. _site/
+          else
+            echo "No landing/ found — generating fallback index.html"
+            cat > _site/index.html <<'HTML'
           <!doctype html>
-          <html lang="es">
-          <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width,initial-scale=1">
-            <title>evaluacosas — The Launch Pad</title>
-            <style>
-              body{font-family:Inter,system-ui,sans-serif;background:#07111d;color:#eef6ff;margin:0;padding:48px 24px;line-height:1.5;}
-              .wrap{max-width:720px;margin:0 auto;}
-              h1{font-size:2.2rem;margin:0 0 8px;}
-              p{color:#a9bacf;}
-              ul{list-style:none;padding:0;display:grid;gap:12px;margin-top:32px;}
-              a{display:block;padding:18px 22px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(255,255,255,.04);color:#eef6ff;text-decoration:none;font-weight:700;}
-              a:hover{background:rgba(103,209,255,.1);border-color:rgba(103,209,255,.4);color:#67d1ff;}
-              code{padding:2px 6px;background:rgba(255,255,255,.08);border-radius:4px;font-family:ui-monospace,Menlo,monospace;font-size:.9em;}
-            </style>
-          </head>
-          <body>
-            <div class="wrap">
-              <h1>evaluacosas</h1>
-              <p>Macro-proyecto de The Launch Pad — TLP. Apps web educativas servidas como sitios estáticos.</p>
-              <ul id="apps-list"></ul>
-            </div>
-            <script>
-            const apps = [
+          <html lang="es"><head>
+          <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+          <title>evaluacosas — The Launch Pad</title>
+          <style>body{font-family:Inter,system-ui,sans-serif;background:#07111d;color:#eef6ff;margin:0;padding:48px 24px}h1{font-size:2.2rem}a{color:#67d1ff}</style>
+          </head><body><h1>evaluacosas</h1><p>Catálogo TLP. (Landing en construcción.)</p><ul id="apps-list"></ul>
+          <script>document.getElementById('apps-list').innerHTML='__APPS__';</script>
+          </body></html>
           HTML
-          # Añadir cada app encontrada al index
+          fi
+
+          # apps.json al root del artifact (fuente que la landing puede consumir)
+          if [ -f apps.json ]; then cp apps.json _site/apps.json; fi
+
+          # Cada app a su subcarpeta en _site
           for dir in */; do
             app="${dir%/}"
+            # Skippear carpetas que NO son apps publicables
+            case "$app" in
+              landing|services|docs|.github|node_modules) continue ;;
+            esac
             if [ -f "$app/package.json" ] && [ -f "$app/index.html" ]; then
-              # leer titulo del HTML
-              title=$(grep -m1 '<title>' "$app/index.html" | sed -E 's/.*<title>([^<]*)<\/title>.*/\1/' || echo "$app")
-              echo "{slug:\"$app\",title:\"$title\"}," >> _site/index.html
-              # copiar la app entera al artifact
+              echo "  → copying app: $app"
               mkdir -p "_site/$app"
               cp -R "$app"/* "_site/$app/"
             fi
           done
-          cat >> _site/index.html <<'HTML'
-            ];
-            const list = document.getElementById('apps-list');
-            list.innerHTML = apps.map(a => `<li><a href="${a.slug}/">${a.title}</a></li>`).join('');
-            </script>
-          </body>
-          </html>
-          HTML
+
+          # Reemplazar placeholder en fallback index si fue usado
+          if grep -q "__APPS__" _site/index.html 2>/dev/null; then
+            apps_html=""
+            for dir in _site/*/; do
+              app=$(basename "$dir")
+              [ "$app" = "_site" ] && continue
+              [ -f "$dir/index.html" ] || continue
+              title=$(grep -m1 '<title>' "$dir/index.html" 2>/dev/null | sed -E 's/.*<title>([^<]*)<\/title>.*/\1/' || echo "$app")
+              apps_html+="<li><a href=\"$app/\">$title</a></li>"
+            done
+            sed -i "s|__APPS__|$apps_html|" _site/index.html
+          fi
+
+          echo "=== _site contents ==="
           ls -la _site/
+          echo "=== _site total size ==="
+          du -sh _site/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
