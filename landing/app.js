@@ -22,7 +22,50 @@
     loadCatalog();
     initFilters();
     initSearch();
+    initTocPanel();
   });
+
+  function initTocPanel() {
+    const fab = document.querySelector("#toc-fab");
+    const panel = document.querySelector("#toc-panel");
+    const close = document.querySelector("#toc-close");
+    if (!fab || !panel) return;
+    let lastFocus = null;
+    const open = () => {
+      lastFocus = document.activeElement;
+      panel.hidden = false;
+      requestAnimationFrame(() => {
+        panel.classList.add("open");
+        fab.setAttribute("aria-expanded", "true");
+        close?.focus();
+      });
+    };
+    const closeFn = () => {
+      panel.classList.remove("open");
+      fab.setAttribute("aria-expanded", "false");
+      setTimeout(() => { panel.hidden = true; }, 220);
+      lastFocus?.focus?.();
+    };
+    const toggle = () => panel.classList.contains("open") ? closeFn() : open();
+    fab.addEventListener("click", toggle);
+    close?.addEventListener("click", closeFn);
+    document.addEventListener("keydown", (event) => {
+      if (event.target instanceof HTMLInputElement) return;
+      if (event.key === "?") { event.preventDefault(); toggle(); }
+      else if (event.key === "Escape" && panel.classList.contains("open")) { closeFn(); }
+    });
+    panel.querySelectorAll("a[href^=\"#\"]").forEach((a) => {
+      a.addEventListener("click", () => {
+        if (window.matchMedia("(max-width: 720px)").matches) closeFn();
+      });
+    });
+  }
+
+  function renderTocApps() {
+    const list = document.querySelector("#toc-apps-list");
+    if (!list) return;
+    list.innerHTML = allApps.map((a) => `<li class="toc-question"><a class="toc-q-btn" href="${escAttr(a.url || a.slug + "/")}"><span class="toc-q-num">▸</span><span class="toc-q-prompt">${esc(a.title)}</span></a></li>`).join("");
+  }
 
   async function loadCatalog() {
     try {
@@ -72,6 +115,7 @@
       if (empty) empty.hidden = true;
       grid.innerHTML = filtered.map(renderCard).join("");
     }
+    renderTocApps();
   }
 
   function renderCard(a) {

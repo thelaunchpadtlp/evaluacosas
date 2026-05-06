@@ -18,8 +18,38 @@
 <body>
   <a class="skip-to-content" href="#catalog">Saltar al catálogo</a>
   <canvas id="bio-canvas" aria-hidden="true"></canvas>
+  <button class="toc-fab" id="toc-fab" type="button" aria-label="Abrir mapa de la página" aria-controls="toc-panel" aria-expanded="false" title="Mapa de la página — atajo: ?">
+    <span class="toc-fab-icon" aria-hidden="true">☰</span>
+    <span class="toc-fab-label">Mapa</span>
+  </button>
+  <aside class="toc-panel" id="toc-panel" hidden aria-labelledby="toc-title">
+    <header class="toc-header">
+      <div>
+        <h2 id="toc-title">Mapa de la página</h2>
+        <p class="toc-subtitle">Saltá a cualquier sección o evaluación</p>
+      </div>
+      <button class="toc-close" id="toc-close" type="button" aria-label="Cerrar mapa">×</button>
+    </header>
+    <div class="toc-body" role="navigation" aria-label="Secciones de la página">
+      <div class="toc-section">
+        <h3 class="toc-section-title">Página</h3>
+        <ul class="toc-questions">
+          <li class="toc-question"><a class="toc-q-btn" href="#hero"><span class="toc-q-num">↑</span><span class="toc-q-prompt">Hero · evaluacosas</span></a></li>
+          <li class="toc-question"><a class="toc-q-btn" href="#catalog"><span class="toc-q-num">▦</span><span class="toc-q-prompt">Catálogo de evaluaciones</span></a></li>
+          <li class="toc-question"><a class="toc-q-btn" href="#why-title"><span class="toc-q-num">i</span><span class="toc-q-prompt">Cómo funciona</span></a></li>
+        </ul>
+      </div>
+      <div class="toc-section">
+        <h3 class="toc-section-title">Evaluaciones</h3>
+        <ul class="toc-questions" id="toc-apps-list"></ul>
+      </div>
+    </div>
+    <footer class="toc-footer">
+      <p>Atajo: <kbd>?</kbd> abre/cierra · <kbd>Esc</kbd> cierra</p>
+    </footer>
+  </aside>
 
-  <header class="hero" id="hero">
+  <header class="hero" id="hero" aria-label="Hero · evaluacosas">
     <div class="hero-inner">
       <div class="brand-block">
         <p class="brand-line brand-primary" id="brand-institution">The Launch Pad — TLP</p>
