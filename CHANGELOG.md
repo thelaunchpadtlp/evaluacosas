@@ -5,6 +5,7 @@ Todas las versiones notables del proyecto. Formato: [Keep a Changelog](https://k
 ## [Unreleased]
 
 ### Added
+- **Sprint 29** — GCP Health Dashboard cross-project en apex `/registry/gcp-health/`. Sync script + JSON snapshot + API + UI con stats, filters, search, expand-cards, links a Console GCP. Re-sync manual; cron diario diferido a F.4.
 - **Sprint 28** — Sitemap robusto auto-actualizable: `scripts/build-sitemap.mjs` + `/sitemap/` HTML interactivo + `sitemap.xml` para crawlers + `robots.txt`. Auto-update en CI/CD.
 - **Sprint 27** — Device-view toggle inyectado en biology-10 generated HTML.
 - **Sprint 26** — Design tokens uniformes en biology-10 (SF Pro stack, squircle radii, glass blur, safe-area, spring easings, globalnav + footer cross-link).
