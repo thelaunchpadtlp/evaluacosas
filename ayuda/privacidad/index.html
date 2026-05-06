@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07111d" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="Privacidad explicada for-dummies en evaluacosas TLP.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <title>Privacidad explicada · Ayuda · evaluacosas TLP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800;900&display=swap">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/ayuda/ayuda.css">
+  <link rel="stylesheet" href="/device-view.css">
+</head>
+<body class="ayuda-body">
+  <a class="skip-to-content" href="#main">Saltar al contenido</a>
+
+  <nav class="globalnav" aria-label="Navegación principal">
+    <div class="globalnav-inner">
+      <a class="globalnav-brand" href="/">
+        <span class="globalnav-mark" aria-hidden="true">✺</span>
+        <span class="globalnav-name">evaluacosas <span class="globalnav-sub">TLP</span></span>
+      </a>
+      <ul class="globalnav-links" role="list">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/ayuda/">Ayuda</a></li>
+        <li><a href="/privacy/">Política completa</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="ayuda-main" id="main">
+    <article class="ayuda-article">
+      <a class="ayuda-back" href="/ayuda/">← Volver al centro de ayuda</a>
+      <h1>🛡️ Privacidad explicada — versión for-dummies</h1>
+      <p>Esta es la versión corta y conversacional. Para la política formal completa, andá a <a href="/privacy/">/privacy/</a>.</p>
+
+      <h2>Lo que importa en 30 segundos</h2>
+      <ul>
+        <li><strong>Solo recolectamos lo necesario</strong> para que tu profesor califique: nombre, email, sección, respuestas.</li>
+        <li><strong>Nadie afuera del Workspace TLP</strong> ve tus datos. Ni Google AI ni terceros analytics.</li>
+        <li><strong>5 lugares redundantes</strong> de almacenamiento (para no perder nada). Todos institucionales TLP.</li>
+        <li><strong>Cero cookies de marketing</strong>. Cero tracking.</li>
+        <li><strong>Borrable a pedido</strong> escribiendo al admin.</li>
+      </ul>
+
+      <h2>¿Qué pasa cuando hago una evaluación?</h2>
+      <ol>
+        <li>Empezás a escribir → tus respuestas se guardan <strong>localmente</strong> en tu navegador (no salen aún).</li>
+        <li>Pulsás <strong>Enviar</strong> → viajan cifradas (HTTPS) al servidor TLP.</li>
+        <li>El servidor las guarda en 5 lugares redundantes (uno se cae → otros 4 quedan).</li>
+        <li>Solo tu profesor con cuenta @thelaunchpadtlp.education puede verlas.</li>
+        <li>El profesor califica, te devuelve nota.</li>
+      </ol>
+
+      <h2>¿Quién puede ver mis respuestas?</h2>
+      <ul>
+        <li>✅ Tu <strong>profesor</strong> con cuenta institucional autorizada.</li>
+        <li>✅ Joaquín (admin del Workspace) si el profe lo necesita.</li>
+        <li>❌ Otros estudiantes — no.</li>
+        <li>❌ Google AI / OpenAI / terceros — no, salvo cuando el profe activa "calificar con IA" (y ahí es solo Gemini en Workspace TLP, no entrenan modelos con tus datos).</li>
+        <li>❌ Empresas de marketing — nunca.</li>
+      </ul>
+
+      <h2>¿Por cuánto tiempo guardan mis datos?</h2>
+      <ul>
+        <li><strong>Durante el ciclo lectivo</strong>: visible para tu profesor.</li>
+        <li><strong>Hasta 2 años después</strong>: archivo histórico para auditoría académica del MEP.</li>
+        <li><strong>Logs técnicos</strong>: máximo 30 días.</li>
+        <li><strong>Cache del TSE</strong> (cuando buscás cédula): máximo 24 horas.</li>
+      </ul>
+
+      <h2>¿Puedo pedir que borren mis datos?</h2>
+      <p>Sí. Mandá un email a <a href="mailto:joaquin.munoz@thelaunchpadtlp.education">joaquin.munoz@thelaunchpadtlp.education</a> con tu nombre, fecha aproximada de la entrega, y el motivo. Borramos en máximo 7 días y te confirmamos.</p>
+
+      <h2>¿Pueden exportar mis datos?</h2>
+      <p>Sí. Pediselo al profesor (te puede descargar tu JSON desde el dashboard) o al admin.</p>
+
+      <h2>¿Y la cédula? ¿Por qué la piden?</h2>
+      <p><strong>Es opcional</strong>. Si la pones y pulsás "Buscar en TSE", se consulta el padrón electoral público para autocompletar tus 4 nombres. La cédula se guarda solo en tu entrega (no se reusa para otras cosas, no se vende, no se comparte).</p>
+
+      <h2>¿Cuántos servidores tienen mis datos?</h2>
+      <p>Cinco. Sí, parece mucho. Es para que NO se pierda nada:</p>
+      <ol>
+        <li><strong>Cloud Storage</strong> (Google) — archivo principal.</li>
+        <li><strong>Firestore</strong> (Google) — base de datos para queries rápidas.</li>
+        <li><strong>GitHub privado</strong> — espejo cifrado (audit trail).</li>
+        <li><strong>Supabase</strong> — base relacional respaldo.</li>
+        <li><strong>Linear</strong> — issue tracking de cada entrega para que el docente la marque revisada.</li>
+      </ol>
+      <p>Todos están bajo cuenta TLP. Ninguno es de un tercero comercial que lea tus datos.</p>
+
+      <h2>Más detalle</h2>
+      <p>La política formal completa con compliance MEP y derechos GDPR-style está en <a href="/privacy/">/privacy/</a>.</p>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <p class="footer-tech">The Launch Pad — TLP · Centro Educativo GEA, acreditado ante el MEP.</p>
+    </div>
+  </footer>
+  <script src="/device-view.js" defer></script>
+</body>
+</html>

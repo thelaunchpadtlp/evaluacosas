@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07111d" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="Problemas comunes y cómo solucionarlos en evaluacosas TLP.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <title>Problemas comunes · Ayuda · evaluacosas TLP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800;900&display=swap">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/ayuda/ayuda.css">
+  <link rel="stylesheet" href="/device-view.css">
+</head>
+<body class="ayuda-body">
+  <a class="skip-to-content" href="#main">Saltar al contenido</a>
+
+  <nav class="globalnav" aria-label="Navegación principal">
+    <div class="globalnav-inner">
+      <a class="globalnav-brand" href="/">
+        <span class="globalnav-mark" aria-hidden="true">✺</span>
+        <span class="globalnav-name">evaluacosas <span class="globalnav-sub">TLP</span></span>
+      </a>
+      <ul class="globalnav-links" role="list">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/ayuda/">Ayuda</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="ayuda-main" id="main">
+    <article class="ayuda-article">
+      <a class="ayuda-back" href="/ayuda/">← Volver al centro de ayuda</a>
+      <h1>🧯 Problemas comunes</h1>
+      <p>Listado de cosas que pueden salir mal y cómo resolverlas. Si nada de esto te sirve, escribí a <a href="mailto:joaquin.munoz@thelaunchpadtlp.education">joaquin.munoz@thelaunchpadtlp.education</a>.</p>
+
+      <h2>🔐 Login al dashboard del docente</h2>
+
+      <h3>"App restricted by your administrator"</h3>
+      <p>Tu cuenta no está habilitada. El admin tiene que ejecutar:</p>
+      <pre><code>gcloud run services update evaluacosas-submit-handler \
+  --region us-central1 --project thelaunchpadtlplabsuniverse \
+  --update-env-vars "ALLOWED_TEACHERS=...,tu-email@thelaunchpadtlp.education"</code></pre>
+
+      <h3>"Failed to fetch" después del Sign-In</h3>
+      <p>Es un problema CORS. El backend tiene que aceptar el header <code>Authorization</code>. Verificar:</p>
+      <pre><code>curl -I -X OPTIONS https://evaluacosas-submit-handler-441768184201.us-central1.run.app/admin/whoami \
+  -H "Origin: https://evaluacosas.thelaunchpadtlp.education" \
+  -H "Access-Control-Request-Headers: authorization"</code></pre>
+      <p>Esperado: <code>Access-Control-Allow-Headers</code> incluye <code>Authorization</code>.</p>
+
+      <h3>"Error de autenticación: invalid_client"</h3>
+      <p>El OAuth Client ID no está bien configurado. Comparar:</p>
+      <ul>
+        <li><code>dashboard/config.json</code> tiene el ID correcto</li>
+        <li>Cloud Run env var <code>ADMIN_OAUTH_CLIENT_ID</code> coincide</li>
+        <li>El cliente OAuth en GCP Console tiene los 8 origins autorizados</li>
+      </ul>
+
+      <h3>"no registered origin"</h3>
+      <p>El cliente OAuth es de tipo IAP (no acepta JS origins) o no incluye el origin desde donde se accede. Crear un Web Application client nuevo en Console y agregar todos los origins.</p>
+
+      <h2>📝 Estudiante haciendo evaluación</h2>
+
+      <h3>"No se enviaron mis respuestas"</h3>
+      <ul>
+        <li>Verificá que veas la pantalla de confirmación.</li>
+        <li>Si hubo error de red, las respuestas siguen guardadas localmente. Volvé a abrir y reintentá.</li>
+        <li>Refrescá con <kbd>⌘⇧R</kbd> y probá otra vez.</li>
+      </ul>
+
+      <h3>"Perdí mi progreso"</h3>
+      <p>El autosave guarda en localStorage del navegador. Si:</p>
+      <ul>
+        <li>Cambiaste de navegador → no se sincroniza, perdiste datos. Volvé al original.</li>
+        <li>Modo incógnito → tu storage se borra al cerrar. No usar incógnito.</li>
+        <li>Limpiaste cookies/cache → puede haberse borrado el localStorage.</li>
+      </ul>
+
+      <h3>"No me deja enviar"</h3>
+      <ul>
+        <li>Revisá que todos los ítems <strong>obligatorios</strong> (asterisco rojo *) estén respondidos y guardados.</li>
+        <li>Mirá el ring de progreso (esquina superior derecha): te dice cuánto te falta.</li>
+        <li>Pulsá <kbd>g</kbd> para saltar al primer ítem sin completar.</li>
+      </ul>
+
+      <h2>📱 Dispositivos / pantalla</h2>
+
+      <h3>"Se ve mal en mi iPhone"</h3>
+      <p>Probá el toggle de visualización (botón abajo a la izquierda) → "iPhone Safari". Si seguís con problemas, refrescá con cache vacío.</p>
+
+      <h3>"El menú flotante tapa el contenido"</h3>
+      <p>El device toggle se puede minimizar (✕ en la esquina) y se autocolapsa después de elegir vista. Apple Watch tiene UI extra-condensada.</p>
+
+      <h2>🌐 Acceso al sitio</h2>
+
+      <h3>"No carga thelaunchpadtlp.education"</h3>
+      <ul>
+        <li>Verificá tu conexión.</li>
+        <li>Cloudflare DNS health: <a href="https://dash.cloudflare.com/" target="_blank" rel="noopener">dash.cloudflare.com</a>.</li>
+        <li>Backend health: <a href="https://evaluacosas-submit-handler-441768184201.us-central1.run.app/health" target="_blank" rel="noopener">/health endpoint</a>.</li>
+      </ul>
+
+      <h3>"Sale mensaje 'configuración pendiente'"</h3>
+      <p>El admin debe configurar OAuth Client ID en <code>dashboard/config.json</code>. Ya está hecho, pero si reaparece, verificar que el archivo se haya deployado.</p>
+
+      <h2>📧 Contacto</h2>
+      <p>Si nada acá te resuelve: <a href="mailto:joaquin.munoz@thelaunchpadtlp.education"><strong>joaquin.munoz@thelaunchpadtlp.education</strong></a>. Incluí captura de pantalla y URL exacta del problema.</p>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <p class="footer-tech">The Launch Pad — TLP · Centro Educativo GEA, acreditado ante el MEP.</p>
+    </div>
+  </footer>
+  <script src="/device-view.js" defer></script>
+</body>
+</html>

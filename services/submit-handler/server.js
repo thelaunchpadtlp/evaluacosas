@@ -17,6 +17,60 @@ import { OAuth2Client } from "google-auth-library";
 const app = express();
 app.use(express.json({ limit: "2mb" }));
 
+// ============================================================
+// SPRINT 32 — Audit log + rate limiting middleware
+// ============================================================
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 min
+const RATE_LIMIT_MAX_PER_IP = 100;       // 100 req/min per IP
+const RATE_LIMIT_MAX_ADMIN = 200;        // 200 req/min for admin endpoints (slightly higher)
+const _ipBuckets = new Map(); // ip → [{ts, count}]
+
+function getClientIp(req) {
+  const xf = (req.headers["x-forwarded-for"] || "").split(",")[0].trim();
+  return xf || req.socket?.remoteAddress || "unknown";
+}
+
+function rateLimitCheck(req, max = RATE_LIMIT_MAX_PER_IP) {
+  const ip = getClientIp(req);
+  const now = Date.now();
+  const bucket = _ipBuckets.get(ip) || { resetAt: now + RATE_LIMIT_WINDOW_MS, count: 0 };
+  if (now > bucket.resetAt) { bucket.resetAt = now + RATE_LIMIT_WINDOW_MS; bucket.count = 0; }
+  bucket.count += 1;
+  _ipBuckets.set(ip, bucket);
+  // Cleanup occasional
+  if (_ipBuckets.size > 5000) {
+    for (const [k, v] of _ipBuckets) if (now > v.resetAt) _ipBuckets.delete(k);
+  }
+  return bucket.count <= max;
+}
+
+function rateLimitMiddleware(max = RATE_LIMIT_MAX_PER_IP) {
+  return (req, res, next) => {
+    if (!rateLimitCheck(req, max)) {
+      const retryAfter = 60;
+      res.setHeader("Retry-After", retryAfter);
+      return res.status(429).json({ error: "rate_limited", retry_after_seconds: retryAfter });
+    }
+    next();
+  };
+}
+
+function auditLog(req, eventName, extra = {}) {
+  // Estructured log line. NO se loguean tokens ni payload sensible.
+  const entry = {
+    t: new Date().toISOString(),
+    event: eventName,
+    ip: getClientIp(req),
+    method: req.method,
+    path: req.path,
+    ua: (req.headers["user-agent"] || "").slice(0, 120),
+    ...extra
+  };
+  console.log("AUDIT", JSON.stringify(entry));
+}
+// Rate limit global generoso para todo
+app.use(rateLimitMiddleware(RATE_LIMIT_MAX_PER_IP));
+
 const ORIGIN_ALLOWLIST = (process.env.ALLOWED_ORIGINS || "").split(",").map((s) => s.trim()).filter(Boolean);
 const BUCKET = process.env.STORAGE_BUCKET || "evaluacosas-entregas";
 const FIRESTORE_COLLECTION = process.env.FIRESTORE_COLLECTION || "submits";
@@ -479,22 +533,47 @@ function sanitize(s) {
 }
 
 // Admin auth middleware: valida Google ID token (Bearer) + restricción de domain.
+// Sprint 32: rate limiting estricto + audit log de cada acceso.
 async function requireAdmin(req, res, next) {
   setCors(res, req.headers.origin || "");
+  // Rate limit estricto admin (200 req/min IP)
+  if (!rateLimitCheck(req, RATE_LIMIT_MAX_ADMIN)) {
+    auditLog(req, "admin_rate_limited");
+    return res.status(429).json({ error: "rate_limited" });
+  }
   try {
-    if (!oauthClient) return res.status(503).json({ error: "admin_not_configured" });
+    if (!oauthClient) {
+      auditLog(req, "admin_not_configured");
+      return res.status(503).json({ error: "admin_not_configured" });
+    }
     const auth = req.headers.authorization || "";
     const token = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
-    if (!token) return res.status(401).json({ error: "missing_token" });
+    if (!token) {
+      auditLog(req, "admin_missing_token");
+      return res.status(401).json({ error: "missing_token" });
+    }
     const ticket = await oauthClient.verifyIdToken({ idToken: token, audience: ADMIN_OAUTH_CLIENT_ID });
     const payload = ticket.getPayload();
-    if (!payload?.email_verified) return res.status(403).json({ error: "email_not_verified" });
+    if (!payload?.email_verified) {
+      auditLog(req, "admin_email_not_verified", { email: payload?.email });
+      return res.status(403).json({ error: "email_not_verified" });
+    }
     const hd = payload.hd || (payload.email || "").split("@").pop();
-    if (!ALLOWED_HD.includes(hd)) return res.status(403).json({ error: "domain_not_allowed", hd });
+    if (!ALLOWED_HD.includes(hd)) {
+      auditLog(req, "admin_domain_blocked", { email: payload.email, hd });
+      return res.status(403).json({ error: "domain_not_allowed", hd });
+    }
+    // Verificación adicional: ALLOWED_TEACHERS (allowlist explícita)
+    const allowedTeachers = (process.env.ALLOWED_TEACHERS || "").split(",").map(s => s.trim()).filter(Boolean);
+    if (allowedTeachers.length && !allowedTeachers.includes(payload.email)) {
+      auditLog(req, "admin_email_not_authorized", { email: payload.email });
+      return res.status(403).json({ error: "not_a_teacher" });
+    }
     req.admin = { email: payload.email, name: payload.name, picture: payload.picture, hd };
+    auditLog(req, "admin_auth_ok", { email: payload.email });
     next();
   } catch (err) {
-    console.error("admin_auth_error", err?.message || err);
+    auditLog(req, "admin_auth_error", { msg: String(err?.message || err).slice(0, 120) });
     return res.status(401).json({ error: "auth_failed", detail: String(err?.message || err) });
   }
 }
