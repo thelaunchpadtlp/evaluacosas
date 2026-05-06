@@ -36,6 +36,9 @@ const ALLOWED_HD = (process.env.ALLOWED_HD || "thelaunchpadtlp.education").split
 const ADMIN_OAUTH_CLIENT_ID = process.env.ADMIN_OAUTH_CLIENT_ID || "";
 const oauthClient = ADMIN_OAUTH_CLIENT_ID ? new OAuth2Client(ADMIN_OAUTH_CLIENT_ID) : null;
 
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+
 const firestore = new Firestore();
 const storage = new Storage();
 const supabase = (SUPABASE_URL && SUPABASE_SERVICE_KEY)
@@ -68,7 +71,8 @@ app.get("/health", (req, res) => {
       firestore: { enabled: true, collection: FIRESTORE_COLLECTION },
       github: { enabled: Boolean(GITHUB_REPO && GITHUB_TOKEN), repo: GITHUB_REPO || null, branch: GITHUB_BRANCH },
       supabase: { enabled: Boolean(supabase), table: SUPABASE_TABLE },
-      linear: { enabled: Boolean(LINEAR_API_KEY && LINEAR_TEAM_ID), team: LINEAR_TEAM_ID || null }
+      linear: { enabled: Boolean(LINEAR_API_KEY && LINEAR_TEAM_ID), team: LINEAR_TEAM_ID || null },
+      geminiAutograde: { enabled: Boolean(GEMINI_API_KEY), model: GEMINI_MODEL }
     }
   });
 });
@@ -158,12 +162,141 @@ app.post("/submit", async (req, res) => {
       return res.status(500).json({ error: "all_sinks_failed", summary, docId, filename });
     }
 
+    // Auto-grade con Gemini Flash (free tier 1500 req/día del proyecto TLP).
+    // Async, no bloquea respuesta. Si falla, no afecta el submit.
+    // El docente puede re-graduar bajo demanda desde el dashboard con SU
+    // OAuth token Workspace (POST /admin/grade/:docId) si quiere usar otra cuota.
+    if (GEMINI_API_KEY) {
+      runGeminiGrade(docId, data, summary).catch((err) => {
+        console.warn("gemini_grade_async_failed", docId, err?.message || err);
+      });
+    }
+
     return res.json({ ok: true, docId, filename, path, summary });
   } catch (err) {
     console.error("submit_error", err?.message || err);
     return res.status(500).json({ error: "submit_failed", detail: String(err?.message || err) });
   }
 });
+
+const GEMINI_GRADER_PROMPT = `Sos un calificador académico experto que aplica el SKILL TLP/Piqui — Parte II (Calificación, Retroalimentación y Análisis) — al instrumento de evaluación incluido como JSON al final.
+
+Reglas obligatorias:
+1. Criterio binario: cada pregunta vale 1 punto exacto. Sin medios puntos. Una respuesta correcta recibe 1/1; incorrecta, vaga, contradictoria o no verificable recibe 0/1.
+2. Identificación documental por cada ítem: número, eje, tipo de consigna, nivel cognitivo, transcripción literal del enunciado y de la respuesta, respuesta esperada, veredicto, puntaje, análisis breve, corrección si corresponde, comentario didáctico.
+3. Errores ortográficos NO se penalizan si el concepto es inequívoco; sí cuando cambian el concepto.
+4. "Correcta con matiz" cuando el núcleo es correcto pero hay imprecisión menor; nunca para regalar puntos.
+5. Niveles de desempeño TLP: 95-100 Excelente · 90-94 Muy alto · 85-89 Bueno · 80-84 Aceptable (línea de aprobación) · 70-79 No alcanzado por margen estrecho · 60-69 No alcanzado · <60 Insuficiente.
+6. NO uses lenguaje de IA ("como modelo", "según mi análisis", etc.). Salida lista para pegar como retroalimentación institucional.
+
+El JSON adjunto incluye blueprint (must, avoid, cognitiveLevel, type) por pregunta + respuestas del estudiante + pre-calificación heurística (preGrade) que NO sustituye tu juicio.
+
+Formato de salida: documento Markdown limpio, listo para pegar a Google Docs / Classroom. Estructura mínima:
+
+# Calificación · {institución} · {curso} · {grado}
+**Estudiante:** {nombre} ({email})
+**Instrumento:** {título}
+**Resultado:** X/80 · YY% · Nivel
+**Línea de aprobación TLP (80%):** ✓ supera / ✗ no supera
+
+## Resumen general
+[2-3 oraciones de diagnóstico ejecutivo]
+
+## Corrección detallada por ítem
+[Para cada uno de los 80 ítems: número, veredicto, puntaje, análisis breve. Sé conciso pero específico.]
+
+## Resumen por eje
+- Eje I: X/27
+- Eje II: X/27
+- Eje III: X/26
+- Total: X/80 · YY%
+
+## Fortalezas observadas
+[3-5 fortalezas específicas]
+
+## Aspectos por mejorar
+[3-5 áreas concretas]
+
+## Recomendaciones
+[Accionables, no genéricas]
+
+## Comentario final
+[Humano, profesional, motivador, específico]
+
+JSON DEL EXAMEN:
+\`\`\`json
+{{JSON}}
+\`\`\``;
+
+async function runGeminiGrade(docId, data, sinkSummary, userAccessToken = "") {
+  const promptBody = GEMINI_GRADER_PROMPT.replace("{{JSON}}", JSON.stringify(data, null, 2));
+  // Si tenemos OAuth access token del docente: usarlo (cuota Workspace).
+  // Si no: usar API Key del proyecto (free tier 1500 req/día).
+  const useOauth = Boolean(userAccessToken);
+  const url = useOauth
+    ? `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent`
+    : `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+  const headers = useOauth
+    ? { "Content-Type": "application/json", Authorization: `Bearer ${userAccessToken}` }
+    : { "Content-Type": "application/json" };
+  const ctrl = new AbortController();
+  const tm = setTimeout(() => ctrl.abort(), 120000);
+  try {
+    const r = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: promptBody }] }],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 8192 }
+      }),
+      signal: ctrl.signal
+    });
+    clearTimeout(tm);
+    if (!r.ok) {
+      const errText = await r.text();
+      throw new Error(`Gemini HTTP ${r.status}: ${errText.slice(0, 300)}`);
+    }
+    const j = await r.json();
+    const md = j?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    if (!md) throw new Error("empty_response");
+    // Persistir el grading en Firestore (collection grades/<docId>)
+    await firestore.collection("grades").doc(docId).set({
+      docId,
+      gradedAt: new Date().toISOString(),
+      gradedBy: "gemini",
+      model: GEMINI_MODEL,
+      markdown: md,
+      tokensIn: j?.usageMetadata?.promptTokenCount ?? null,
+      tokensOut: j?.usageMetadata?.candidatesTokenCount ?? null
+    }).catch((err) => console.warn("grades_firestore_save_failed", err?.message || err));
+
+    // Linear comment con el grading (si Linear sink fue OK)
+    const linearOk = sinkSummary?.linear?.ok && sinkSummary.linear.issueId && LINEAR_API_KEY;
+    if (linearOk) {
+      const issueId = sinkSummary.linear.issueId;
+      const truncatedMd = md.slice(0, 65000); // Linear max body
+      const mutation = `mutation CommentCreate($input: CommentCreateInput!) { commentCreate(input: $input) { success comment { id } } }`;
+      const variables = {
+        input: {
+          issueId,
+          body: `**Pre-calificación automática Gemini ${GEMINI_MODEL}** (preliminar — verificación humana requerida):\n\n${truncatedMd}`
+        }
+      };
+      try {
+        await fetch("https://api.linear.app/graphql", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: LINEAR_API_KEY },
+          body: JSON.stringify({ query: mutation, variables })
+        });
+      } catch (err) { console.warn("linear_comment_failed", err?.message || err); }
+    }
+
+    console.log("gemini_grade_ok", docId, `${md.length} chars`);
+    return { ok: true, docId, length: md.length };
+  } finally {
+    clearTimeout(tm);
+  }
+}
 
 async function writeToCloudStorage(path, data, meta) {
   const bucket = storage.bucket(BUCKET);
@@ -414,6 +547,27 @@ app.get("/admin/submit/:docId", requireAdmin, async (req, res) => {
 // GET /admin/whoami — devuelve la identidad autenticada
 app.get("/admin/whoami", requireAdmin, async (req, res) => {
   res.json({ ok: true, admin: req.admin });
+});
+
+// POST /admin/grade/:docId — re-calificar con Gemini usando OAuth del docente
+// Usa la cuota del Workspace de la cuenta autenticada (suscripción institucional
+// del profesor) en lugar de la API Key genérica del proyecto.
+app.post("/admin/grade/:docId", requireAdmin, async (req, res) => {
+  try {
+    const docId = String(req.params.docId);
+    const doc = await firestore.collection(FIRESTORE_COLLECTION).doc(docId).get();
+    if (!doc.exists) return res.status(404).json({ error: "not_found" });
+    const data = doc.data().payload;
+    // Auth header del request original lleva el ID token del docente; pero para
+    // llamar Gemini API necesitamos un access token (no ID token). El frontend
+    // debe haber pedido el access token con scope generative-language al login.
+    // Si no se provee X-Gemini-Access-Token, fallback a la API Key del proyecto.
+    const userAccessToken = req.headers["x-gemini-access-token"] || "";
+    const result = await runGeminiGrade(docId, data, {}, userAccessToken);
+    res.json({ ok: true, docId, ...result, gradedBy: req.admin.email, source: userAccessToken ? "workspace-oauth" : "project-api-key" });
+  } catch (err) {
+    res.status(500).json({ error: "grade_failed", detail: String(err?.message || err) });
+  }
 });
 
 // GET /cedula/:cedula — proxy multi-proveedor TSE Costa Rica con cache 24h en Firestore
