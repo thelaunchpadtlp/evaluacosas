@@ -1,4 +1,4 @@
-import { assessment, performanceLevels, evaluationCriteria, cognitiveLevelDefinitions, cognitiveLevelByQuestion, verbGlossary, passingThreshold } from "../src/questions.js";
+import { assessment, performanceLevels, evaluationCriteria, cognitiveLevelDefinitions, cognitiveLevelByQuestion, verbGlossary, passingThreshold, mepMapByQuestion } from "../src/questions.js";
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -43,6 +43,86 @@ function inferType(prompt) {
 const cognitiveDefByKey = Object.fromEntries(cognitiveLevelDefinitions.map((d) => [d.key, d]));
 const verbDefByType = Object.fromEntries(verbGlossary.map((v) => [v.type, v]));
 
+function buildRubric(question, section) {
+  // Auto-derived rubric from must/avoid/cognitiveLevel/type/MEP map.
+  // Si la pregunta provee question.rubric explícita, usa esa; si no, deriva.
+  if (question.rubric) return question.rubric;
+  const mep = mepMapByQuestion[question.id] || {};
+  const cogKey = cognitiveLevelByQuestion[question.id] || "";
+  const cogDef = cognitiveLevelDefinitions.find((d) => d.key === cogKey);
+  const type = inferType(question.prompt);
+
+  const earnsPoint = `Cumplí simultáneamente los ${(question.must || []).length} criterios "Debe incluir" listados arriba (todos son esenciales) y mantené tu respuesta dentro de los ${(question.avoid || []).length} límites del bloque "No hacer".`;
+
+  const losesPoint = `Si omitís cualquiera de los criterios "Debe incluir" esenciales, si tu respuesta encaja en alguno de los "No hacer", si la respuesta tiene menos de ${30} caracteres efectivos, o si el formato pedido por la consigna no se cumple.`;
+
+  const formatRequired = (() => {
+    if (type === "Comparación") return "Mencioná al menos dos elementos y explicitá una semejanza o una diferencia (no respondas un solo lado).";
+    if (type === "Aplicación") return "Aplicá el concepto a un caso o procedimiento concreto. No respondas con teoría general sin uso.";
+    if (type === "Análisis") return "Examiná el caso e inferí una conclusión apoyada en evidencia o relación causal.";
+    if (type === "Reflexión / Bioética") return "Tomá posición con marco de derechos, evidencia, regulación y proporcionalidad de riesgo.";
+    if (type === "Identificación") return "Respuesta breve y exacta con el término del programa MEP.";
+    if (type === "Cálculo") return "Indicá datos, fórmula y resultado paso a paso.";
+    if (type === "Clasificación") return "Organizá los elementos según criterios explícitos.";
+    if (type === "Descripción") return "Caracterizá con rasgos observables o conceptuales (más detalle que identificar).";
+    if (type === "Explicación") return "Mostrá la relación entre causa, mecanismo y consecuencia. No basta con definir.";
+    return "Oración completa, vocabulario propio de Biología, 3-6 líneas cuando la consigna requiera explicación.";
+  })();
+
+  return {
+    points: 1,
+    binary: true,
+    earnsPoint,
+    losesPoint,
+    mepReference: `${mep.eje || "—"} · ${mep.subtema || "—"}`,
+    mepConcepts: mep.concepts || [],
+    formatRequired,
+    cognitiveLevel: cogDef ? `${cogDef.label} — ${cogDef.description}` : "",
+    questionType: type,
+    teacherNote: `1 punto binario · sin parciales · línea de aprobación TLP del instrumento: ${passingThreshold}%`
+  };
+}
+
+function rubricBlock(question, section) {
+  const r = buildRubric(question, section);
+  const concepts = (r.mepConcepts || []).map((c) => `<span class="rubric-concept">${esc(c)}</span>`).join("");
+  return `
+      <details class="rubric-block">
+        <summary class="rubric-summary">
+          <span class="rubric-summary-icon" aria-hidden="true">📋</span>
+          <span class="rubric-summary-text">Cómo se evalúa este ítem · 1 punto binario · MEP ${esc((r.mepReference || "—").split(" · ")[0])}</span>
+          <span class="rubric-summary-toggle" aria-hidden="true">▾</span>
+        </summary>
+        <div class="rubric-grid">
+          <div class="rubric-cell rubric-earn">
+            <h4>✓ Cómo se gana el punto</h4>
+            <p>${esc(r.earnsPoint)}</p>
+          </div>
+          <div class="rubric-cell rubric-lose">
+            <h4>✗ Cómo se pierde</h4>
+            <p>${esc(r.losesPoint)}</p>
+          </div>
+          <div class="rubric-cell rubric-mep">
+            <h4>📚 Programa MEP</h4>
+            <p>${esc(r.mepReference)}</p>
+            ${concepts ? `<div class="rubric-concepts">${concepts}</div>` : ""}
+          </div>
+          <div class="rubric-cell rubric-format">
+            <h4>📝 Formato requerido</h4>
+            <p>${esc(r.formatRequired)}</p>
+          </div>
+          <div class="rubric-cell rubric-cog">
+            <h4>🧠 Habilidad evaluada</h4>
+            <p>${esc(r.cognitiveLevel || "—")}${r.questionType ? ` · Consigna tipo <strong>${esc(r.questionType)}</strong>` : ""}</p>
+          </div>
+          <div class="rubric-cell rubric-teacher">
+            <h4>📐 Cómo califica el docente</h4>
+            <p>${esc(r.teacherNote)}</p>
+          </div>
+        </div>
+      </details>`;
+}
+
 function questionCard(question, sectionSlug) {
   const type = inferType(question.prompt);
   const verbDef = verbDefByType[type];
@@ -73,6 +153,7 @@ function questionCard(question, sectionSlug) {
         <div class="must-block"><strong>Debe incluir:</strong>${list(question.must)}</div>
         <div class="avoid-block"><strong>No hacer:</strong>${list(question.avoid)}</div>
       </div>
+      ${rubricBlock(question, sectionSlug)}
       <label for="q${question.id}">Respuesta del estudiante${isRequired ? ' <span class="req-asterisk" aria-label="obligatoria">*</span>' : ""}</label>
       <textarea id="q${question.id}" rows="5" spellcheck="true" data-section="${esc(sectionSlug)}" data-required="${isRequired}" aria-required="${isRequired}"></textarea>
       <div class="answer-meta" data-meta-for="q${question.id}">0 palabras | 0 líneas</div>
@@ -427,16 +508,8 @@ const html = `<!doctype html>
         <button id="redownload" type="button">Volver a descargar el archivo</button>
         <button class="secondary" id="back-to-test" type="button">Volver a la prueba</button>
       </div>
-      <h3>Para el docente: calificación asistida por LLM</h3>
-      <p class="handoff-grading-lead">Si quien va a calificar quiere apoyarse en un asistente (Claude, Gemini, ChatGPT, Perplexity, Codex, Manus), el siguiente botón copia al portapapeles el JSON completo + un prompt instruccional basado en la Parte II del skill TLP/Piqui (calificación pregunta por pregunta, criterio binario, identificación documental, capas literales, banco de frases). Después abrí el LLM de tu preferencia y pegá.</p>
-      <div class="handoff-grading-actions">
-        <button class="secondary" id="copy-llm-bundle" type="button">📋 Copiar JSON + prompt de calificación</button>
-        <a class="llm-link" href="https://claude.ai/new" target="_blank" rel="noopener">Abrir Claude</a>
-        <a class="llm-link" href="https://gemini.google.com" target="_blank" rel="noopener">Abrir Gemini</a>
-        <a class="llm-link" href="https://chatgpt.com" target="_blank" rel="noopener">Abrir ChatGPT</a>
-        <a class="llm-link" href="https://www.perplexity.ai" target="_blank" rel="noopener">Abrir Perplexity</a>
-      </div>
-      <p class="handoff-note">El archivo contiene tus datos institucionales, tus respuestas y el blueprint completo de la tarea (criterios <em>Debe incluir</em> y <em>No hacer</em> por pregunta) más una pre-calificación heurística de referencia. Tus respuestas siguen guardadas en este navegador; si algo sale mal podés volver atrás y descargar el archivo de nuevo.</p>
+      <p class="handoff-note">El archivo descargado contiene tus respuestas y los datos institucionales necesarios para que tu docente pueda calificar la entrega. Tus respuestas siguen guardadas en este navegador; si algo sale mal podés volver atrás y descargar el archivo de nuevo.</p>
+      <p class="handoff-grading-info"><strong>Tu docente recibirá la entrega y registrará tu nota</strong> según el criterio TLP (1 punto por ítem, sin parciales, línea de aprobación 80 %).</p>
       <p class="handoff-back"><a href="https://evaluacosas.thelaunchpadtlp.education/" class="handoff-back-link"><span aria-hidden="true">←</span> Volver al catálogo de <strong>evaluacosas</strong></a></p>
       <div class="handoff-toast" id="handoff-toast" role="status" aria-live="polite" hidden></div>
     </div>

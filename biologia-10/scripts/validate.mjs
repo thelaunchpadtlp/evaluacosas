@@ -1,4 +1,4 @@
-import { assessment, performanceLevels, evaluationCriteria, cognitiveLevelDefinitions, cognitiveLevelByQuestion, verbGlossary, passingThreshold } from "../src/questions.js";
+import { assessment, performanceLevels, evaluationCriteria, cognitiveLevelDefinitions, cognitiveLevelByQuestion, verbGlossary, passingThreshold, mepMapByQuestion } from "../src/questions.js";
 
 let failures = 0;
 const questions = assessment.sections.flatMap((section) => section.questions);
@@ -70,6 +70,20 @@ if (!Array.isArray(cognitiveLevelDefinitions) || cognitiveLevelDefinitions.lengt
   fail("cognitiveLevelDefinitions debe contener al menos 6 niveles");
 }
 
+if (!mepMapByQuestion || typeof mepMapByQuestion !== "object") {
+  fail("mepMapByQuestion no está definido");
+} else {
+  questions.forEach((question) => {
+    const m = mepMapByQuestion[question.id];
+    if (!m || !m.eje || !m.subtema) {
+      fail(`pregunta ${question.id} no tiene mapeo MEP completo (eje + subtema)`);
+    }
+    if (!Array.isArray(m?.concepts) || m.concepts.length < 2) {
+      fail(`pregunta ${question.id} debe tener al menos 2 conceptos MEP`);
+    }
+  });
+}
+
 if (!Array.isArray(verbGlossary) || verbGlossary.length < 8) {
   fail("verbGlossary debe contener al menos 8 entradas");
 } else {
@@ -99,3 +113,4 @@ console.log(`OK: ${questions.length} preguntas validadas.`);
 console.log(`OK: encabezado institucional, criterio de calificación (${evaluationCriteria.scheme}, ${evaluationCriteria.totalItems} ítems), ${performanceLevels.length} niveles de desempeño, errores comunes en ${assessment.sections.length} ejes.`);
 console.log(`OK: balance cognitivo — ${cognitiveLevelDefinitions.map((d) => `${d.label}: ${cognitiveCounts[d.key] || 0}`).filter((s) => !s.endsWith(": 0")).join(" · ")}.`);
 console.log(`OK: glosario de verbos de consigna con ${verbGlossary.length} entradas (skill §23).`);
+console.log(`OK: mapeo MEP — ${Object.keys(mepMapByQuestion).length} preguntas mapeadas a subtemas del programa MEP de Biología 10.`);

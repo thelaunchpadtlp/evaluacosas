@@ -164,6 +164,170 @@ a:focus-visible {
   color: var(--accent);
 }
 
+.rubric-block {
+  margin: 12px 0 14px;
+  border: 1px solid rgba(103, 209, 255, .22);
+  border-radius: 10px;
+  background: rgba(103, 209, 255, .04);
+  overflow: hidden;
+}
+
+.rubric-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  list-style: none;
+  font-size: .86rem;
+  font-weight: 700;
+  color: var(--accent-2);
+  user-select: none;
+}
+
+.rubric-summary::-webkit-details-marker { display: none; }
+
+.rubric-summary-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.rubric-summary-text {
+  flex: 1;
+}
+
+.rubric-summary-toggle {
+  font-size: .85rem;
+  color: var(--muted);
+  transition: transform .15s ease;
+}
+
+.rubric-block[open] .rubric-summary-toggle {
+  transform: rotate(180deg);
+}
+
+.rubric-block[open] .rubric-summary {
+  border-bottom: 1px solid rgba(103, 209, 255, .14);
+  background: rgba(103, 209, 255, .07);
+}
+
+.rubric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+  padding: 14px;
+}
+
+.rubric-cell {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  background: rgba(0, 0, 0, .18);
+}
+
+.rubric-cell h4 {
+  margin: 0 0 6px;
+  font-size: .76rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  font-weight: 800;
+}
+
+.rubric-cell p {
+  margin: 0;
+  color: var(--text);
+  font-size: .85rem;
+  line-height: 1.55;
+}
+
+.rubric-earn {
+  border-color: rgba(57, 217, 138, .3);
+  background: rgba(57, 217, 138, .07);
+}
+.rubric-earn h4 { color: var(--accent); }
+
+.rubric-lose {
+  border-color: rgba(255, 141, 141, .3);
+  background: rgba(255, 141, 141, .06);
+}
+.rubric-lose h4 { color: var(--danger); }
+
+.rubric-mep {
+  border-color: rgba(103, 209, 255, .3);
+  background: rgba(103, 209, 255, .06);
+}
+.rubric-mep h4 { color: var(--accent-2); }
+
+.rubric-format {
+  border-color: rgba(255, 209, 102, .28);
+  background: rgba(255, 209, 102, .04);
+}
+.rubric-format h4 { color: var(--warning); }
+
+.rubric-cog {
+  border-color: rgba(179, 155, 255, .3);
+  background: rgba(179, 155, 255, .06);
+}
+.rubric-cog h4 { color: #b39bff; }
+
+.rubric-teacher {
+  border-color: rgba(255, 255, 255, .15);
+  background: rgba(255, 255, 255, .04);
+}
+.rubric-teacher h4 { color: var(--text); }
+
+.rubric-concepts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.rubric-concept {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(103, 209, 255, .12);
+  color: var(--accent-2);
+  font-size: .74rem;
+  font-weight: 700;
+  border: 1px solid rgba(103, 209, 255, .25);
+}
+
+/* En vista docente la rúbrica siempre aparece expandida */
+body.teacher-view .rubric-block {
+  background: rgba(255, 209, 102, .05);
+  border-color: rgba(255, 209, 102, .35);
+}
+
+body.teacher-view .rubric-block .rubric-summary {
+  pointer-events: none;
+}
+
+body.teacher-view .rubric-block:not([open]) > .rubric-grid {
+  display: grid !important;
+}
+
+@media print {
+  .rubric-block {
+    background: #fafaf5 !important;
+    border-color: #888 !important;
+    page-break-inside: avoid;
+  }
+  .rubric-block .rubric-summary { display: none; }
+  .rubric-block .rubric-grid { display: grid !important; padding: 8px; }
+  .rubric-cell {
+    background: #fff !important;
+    border-color: #aaa !important;
+    color: #111 !important;
+  }
+  .rubric-cell h4, .rubric-cell p { color: #111 !important; }
+  .rubric-concept {
+    background: #eef !important;
+    color: #003 !important;
+    border-color: #aac !important;
+  }
+}
+
 body {
   margin: 0;
   min-height: 100vh;

@@ -294,19 +294,23 @@ ${supabase ? `- Supabase: ${SUPABASE_URL}/project/sql/new (table: ${SUPABASE_TAB
 
 **Próximo paso:** mover este Issue a "In Progress" cuando empieces a calificar, y "Done" cuando termines.`;
 
-  const title = `[${meta.app}] ${studentName} · ${meta.student.date || ""}`;
-  // Idempotency: query antes de crear. Linear no tiene idempotency-key nativo,
-  // así que buscamos por description que contiene el docId (único por submit).
-  const searchQuery = `query Search($q: String!) { issueSearch(query: $q, first: 5) { nodes { id identifier url description } } }`;
+  // Idempotency en Linear: agregamos el docId AL INICIO del title (entre llaves)
+  // — eso es indexable directamente por issueSearch query, mucho más confiable
+  // que buscar substring en description (que puede tener problemas con _ o -).
+  const docIdTag = `[${docId}]`;
+  const title = `${docIdTag} ${studentName} · ${meta.student.date || ""}`;
+  // Listamos issues del team con filtro por title exact-prefix usando issues + filter.
+  const searchQuery = `query Search($filter: IssueFilter!) { issues(filter: $filter, first: 5) { nodes { id identifier url title } } }`;
   const searchResp = await fetch("https://api.linear.app/graphql", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": LINEAR_API_KEY },
-    body: JSON.stringify({ query: searchQuery, variables: { q: docId } })
+    body: JSON.stringify({
+      query: searchQuery,
+      variables: { filter: { title: { contains: docIdTag }, team: { id: { eq: LINEAR_TEAM_ID } } } }
+    })
   });
   const searchJ = await searchResp.json();
-  const existing = (searchJ.data?.issueSearch?.nodes || []).find((n) =>
-    typeof n.description === "string" && n.description.includes(`docId\` ${docId}`) || (n.description || "").includes(docId)
-  );
+  const existing = (searchJ.data?.issues?.nodes || []).find((n) => typeof n.title === "string" && n.title.includes(docIdTag));
   if (existing) {
     return { ok: true, sink: "linear", issueId: existing.id, identifier: existing.identifier, url: existing.url, idempotent: "exists" };
   }
