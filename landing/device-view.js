@@ -97,8 +97,13 @@
     const host = document.createElement("div");
     host.className = "tlp-device-toggle";
     host.setAttribute("data-tlp-device-toggle", "1");
+    // Persisted collapsed state — default collapsed if user has ever picked something
+    const COLLAPSED_KEY = "tlp.deviceView.collapsed";
+    const initialCollapsed = localStorage.getItem(COLLAPSED_KEY) === "1" || (current !== "auto");
+    if (initialCollapsed) host.setAttribute("data-collapsed", "1");
+
     host.innerHTML = `
-      <button class="tlp-device-toggle-btn" type="button" aria-haspopup="listbox" aria-expanded="false" title="Cambiar visualización del dispositivo (atajo: ⇧D)">
+      <button class="tlp-device-toggle-btn" type="button" aria-haspopup="listbox" aria-expanded="false" title="Cambiar visualización (⇧D)">
         <span class="tlp-device-toggle-icon" aria-hidden="true">${DEVICES[current]?.icon || "📱"}</span>
         <span class="tlp-device-toggle-text">
           <span class="tlp-device-toggle-label">${DEVICES[current]?.label || "Vista"}</span>
@@ -106,10 +111,16 @@
         </span>
         <span class="tlp-device-toggle-caret" aria-hidden="true">▾</span>
       </button>
+      <button class="tlp-device-toggle-collapse" type="button" data-collapse aria-label="Minimizar a icono" title="Minimizar (clic en el icono lo vuelve a abrir)">
+        <span aria-hidden="true">✕</span>
+      </button>
       <div class="tlp-device-toggle-menu" role="listbox" hidden>
         <header class="tlp-device-toggle-head">
-          <strong>Visualización</strong>
-          <span>Auto-detecta. Podés forzar una vista.</span>
+          <div>
+            <strong>Visualización</strong>
+            <span>Auto-detecta. Podés forzar una vista.</span>
+          </div>
+          <button type="button" class="tlp-device-toggle-x" data-menu-close aria-label="Cerrar menú">×</button>
         </header>
         <div class="tlp-device-toggle-list">
           ${Object.entries(DEVICES).map(([k, d]) => `
@@ -133,13 +144,40 @@
 
     const btn = host.querySelector(".tlp-device-toggle-btn");
     const menu = host.querySelector(".tlp-device-toggle-menu");
-    const open = () => { menu.hidden = false; btn.setAttribute("aria-expanded", "true"); };
+    const collapse = () => {
+      host.setAttribute("data-collapsed", "1");
+      localStorage.setItem(COLLAPSED_KEY, "1");
+    };
+    const expand = () => {
+      host.removeAttribute("data-collapsed");
+      localStorage.setItem(COLLAPSED_KEY, "0");
+    };
+    const open = () => { menu.hidden = false; btn.setAttribute("aria-expanded", "true"); expand(); };
     const close = () => { menu.hidden = true; btn.setAttribute("aria-expanded", "false"); };
     const toggle = () => menu.hidden ? open() : close();
-    btn.addEventListener("click", toggle);
-    document.addEventListener("click", (e) => { if (!host.contains(e.target)) close(); });
+
+    btn.addEventListener("click", () => {
+      // If collapsed, first click opens menu directly. If expanded, toggles menu.
+      if (host.hasAttribute("data-collapsed")) { open(); }
+      else { toggle(); }
+    });
+    host.querySelector("[data-collapse]")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      close();
+      collapse();
+    });
+    host.querySelector("[data-menu-close]")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      close();
+      collapse();
+    });
+    document.addEventListener("click", (e) => {
+      if (!host.contains(e.target)) {
+        if (!menu.hidden) { close(); collapse(); }
+      }
+    });
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && !menu.hidden) close();
+      if (e.key === "Escape" && !menu.hidden) { close(); collapse(); }
       if (e.key === "D" && e.shiftKey && !["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName)) {
         e.preventDefault(); toggle();
       }
@@ -149,7 +187,8 @@
         const k = b.dataset.key;
         localStorage.setItem(STORAGE_KEY, k);
         applyDevice(k);
-        close();
+        // After picking, close menu + collapse to icon (con pequeña pausa para feedback visual)
+        setTimeout(() => { close(); collapse(); }, 220);
         // Re-render (cheap: replace label)
         const d = DEVICES[k];
         host.querySelector(".tlp-device-toggle-icon").textContent = d.icon;
@@ -164,7 +203,7 @@
     host.querySelector("[data-reset]")?.addEventListener("click", () => {
       localStorage.removeItem(STORAGE_KEY);
       applyDevice("auto");
-      close();
+      setTimeout(() => { close(); collapse(); }, 220);
       const d = DEVICES.auto;
       host.querySelector(".tlp-device-toggle-icon").textContent = d.icon;
       host.querySelector(".tlp-device-toggle-label").textContent = d.label;

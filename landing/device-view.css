@@ -26,7 +26,11 @@
   -webkit-backdrop-filter: blur(28px) saturate(180%);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   font-size: 0.84rem;
-  transition: transform 150ms cubic-bezier(0.32, 0.72, 0, 1), background 150ms;
+  transition:
+    transform 220ms cubic-bezier(0.32, 0.72, 0, 1),
+    background 150ms,
+    padding 220ms cubic-bezier(0.32, 0.72, 0, 1),
+    width 220ms cubic-bezier(0.32, 0.72, 0, 1);
   min-height: 44px;
   max-width: min(320px, 70vw);
 }
@@ -40,10 +44,97 @@
   text-align: left;
   line-height: 1.1;
   gap: 1px;
+  overflow: hidden;
+  transition: max-width 220ms cubic-bezier(0.32, 0.72, 0, 1), opacity 180ms;
+  max-width: 220px;
 }
-.tlp-device-toggle-label { font-weight: 600; font-size: 0.84rem; }
-.tlp-device-toggle-sub { font-size: 0.7rem; opacity: 0.7; }
-.tlp-device-toggle-caret { opacity: 0.6; font-size: 0.7rem; }
+.tlp-device-toggle-label { font-weight: 600; font-size: 0.84rem; white-space: nowrap; }
+.tlp-device-toggle-sub { font-size: 0.7rem; opacity: 0.7; white-space: nowrap; }
+.tlp-device-toggle-caret { opacity: 0.6; font-size: 0.7rem; transition: opacity 180ms; }
+
+/* ============================================================
+   COLLAPSE BUTTON (small ✕ to minimize the pill to icon-only)
+   ============================================================ */
+.tlp-device-toggle-collapse {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(40, 50, 70, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #eef6ff;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: scale(0.6);
+  pointer-events: none;
+  transition: opacity 180ms, transform 220ms cubic-bezier(0.32, 0.72, 0, 1), background 150ms;
+  z-index: 1;
+}
+.tlp-device-toggle:hover .tlp-device-toggle-collapse,
+.tlp-device-toggle:focus-within .tlp-device-toggle-collapse {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+.tlp-device-toggle-collapse:hover {
+  background: rgba(255, 141, 141, 0.92);
+  border-color: rgba(255, 141, 141, 0.6);
+}
+.tlp-device-toggle[data-collapsed] .tlp-device-toggle-collapse {
+  display: none;
+}
+
+/* ============================================================
+   COLLAPSED STATE — pill becomes a tiny round icon button
+   ============================================================ */
+.tlp-device-toggle[data-collapsed] .tlp-device-toggle-btn {
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  justify-content: center;
+  gap: 0;
+  position: relative;
+}
+.tlp-device-toggle[data-collapsed] .tlp-device-toggle-btn::after {
+  /* Subtle glow indicator: this is interactive, click to expand */
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid rgba(57, 217, 138, 0.35);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 220ms;
+}
+.tlp-device-toggle[data-collapsed] .tlp-device-toggle-btn:hover::after,
+.tlp-device-toggle[data-collapsed] .tlp-device-toggle-btn:focus::after {
+  opacity: 1;
+}
+.tlp-device-toggle[data-collapsed] .tlp-device-toggle-icon {
+  font-size: 1.2rem;
+}
+.tlp-device-toggle[data-collapsed] .tlp-device-toggle-text {
+  max-width: 0;
+  opacity: 0;
+}
+.tlp-device-toggle[data-collapsed] .tlp-device-toggle-caret {
+  display: none;
+}
+.tlp-device-toggle[data-collapsed] .tlp-device-toggle-btn:hover {
+  background: rgba(30, 45, 65, 0.95);
+  transform: translateY(-1px) scale(1.06);
+}
 
 .tlp-device-toggle-menu {
   position: absolute;
@@ -70,9 +161,34 @@
 .tlp-device-toggle-head {
   padding: 14px 16px 10px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
 }
 .tlp-device-toggle-head strong { font-size: 0.86rem; display: block; }
 .tlp-device-toggle-head span { font-size: 0.74rem; color: #a9bacf; }
+.tlp-device-toggle-x {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  color: #eef6ff;
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 150ms, border-color 150ms;
+  flex-shrink: 0;
+}
+.tlp-device-toggle-x:hover {
+  background: rgba(255, 141, 141, 0.18);
+  border-color: rgba(255, 141, 141, 0.5);
+}
 .tlp-device-toggle-list {
   padding: 6px;
   overflow-y: auto;
