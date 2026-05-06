@@ -410,6 +410,7 @@ const html = `<!doctype html>
       <p id="handoff-filename" class="handoff-filename"></p>
       <h3>Resumen de tu entrega</h3>
       <ul class="handoff-summary" id="handoff-summary"></ul>
+      <div class="handoff-backend-status" id="handoff-backend-status" data-state="idle" aria-live="polite"></div>
       <div class="handoff-pregrade" id="handoff-pregrade"></div>
       <h3>Cómo entregar en Google Classroom</h3>
       <ol class="handoff-steps">

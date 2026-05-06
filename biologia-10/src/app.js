@@ -579,19 +579,113 @@ export function initAssessment() {
     return items;
   }
 
+  const SUBMIT_ENDPOINT = "https://evaluacosas-submit-handler-441768184201.us-central1.run.app/submit";
+
   function finalizeSubmit() {
     closeConfirmModal();
-    const filename = exportJson();
+    const data = collectData();
+    // clientDocId estable: si el mismo estudiante con los mismos datos institucionales reentrega
+    // en la misma franja de 5 min, el backend lo trata como idempotente (no duplica issues).
+    const slot5m = Math.floor(Date.now() / 300000);
+    const studentKey = `${data.student?.["student-name"] || ""}|${data.student?.["student-id"] || ""}|${data.student?.["student-date"] || ""}|${slot5m}`;
+    const clientDocId = `${data.assessment?.title?.slice(0, 16).replace(/[^\w-]+/g, "_") || "exam"}__${cheapHash(studentKey)}`;
+    data.clientDocId = clientDocId;
+
+    // Descarga local (siempre, fallback offline si el backend cae).
+    const filename = exportJsonFromData(data);
     if (handoffFilename) handoffFilename.textContent = filename;
     populateHandoffSummary();
+
     if (handoffScreen) {
       lastFocusBeforeHandoff = document.activeElement;
       handoffScreen.hidden = false;
       window.scrollTo({ top: 0, behavior: "smooth" });
-      requestAnimationFrame(() => {
-        redownload?.focus();
-      });
+      requestAnimationFrame(() => redownload?.focus());
     }
+
+    // Backend submit (paralelo, no bloquea UX).
+    sendToBackend(data).catch((err) => {
+      console.warn("[evaluacosas] backend POST failed (UX continúa):", err?.message || err);
+      showHandoffToast("El servidor de entregas está temporalmente inaccesible. Tu archivo se descargó OK; subilo manualmente a Classroom como respaldo.");
+    });
+  }
+
+  async function sendToBackend(data) {
+    const status = document.querySelector("#handoff-backend-status");
+    if (status) {
+      status.dataset.state = "sending";
+      status.innerHTML = '<span class="spinner" aria-hidden="true"></span> Guardando entrega en el servidor…';
+    }
+    let attempt = 0;
+    const maxAttempts = 3;
+    while (attempt < maxAttempts) {
+      attempt++;
+      try {
+        const ctrl = new AbortController();
+        const timeout = setTimeout(() => ctrl.abort(), 25000);
+        const resp = await fetch(SUBMIT_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+          signal: ctrl.signal
+        });
+        clearTimeout(timeout);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const result = await resp.json();
+        if (status) renderBackendStatus(status, result);
+        return result;
+      } catch (err) {
+        if (attempt >= maxAttempts) {
+          if (status) {
+            status.dataset.state = "failed";
+            status.innerHTML = '<strong>Servidor inaccesible.</strong> Tu archivo se descargó OK — subilo manualmente a Google Classroom como respaldo.';
+          }
+          throw err;
+        }
+        // Backoff: 2s, 5s
+        await new Promise((r) => setTimeout(r, attempt * 3000));
+      }
+    }
+  }
+
+  function renderBackendStatus(status, result) {
+    const sinks = result?.summary || {};
+    const okCount = Object.values(sinks).filter((s) => s.ok).length;
+    const totalCount = Object.keys(sinks).length || 0;
+    const allOk = okCount === totalCount && totalCount > 0;
+    status.dataset.state = allOk ? "ok" : "partial";
+    const list = Object.entries(sinks)
+      .map(([k, v]) => {
+        const icon = v.ok ? "✓" : "✗";
+        const idem = v.idempotent ? ` (${v.idempotent})` : "";
+        return `<li class="${v.ok ? "ok" : "fail"}">${icon} ${escapeHtml(k)}${idem}</li>`;
+      })
+      .join("");
+    status.innerHTML = `
+      <div class="backend-status-head"><strong>${allOk ? "✓ Entrega registrada en el servidor" : "⚠ Entrega registrada parcialmente"}</strong> · ${okCount}/${totalCount} destinos</div>
+      <ul class="backend-status-sinks">${list}</ul>
+      ${result.docId ? `<p class="backend-status-docid">ID de entrega: <code>${escapeHtml(result.docId)}</code></p>` : ""}`;
+  }
+
+  function cheapHash(str) {
+    let h = 5381;
+    for (let i = 0; i < str.length; i++) h = ((h << 5) + h) ^ str.charCodeAt(i);
+    return ("00000000" + (h >>> 0).toString(36)).slice(-10);
+  }
+
+  function exportJsonFromData(data) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    const rawName = (data.student?.["student-name"] || "estudiante").trim().replace(/[^\w-]+/g, "_");
+    const dateStamp = (data.student?.["student-date"] || new Date().toISOString().slice(0, 10)).replace(/[^\d-]/g, "");
+    const filename = `respuestas_biologia10_${rawName || "estudiante"}_${dateStamp}.json`;
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    if (handoffFilename) handoffFilename.textContent = filename;
+    return filename;
   }
 
   function populateHandoffSummary() {

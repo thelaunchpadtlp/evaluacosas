@@ -1542,6 +1542,90 @@ li + li {
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
 }
 
+.handoff-backend-status {
+  margin: 14px 0 0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  background: rgba(255, 255, 255, .04);
+  font-size: .88rem;
+  line-height: 1.45;
+}
+
+.handoff-backend-status[data-state="idle"] { display: none; }
+
+.handoff-backend-status[data-state="sending"] {
+  border-color: rgba(103, 209, 255, .35);
+  background: rgba(103, 209, 255, .07);
+  color: var(--accent-2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.handoff-backend-status[data-state="ok"] {
+  border-color: rgba(57, 217, 138, .42);
+  background: rgba(57, 217, 138, .08);
+}
+
+.handoff-backend-status[data-state="partial"] {
+  border-color: rgba(255, 209, 102, .42);
+  background: rgba(255, 209, 102, .07);
+}
+
+.handoff-backend-status[data-state="failed"] {
+  border-color: rgba(255, 141, 141, .42);
+  background: rgba(255, 141, 141, .08);
+  color: var(--text);
+}
+
+.handoff-backend-status .spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(103, 209, 255, .25);
+  border-top-color: var(--accent-2);
+  border-radius: 50%;
+  animation: spin .9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.backend-status-head {
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.backend-status-sinks {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 4px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: .78rem;
+}
+
+.backend-status-sinks li.ok { color: var(--accent); }
+.backend-status-sinks li.fail { color: var(--danger); }
+
+.backend-status-docid {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: .76rem;
+}
+
+.backend-status-docid code {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, .25);
+  color: var(--accent);
+  font-size: .76rem;
+}
+
 .handoff-pregrade {
   margin: 18px 0 0;
   padding: 14px 18px;
