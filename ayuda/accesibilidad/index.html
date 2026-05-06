@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07111d" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="Declaración de accesibilidad de evaluacosas TLP — WCAG 2.1 AA / AAA target.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <link rel="canonical" href="https://evaluacosas.thelaunchpadtlp.education/ayuda/accesibilidad/">
+  <title>Accesibilidad · Ayuda · evaluacosas TLP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800;900&display=swap">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/ayuda/ayuda.css">
+  <link rel="stylesheet" href="/device-view.css">
+</head>
+<body class="ayuda-body">
+  <a class="skip-to-content" href="#main">Saltar al contenido</a>
+
+  <nav class="globalnav" aria-label="Navegación principal">
+    <div class="globalnav-inner">
+      <a class="globalnav-brand" href="/">
+        <span class="globalnav-mark" aria-hidden="true">✺</span>
+        <span class="globalnav-name">evaluacosas <span class="globalnav-sub">TLP</span></span>
+      </a>
+      <ul class="globalnav-links" role="list">
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/ayuda/">Ayuda</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="ayuda-main" id="main">
+    <article class="ayuda-article">
+      <a class="ayuda-back" href="/ayuda/">← Volver al centro de ayuda</a>
+      <h1>♿ Declaración de accesibilidad</h1>
+      <p><strong>Última actualización</strong>: 2026-05-06 · <strong>Target</strong>: WCAG 2.1 AA con esfuerzos AAA donde sea posible</p>
+
+      <h2>Compromiso</h2>
+      <p>The Launch Pad — TLP busca que evaluacosas sea utilizable por la mayor cantidad de personas posible, incluyendo personas con discapacidad visual, auditiva, motriz, cognitiva o tecnológica.</p>
+
+      <h2>Cumplimiento</h2>
+      <ul>
+        <li><strong>WCAG 2.1 nivel AA</strong>: target de cumplimiento</li>
+        <li><strong>WCAG 2.1 nivel AAA</strong>: esfuerzo aspiracional en contraste, focus, lenguaje claro</li>
+        <li><strong>Section 508 (US)</strong>: alineamiento con estándares equivalentes</li>
+        <li><strong>EN 301 549 (UE)</strong>: alineamiento con estándar europeo</li>
+      </ul>
+
+      <h2>Cosas que ya están funcionando</h2>
+      <ul>
+        <li><strong>Contraste alto</strong>: ratios > 7:1 en texto principal sobre fondo (AAA)</li>
+        <li><strong>Skip-to-content</strong> en todas las páginas</li>
+        <li><strong>Focus visible</strong> con anillo doble (border + glow)</li>
+        <li><strong>Touch targets ≥ 44px</strong> en todos los botones</li>
+        <li><strong>Reduced motion</strong> respetado (<code>prefers-reduced-motion</code>)</li>
+        <li><strong>Lang declarado</strong> (<code>es</code>) en todas las páginas</li>
+        <li><strong>Heading hierarchy</strong> respetada (no saltos de h1 a h3)</li>
+        <li><strong>Landmark roles</strong>: nav, main, footer en todas las superficies</li>
+        <li><strong>ARIA-labels</strong> en botones sin texto visible</li>
+        <li><strong>Form labels</strong> asociados a todos los inputs</li>
+        <li><strong>Keyboard navigation</strong> completa (sin trampas)</li>
+        <li><strong>Modal con Escape</strong> para cerrar</li>
+        <li><strong>Atajos documentados</strong> en /ayuda/dashboard/ y dentro del help drawer</li>
+        <li><strong>Lenguaje claro</strong> for-dummies en toda la documentación</li>
+        <li><strong>Multiple ways</strong>: catálogo + sitemap + búsqueda + nav</li>
+      </ul>
+
+      <h2>Áreas en mejora continua</h2>
+      <ul>
+        <li><strong>Screen reader testing</strong>: VoiceOver (macOS/iOS) probado, NVDA/JAWS (Windows) pendiente</li>
+        <li><strong>200% zoom sin scroll horizontal</strong>: verificado parcial, completar audit</li>
+        <li><strong>Captions/transcripts</strong>: N/A (no usamos video/audio)</li>
+        <li><strong>High contrast mode</strong>: heredado del sistema operativo</li>
+      </ul>
+
+      <h2>Cómo reportar barreras</h2>
+      <p>Si encontrás una barrera de accesibilidad:</p>
+      <ul>
+        <li>Email: <a href="mailto:joaquin.munoz@thelaunchpadtlp.education">joaquin.munoz@thelaunchpadtlp.education</a></li>
+        <li>Asunto: <code>[A11Y]</code> + descripción</li>
+        <li>Incluí: dispositivo, navegador, asistente (si aplica), URL exacta, descripción</li>
+      </ul>
+      <p><strong>Tiempo de respuesta</strong>: ≤7 días hábiles.</p>
+
+      <h2>Tecnologías compatibles</h2>
+      <ul>
+        <li>Navegadores modernos: Chrome, Safari, Firefox, Edge (últimas 2 versiones mayor)</li>
+        <li>Lectores de pantalla: VoiceOver (macOS/iOS), TalkBack (Android), NVDA/JAWS (Windows — soporte parcial verificado)</li>
+        <li>Sistemas operativos: macOS, iOS/iPadOS, Windows, Android, ChromeOS</li>
+      </ul>
+
+      <h2>Estado de cumplimiento</h2>
+      <p><strong>Cumplimiento parcial AA</strong> con plan de remediación. Auditoría completa con axe DevTools y WAVE pendiente para Sprint 38.</p>
+
+      <h2>Estándares de referencia</h2>
+      <ul>
+        <li><a href="https://www.w3.org/WAI/standards-guidelines/wcag/">WCAG 2.1</a></li>
+        <li><a href="https://www.w3.org/WAI/standards-guidelines/aria/">WAI-ARIA 1.2</a></li>
+        <li><a href="https://www.section508.gov/">Section 508 (US)</a></li>
+        <li><a href="https://www.etsi.org/deliver/etsi_en/301500_301599/301549/">EN 301 549 (EU)</a></li>
+      </ul>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <p class="footer-tech">The Launch Pad — TLP · Centro Educativo GEA, acreditado ante el MEP.</p>
+    </div>
+  </footer>
+  <script src="/device-view.js" defer></script>
+</body>
+</html>

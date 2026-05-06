@@ -1,0 +1,7 @@
+# Postmortems
+
+Este directorio contiene postmortems de incidentes SEV-1/SEV-2.
+
+Template en INCIDENT_RESPONSE.md sección "Postmortem template".
+
+Naming: `<YYYY-MM-DD>_<sev>_<slug>.md`

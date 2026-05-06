@@ -1,0 +1,26 @@
+version: 2
+updates:
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule: { interval: "weekly" }
+    open-pull-requests-limit: 5
+    groups:
+      github-actions-batch:
+        patterns: [ "*" ]
+        update-types: [ "minor", "patch" ]
+
+  # Backend (services/submit-handler)
+  - package-ecosystem: "npm"
+    directory: "/services/submit-handler"
+    schedule: { interval: "weekly" }
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [ "minor", "patch" ]
+
+  # biology-10
+  - package-ecosystem: "npm"
+    directory: "/biologia-10"
+    schedule: { interval: "weekly" }
+    open-pull-requests-limit: 3

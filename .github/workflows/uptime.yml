@@ -1,0 +1,36 @@
+name: Uptime check
+on:
+  schedule:
+    # Every 30 minutes
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Backend health
+        run: |
+          set -e
+          for i in 1 2 3; do
+            if curl -fsS --max-time 15 https://evaluacosas-submit-handler-441768184201.us-central1.run.app/health > /tmp/h.json; then
+              echo "✓ backend OK ($i/3)"
+              cat /tmp/h.json
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "✗ backend FAIL after 3 attempts"
+          exit 1
+
+      - name: Landing reachable
+        run: curl -fsS --max-time 15 -o /dev/null https://evaluacosas.thelaunchpadtlp.education/
+
+      - name: Apex reachable
+        run: curl -fsS --max-time 15 -o /dev/null https://thelaunchpadtlp.education/
+
+      - name: Dashboard reachable
+        run: curl -fsS --max-time 15 -o /dev/null https://evaluacosas.thelaunchpadtlp.education/dashboard/
