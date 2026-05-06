@@ -1,7 +1,7 @@
 {
   "name": "evaluacosas-submit-handler",
-  "version": "1.0.0",
-  "description": "Cloud Run service que recibe submits de evaluacosas y los sube a Drive con la identity del service account.",
+  "version": "1.1.0",
+  "description": "Cloud Run service que recibe submits de evaluacosas. Redundancia: Cloud Storage + Firestore + GitHub mirror + Email. Stack 100% Google.",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -11,7 +11,9 @@
     "node": ">=22"
   },
   "dependencies": {
-    "express": "^5.1.0",
-    "googleapis": "^160.0.0"
+    "@google-cloud/firestore": "^8.5.0",
+    "@google-cloud/storage": "^7.19.0",
+    "@octokit/rest": "^22.0.1",
+    "express": "^5.2.1"
   }
 }
