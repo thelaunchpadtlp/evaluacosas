@@ -1,0 +1,1019 @@
+{
+  "total": 162,
+  "passed": 124,
+  "failed": 38,
+  "score": 77,
+  "elapsedSec": 35,
+  "byCat": {
+    "deep-security": {
+      "total": 20,
+      "pass": 15
+    },
+    "deep-cyber": {
+      "total": 29,
+      "pass": 19
+    },
+    "deep-perf": {
+      "total": 20,
+      "pass": 12
+    },
+    "deep-a11y": {
+      "total": 19,
+      "pass": 18
+    },
+    "compliance": {
+      "total": 20,
+      "pass": 18
+    },
+    "ops": {
+      "total": 20,
+      "pass": 15
+    },
+    "seo-deep": {
+      "total": 13,
+      "pass": 10
+    },
+    "integrity": {
+      "total": 5,
+      "pass": 4
+    },
+    "adversarial": {
+      "total": 16,
+      "pass": 13
+    }
+  },
+  "results": [
+    {
+      "category": "deep-security",
+      "name": "CSP en landing (header o meta)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "CSP header en apex",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "CSP define script-src restrictivo (sin wildcards)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "CSP no permite unsafe-eval",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "CSP define default-src 'self'",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "CSP define frame-ancestors 'none'",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "CSP report-uri configurado",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "Cross-Origin-Opener-Policy: same-origin",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "Cross-Origin-Embedder-Policy: require-corp",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "Cross-Origin-Resource-Policy: same-origin",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "X-DNS-Prefetch-Control: off",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "X-Permitted-Cross-Domain-Policies: none",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "Server header obfuscation (no version leak)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "X-Powered-By NO presente (info leak)",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "HSTS includes preload directive",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "HSTS submitted to preload list",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "DNSSEC enabled",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "TLS 1.3 supported",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "TLS 1.0 disabled",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-security",
+      "name": "TLS 1.1 disabled",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Subresource Integrity en Google Fonts (landing)",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "SRI en Google Identity Services (dashboard)",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "crossorigin attr en scripts externos",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "no inline event handlers (onclick=)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "no inline event handlers en dashboard",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Referrer-Policy strict-origin-when-cross-origin O strict-origin",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Backend NO expone X-Powered-By",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Backend tiene rate limit en /submit (público anti-spam)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Backend rejects malformed JSON en /submit",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Backend rejects oversized body (>2MB)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Backend rejects path traversal en /admin/submit/:docId",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Backend sanitiza XSS en respuestas",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Replay protection (jti/nonce tracking) implemented",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Failed auth attempts trigger lockout (after N=5)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Rate limit per-EMAIL (no solo IP)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Captcha o proof-of-work en /submit",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "IDOR protection: docente A NO puede ver submits de docente B",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Audit log envía a sistema persistente (no solo console)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Linear webhook signature verification",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "GitHub mirror push usa fine-grained PAT (no classic)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Cloud Run service account least-privilege (no Owner)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Firestore security rules deployadas",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "GCS bucket evaluacosas-entregas con uniform-bucket-level-access",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "GCS bucket NO público",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Secrets scanner (gitleaks/trufflehog) no ha encontrado nada",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Dependabot/Renovate alerts active",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "GitHub branch protection en main",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "GitHub require signed commits",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-cyber",
+      "name": "Workload Identity en Cloud Run (no service account key files)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "Landing TTFB < 600ms (P50)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "Landing TTFB < 200ms (P50, gold standard)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "Landing total bytes < 200KB",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "Landing total bytes < 100KB (Lighthouse target)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "Brotli compression activa",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "HTTP/2 o HTTP/3 servido",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "HTTP/3 (QUIC) servido en apex",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "Service Worker registered en landing",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "PWA installable (web app manifest válido)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "PWA tiene maskable icon 512x512",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "Critical CSS inlined",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "Font preload en landing",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "Font-display swap en CSS",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "Imágenes con loading=lazy",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "Imágenes con fetchpriority",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "ETag header presente",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "Cache-Control con immutable",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "Asset fingerprinting (cache busting)",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "DNS prefetch para fonts.googleapis",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-perf",
+      "name": "Preconnect explícito a Google Fonts",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "WCAG AAA: contraste 7:1 en body text",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "WCAG AAA: contraste 4.5:1 en muted text",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "WCAG 2.4.7 Focus visible en TODOS los interactive",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "WCAG 2.4.5 Multiple ways: search + sitemap + nav",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "WCAG 3.2.3 Consistent navigation across surfaces",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "Skip link en TODAS las superficies",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "Heading hierarchy correcta en landing",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "ARIA-current page en nav activo",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "Landmark roles: banner, main, contentinfo, navigation",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "Form labels para todos los inputs",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "Accessibility statement page exists",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "Reduced motion respetado globalmente",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "Lang attr declared en TODAS",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "alt text en TODAS las <img>",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "ARIA-live regions para dynamic content",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "Modal con focus trap robusto",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "VoiceOver / NVDA / JAWS test report",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "axe DevTools clean report",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "deep-a11y",
+      "name": "200% zoom usable sin scroll horizontal",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "Privacy policy menciona GDPR Art. 6 lawful bases",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "Privacy policy menciona Costa Rica Ley 8968",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "COPPA: age verification under 13",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "Right to erasure documented + procedure",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "Right to data portability (export endpoint)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "Cookie consent banner (or notice de no-cookies)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "DPA (Data Processing Agreement) docs con Google/Supabase/etc",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "DPIA (Data Protection Impact Assessment) realizado",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "Breach notification procedure documented",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "MEP Costa Rica curricular alignment doc",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "FERPA-adjacent: educational records protected",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "Audit log retention policy ≥ 1 year",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "Privacy by Design audit",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "Right to access (data export) endpoint live",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "Auto-anonymize policy after 2 years",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "Terms version + last updated",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "Privacy version + last updated",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "Children's privacy notice",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "DSAR (Data Subject Access Request) procedure",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "compliance",
+      "name": "Sub-processor list public",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "SLA documentado",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "SLO/SLI definidos",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "Status page público",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "Uptime monitoring (synthetic checks)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "On-call rotation documented",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "Incident response playbook",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "RTO/RPO definidos",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "Distributed tracing (OpenTelemetry)",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "Structured logging con correlation IDs",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "Cost monitoring alerts active",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "Backup restore test in last 30 days",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "Disaster recovery runbook tested",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "Bus factor analysis",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "ISO 27001 alignment notes",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "PagerDuty/email alerts wired",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "Error budget defined",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "Capacity planning doc",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "Auto-scaling policies en Cloud Run",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "Min instances > 0 (sin cold start)",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "ops",
+      "name": "Backend healthcheck con probes",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "seo-deep",
+      "name": "Schema.org Organization JSON-LD",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "seo-deep",
+      "name": "Schema.org EducationalOrganization",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "seo-deep",
+      "name": "Schema.org BreadcrumbList en sub-pages",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "seo-deep",
+      "name": "OG image presente y 1200x630",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "seo-deep",
+      "name": "Twitter card summary_large_image",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "seo-deep",
+      "name": "Hreflang declarado (incluso si solo es es-CR)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "seo-deep",
+      "name": "404 page custom",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "seo-deep",
+      "name": "robots.txt valid",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "seo-deep",
+      "name": "Sitemap valid XML schema",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "seo-deep",
+      "name": "No redirect chains > 1 hop",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "seo-deep",
+      "name": "Canonical URL correcta en cada surface",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "seo-deep",
+      "name": "Meta description ≤ 160 chars en cada page",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "seo-deep",
+      "name": "Page title ≤ 60 chars",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "integrity",
+      "name": "Submit replay con mismo docId NO duplica",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "integrity",
+      "name": "5 sinks con get-then-create idempotency",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "integrity",
+      "name": "Backup integrity verification scheduled",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "integrity",
+      "name": "Database migrations versionadas",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "integrity",
+      "name": "Submit hash committed cripto-firmado",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "GET /admin/submits con token ajeno → 401/403",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "Admin con token Google de otro hd → 403",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "POST /submit sin Origin → rechaza",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "POST /submit con Origin malicioso → CORS rechaza",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "Inyección XSS en answer text se escapa en render",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "Inyección de docId con caracteres extraños se sanitiza",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "/admin endpoints listados en robots.txt como Disallow",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "DDoS resistance: 200 req/s tolerable",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "JWT signature verification estricta",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "JWT expiration enforcement",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "No auto-redirect open (redirect to attacker)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "CSRF: /submit no acepta de otro origin",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "Clickjacking protection (X-Frame-Options)",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "Prototype pollution prevention",
+      "pass": true,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "Server-Side Request Forgery protection en /cedula",
+      "pass": false,
+      "error": null
+    },
+    {
+      "category": "adversarial",
+      "name": "Timing attack prevention en auth",
+      "pass": false,
+      "error": null
+    }
+  ]
+}

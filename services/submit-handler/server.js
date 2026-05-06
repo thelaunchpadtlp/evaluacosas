@@ -765,10 +765,13 @@ const CEDULA_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 app.get("/cedula/:cedula", async (req, res) => {
   setCors(res, req.headers.origin || "");
+  // SSRF protection: regex strict para cédula (solo dígitos, 9-12 chars)
+  const cedulaRegex = /^\d{9,12}$/;
   try {
     const raw = String(req.params.cedula || "").replace(/\D+/g, "");
-    if (!raw || raw.length < 9 || raw.length > 12) {
-      return res.status(400).json({ error: "invalid_cedula", got: raw });
+    if (!cedulaRegex.test(raw)) {
+      auditLog(req, "cedula_invalid_input", { len: raw.length });
+      return res.status(400).json({ error: "invalid_cedula", got: raw.slice(0, 12) });
     }
     // Cache check
     const cacheRef = firestore.collection("cedula_cache").doc(raw);
