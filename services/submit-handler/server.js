@@ -51,7 +51,8 @@ function setCors(res, origin) {
   }
   res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Submit-Secret");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Submit-Secret, X-Gemini-Access-Token");
+  res.setHeader("Access-Control-Expose-Headers", "X-Doc-Id, X-Idempotency-Key");
   res.setHeader("Access-Control-Max-Age", "600");
 }
 
