@@ -400,7 +400,7 @@ const html = `<!doctype html>
       <label class="student-picker-wrap">¿Quién está resolviendo?
         <select id="student-picker" autocomplete="off">
           <option value="">— elegir de la lista o registrarse manualmente —</option>
-          ${tlpStudents.map((s) => `<option value="${esc(s.email)}" data-name="${esc(s.name)}">${esc(s.name)} · ${esc(s.email)}</option>`).join("")}
+          ${tlpStudents.map((s) => `<option value="${esc(s.email)}" data-name="${esc(s.name)}" data-first-name="${esc(s.firstName)}" data-second-name="${esc(s.secondName)}" data-first-surname="${esc(s.firstSurname)}" data-second-surname="${esc(s.secondSurname)}">${esc(s.name)} · ${esc(s.email)}</option>`).join("")}
           <option value="__other__">Otro / registro manual</option>
         </select>
       </label>

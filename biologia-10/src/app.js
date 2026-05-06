@@ -892,13 +892,20 @@ export function initAssessment() {
         return;
       }
       const opt = picker.options[picker.selectedIndex];
-      const name = opt?.dataset?.name || "";
-      if (nameInput) { nameInput.value = name; nameInput.disabled = true; }
-      if (emailInput) { emailInput.value = v; emailInput.disabled = true; }
+      const ds = opt?.dataset || {};
+      // Auto-fill 4 campos si la opción los trae
+      const firstNameEl = document.querySelector("#student-first-name");
+      const secondNameEl = document.querySelector("#student-second-name");
+      const firstSurnameEl = document.querySelector("#student-first-surname");
+      const secondSurnameEl = document.querySelector("#student-second-surname");
+      if (firstNameEl) firstNameEl.value = ds.firstName || "";
+      if (secondNameEl) secondNameEl.value = ds.secondName || "";
+      if (firstSurnameEl) firstSurnameEl.value = ds.firstSurname || "";
+      if (secondSurnameEl) secondSurnameEl.value = ds.secondSurname || "";
+      [firstNameEl, secondNameEl, firstSurnameEl, secondSurnameEl].forEach((el) => el?.dispatchEvent(new Event("input", { bubbles: true })));
+      // Nombre completo derivado se llena via initNameDerivation()
+      if (emailInput) { emailInput.value = v; emailInput.disabled = true; emailInput.dispatchEvent(new Event("input", { bubbles: true })); }
       try { localStorage.setItem("evaluacosas:lastEmail", v); } catch {}
-      // dispatch input events para que autosave + status pickeen el cambio
-      nameInput?.dispatchEvent(new Event("input", { bubbles: true }));
-      emailInput?.dispatchEvent(new Event("input", { bubbles: true }));
     });
   }
 

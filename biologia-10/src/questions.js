@@ -49,21 +49,28 @@ const evolutionArt = `
 
 // Lista de estudiantes TLP predefinidos para selección rápida en el examen.
 // Si la persona no está en la lista, puede elegir "Otro / registro manual"
-// y completar nombre + email a mano.
+// y completar nombre + email a mano. Cuando se elija una persona predefinida,
+// los 4 campos del nombre se auto-llenan; se pueden editar libremente.
+//
+// Política: los segundos apellidos provienen del Padrón Electoral del TSE de
+// Costa Rica. Cuando el módulo de integración TSE esté funcional contra una
+// API verificada, este array se debe regenerar con los datos canónicos.
+// Hasta entonces, los datos provienen de información compartida por el
+// usuario el 2026-05-06.
 export const tlpStudents = [
-  { name: "Joaquín Muñoz", email: "joaquin.munoz@thelaunchpadtlp.education" },
-  { name: "Anyssa Salazar", email: "anyssa.salazar@thelaunchpadtlp.education" },
-  { name: "Jose Joaquín Ortiz", email: "josejoaquin.ortiz@thelaunchpadtlp.education" },
-  { name: "María José Ortiz", email: "mariajose.ortiz@thelaunchpadtlp.education" },
-  { name: "María Paz Ortiz", email: "maripaz.ortiz@thelaunchpadtlp.education" },
-  { name: "Sebastián Villalobos", email: "sebastian.villalobos@thelaunchpadtlp.education" },
-  { name: "Marisol Ortiz", email: "marisol.ortiz@thelaunchpadtlp.education" },
-  { name: "Carlos Enrique Ortiz", email: "carlosenrique.ortiz@thelaunchpadtlp.education" },
-  { name: "Julieta Chan", email: "julieta.chan@thelaunchpadtlp.education" },
-  { name: "Marcela Rojas", email: "marcela.rojas@thelaunchpadtlp.education" },
-  { name: "Lorna Martínez", email: "lorna.martinez@thelaunchpadtlp.education" },
-  { name: "Diego Escalante", email: "diego.escalante@thelaunchpadtlp.education" }
-];
+  { firstName: "Joaquín",      secondName: "Antonio", firstSurname: "Muñoz",      secondSurname: "Ortiz",      email: "joaquin.munoz@thelaunchpadtlp.education" },
+  { firstName: "Anyssa",       secondName: "",        firstSurname: "Salazar",    secondSurname: "O'Donnell",  email: "anyssa.salazar@thelaunchpadtlp.education" },
+  { firstName: "Jose",         secondName: "Joaquín", firstSurname: "Ortiz",      secondSurname: "Cordero",    email: "josejoaquin.ortiz@thelaunchpadtlp.education" },
+  { firstName: "María",        secondName: "José",    firstSurname: "Ortiz",      secondSurname: "Echeverría", email: "mariajose.ortiz@thelaunchpadtlp.education" },
+  { firstName: "María",        secondName: "Paz",     firstSurname: "Ortiz",      secondSurname: "Echeverría", email: "maripaz.ortiz@thelaunchpadtlp.education" },
+  { firstName: "Sebastián",    secondName: "",        firstSurname: "Villalobos", secondSurname: "Chacón",     email: "sebastian.villalobos@thelaunchpadtlp.education" },
+  { firstName: "Marisol",      secondName: "",        firstSurname: "Ortiz",      secondSurname: "Echeverría", email: "marisol.ortiz@thelaunchpadtlp.education" },
+  { firstName: "Carlos",       secondName: "Enrique", firstSurname: "Ortiz",      secondSurname: "Cordero",    email: "carlosenrique.ortiz@thelaunchpadtlp.education" },
+  { firstName: "Julieta",      secondName: "",        firstSurname: "Chan",       secondSurname: "Blanco",     email: "julieta.chan@thelaunchpadtlp.education" },
+  { firstName: "Marcela",      secondName: "",        firstSurname: "Rojas",      secondSurname: "",           email: "marcela.rojas@thelaunchpadtlp.education" },
+  { firstName: "Lorna",        secondName: "",        firstSurname: "Martínez",   secondSurname: "Aguilar",    email: "lorna.martinez@thelaunchpadtlp.education" },
+  { firstName: "Diego",        secondName: "",        firstSurname: "Escalante",  secondSurname: "Madrigal",   email: "diego.escalante@thelaunchpadtlp.education" }
+].map((s) => ({ ...s, name: [s.firstName, s.secondName, s.firstSurname, s.secondSurname].filter(Boolean).join(" ") }));
 
 // Mapping de cada una de las 80 preguntas a su subtema MEP correspondiente.
 // Basado en el programa de Biología 10 del Ministerio de Educación Pública (MEP) de Costa Rica,
