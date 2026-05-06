@@ -122,6 +122,7 @@ export function initAssessment() {
     const open = () => {
       lastFocusBeforeToc = document.activeElement;
       panel.hidden = false;
+      fab.dataset.state = "visible-but-still";
       requestAnimationFrame(() => {
         panel.classList.add("open");
         fab.setAttribute("aria-expanded", "true");
@@ -131,12 +132,59 @@ export function initAssessment() {
     const closeFn = () => {
       panel.classList.remove("open");
       fab.setAttribute("aria-expanded", "false");
+      delete fab.dataset.state;
       setTimeout(() => { panel.hidden = true; }, 220);
       if (lastFocusBeforeToc && typeof lastFocusBeforeToc.focus === "function") {
         lastFocusBeforeToc.focus();
       }
     };
     const toggle = () => panel.classList.contains("open") ? closeFn() : open();
+
+    // Cursor follow (desktop only): el FAB se inclina sutilmente hacia el cursor.
+    if (window.matchMedia && window.matchMedia("(pointer: fine)").matches && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      let raf = null;
+      const onMove = (event) => {
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          raf = null;
+          const rect = fab.getBoundingClientRect();
+          const fx = rect.left + rect.width / 2;
+          const fy = rect.top + rect.height / 2;
+          const dx = (event.clientX - fx) / 80; // amortiguado
+          const dy = (event.clientY - fy) / 80;
+          const clampedX = Math.max(-12, Math.min(12, dx));
+          const clampedY = Math.max(-12, Math.min(12, dy));
+          fab.style.setProperty("--cursor-dx", clampedX + "px");
+          fab.style.setProperty("--cursor-dy", clampedY + "px");
+        });
+      };
+      document.addEventListener("mousemove", onMove, { passive: true });
+    }
+
+    // Inyectar acción "Finalizar y entregar" al inicio del panel (atajo desde el mapa)
+    const tocBody = document.querySelector("#toc-body");
+    if (tocBody && !document.querySelector("#toc-actions")) {
+      const actions = document.createElement("div");
+      actions.id = "toc-actions";
+      actions.className = "toc-section toc-section-primary";
+      actions.innerHTML = `
+        <h3 class="toc-section-title">Acciones</h3>
+        <ul class="toc-questions">
+          <li><button type="button" class="toc-q-btn toc-finalize" id="toc-finalize-btn"><span class="toc-q-num">✓</span><span class="toc-q-prompt"><strong>Finalizar y entregar evaluación</strong></span></button></li>
+          <li><button type="button" class="toc-q-btn" id="toc-print-btn"><span class="toc-q-num">⎙</span><span class="toc-q-prompt">Imprimir</span></button></li>
+        </ul>`;
+      tocBody.insertBefore(actions, tocBody.firstChild);
+      actions.querySelector("#toc-finalize-btn")?.addEventListener("click", () => {
+        closeFn();
+        const submitBtn = document.querySelector("#submit-final");
+        submitBtn?.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => submitBtn?.click(), 400);
+      });
+      actions.querySelector("#toc-print-btn")?.addEventListener("click", () => {
+        closeFn();
+        setTimeout(() => window.print(), 250);
+      });
+    }
 
     fab.addEventListener("click", toggle);
     close?.addEventListener("click", closeFn);

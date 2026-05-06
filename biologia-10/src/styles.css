@@ -2027,18 +2027,37 @@ li + li {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 18px;
+  padding: 14px 20px;
   border-radius: 999px;
   background: linear-gradient(135deg, var(--accent-2), #4ab9e8);
   color: #06141a;
   font-weight: 950;
-  font-size: .9rem;
+  font-size: .92rem;
   border: 0;
   cursor: pointer;
-  box-shadow: 0 14px 36px rgba(103, 209, 255, .42), 0 0 0 1px rgba(255, 255, 255, .14);
-  transition: transform .14s ease, box-shadow .14s ease;
+  box-shadow: 0 14px 36px rgba(103, 209, 255, .55), 0 0 0 1px rgba(255, 255, 255, .14);
+  transition: transform .14s cubic-bezier(.2,.7,.2,1), box-shadow .25s ease, background .15s ease;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+  animation: toc-fab-pulse 2.6s ease-in-out infinite;
+  --cursor-dx: 0px;
+  --cursor-dy: 0px;
+  transform: translate(var(--cursor-dx), var(--cursor-dy));
+  will-change: transform;
+}
+
+@keyframes toc-fab-pulse {
+  0%, 100% {
+    box-shadow: 0 14px 36px rgba(103, 209, 255, .55), 0 0 0 1px rgba(255, 255, 255, .14), 0 0 0 0 rgba(103, 209, 255, .55);
+  }
+  50% {
+    box-shadow: 0 14px 36px rgba(103, 209, 255, .55), 0 0 0 1px rgba(255, 255, 255, .14), 0 0 0 12px rgba(103, 209, 255, 0);
+  }
+}
+
+.toc-fab[data-state="visible-but-still"] {
+  /* Cuando el panel está abierto, paramos el pulso para no distraer */
+  animation: none;
 }
 
 .toc-fab:hover {
@@ -2234,6 +2253,31 @@ li + li {
   font-size: .76rem;
   flex-shrink: 0;
   min-width: 28px;
+}
+
+.toc-section-primary {
+  background: rgba(57, 217, 138, .07);
+  border-bottom: 1px solid rgba(57, 217, 138, .25);
+  padding-bottom: 12px;
+}
+
+.toc-section-primary .toc-section-title {
+  color: var(--accent);
+  background: rgba(7, 12, 20, .96);
+}
+
+.toc-finalize {
+  background: rgba(57, 217, 138, .14) !important;
+  color: var(--accent) !important;
+}
+
+.toc-finalize:hover {
+  background: rgba(57, 217, 138, .26) !important;
+  color: var(--text) !important;
+}
+
+.toc-finalize .toc-q-num {
+  color: var(--accent);
 }
 
 .toc-q-verb {
