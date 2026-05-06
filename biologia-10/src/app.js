@@ -62,6 +62,8 @@ export function initAssessment() {
   textareas.forEach((textarea) => textarea.addEventListener("input", () => updateMeta(textarea)));
   textareas.forEach(updateMeta);
   initStudentPicker();
+  initSaveAndNext();
+  initCoach();
   ["#student-name", "#student-id", "#student-email", "#student-section", "#teacher-name", "#student-date"].forEach((sel) => {
     document.querySelector(sel)?.addEventListener("input", updateContextBarStatus);
   });
@@ -75,10 +77,25 @@ export function initAssessment() {
 
   function updateMeta(textarea) {
     const meta = document.querySelector(`[data-meta-for="${textarea.id}"]`);
-    if (!meta) return;
-    const words = textarea.value.trim() ? textarea.value.trim().split(/\s+/).length : 0;
-    const lines = textarea.value.split(/\n/).filter((line) => line.trim()).length;
-    meta.textContent = `${words} palabras | ${lines} líneas`;
+    const indicator = document.querySelector(`.save-indicator[data-for="${textarea.id}"]`);
+    const value = textarea.value;
+    const trimmed = value.trim();
+    const words = trimmed ? trimmed.split(/\s+/).length : 0;
+    const lines = value.split(/\n/).filter((line) => line.trim()).length;
+    if (meta) meta.textContent = `${words} palabras | ${lines} líneas`;
+    if (indicator) {
+      const chars = trimmed.length;
+      if (chars === 0) {
+        indicator.dataset.state = "empty";
+        indicator.textContent = "○ Aún no respondida";
+      } else if (chars < COMPLETE_MIN_LENGTH) {
+        indicator.dataset.state = "partial";
+        indicator.textContent = `↻ Borrador guardado · ${chars} caracteres (mínimo recomendado ${COMPLETE_MIN_LENGTH})`;
+      } else {
+        indicator.dataset.state = "saved";
+        indicator.textContent = "✓ Guardada localmente · podés editarla antes del envío final";
+      }
+    }
   }
 
   function updateProgress() {
@@ -254,14 +271,8 @@ export function initAssessment() {
     const back = document.querySelector("#context-bar-back");
     back?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
-    const heroEl = document.querySelector(".hero");
-    if (heroEl && "IntersectionObserver" in window) {
-      const heroObserver = new IntersectionObserver((entries) => {
-        const heroVisible = entries[0]?.isIntersecting;
-        bar.dataset.state = heroVisible ? "hidden" : "visible";
-      }, { threshold: 0.05 });
-      heroObserver.observe(heroEl);
-    }
+    // Context-bar SIEMPRE visible (eliminado el hide en hero según pedido user)
+    bar.dataset.state = "visible";
 
     const axisEl = document.querySelector("#context-bar-axis");
     const questionEl = document.querySelector("#context-bar-question");
@@ -629,6 +640,72 @@ export function initAssessment() {
   }
 
   const SUBMIT_ENDPOINT = "https://evaluacosas-submit-handler-441768184201.us-central1.run.app/submit";
+
+  function initSaveAndNext() {
+    document.querySelectorAll(".save-and-next").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const fromId = Number(btn.dataset.nextFrom);
+        const nextId = fromId + 1;
+        const target = document.querySelector(`#pregunta-${nextId}`);
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+          setTimeout(() => target.querySelector("textarea")?.focus({ preventScroll: true }), 280);
+        } else {
+          // Last question — scroll to submit
+          document.querySelector("#submit-final")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      });
+    });
+  }
+
+  const COACH_TIPS = [
+    "💡 Recordá: cada respuesta puntúa 1 punto solo si cubre todos los criterios 'Debe incluir'. Sin medias tintas.",
+    "🎯 Si dudás, mirá la mini-rúbrica del ítem (panel azul) — te dice exactamente cómo se evalúa.",
+    "📚 Las microlecturas de cada eje (azul-grisáceo arriba) te recuerdan los conceptos clave del programa MEP.",
+    "✋ Antes de finalizar, revisá los 'errores comunes' del eje. Te ahorran perder puntos por confusión típica.",
+    "🧠 Si la pregunta dice 'compará', necesitás MENCIONAR los dos elementos y al menos UNA semejanza/diferencia.",
+    "📝 Tus respuestas se autoguardan localmente. Podés cerrar y volver al examen sin perder progreso.",
+    "⏱ Tiempo sugerido: 180–240 minutos. Es una tarea de rango de examen, no un quiz rápido.",
+    "🌱 La línea de aprobación TLP es 80 %. Apuntá a cubrir todos los criterios desde el primer intento.",
+    "🔄 Podés saltar entre preguntas con el botón 'Mapa' (esquina inferior derecha).",
+    "✏️ Si una pregunta pide 'explicá', mostrá la RELACIÓN entre causa y consecuencia. No basta definir.",
+    "🎓 Vocabulario propio de Biología: 'fitness', 'alelo', 'nicho', 'flujo génico', 'codominancia'… úsalos cuando aplique.",
+    "🔬 Los ejemplos costarricenses (manglares, corredores biológicos, SINAC) suman puntos cuando la consigna pide ejemplo.",
+    "🚫 Evitá frases vacías como 'porque sí' o 'para vivir mejor'. Reemplazalas por causa biológica concreta."
+  ];
+
+  function initCoach() {
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const coach = document.createElement("aside");
+    coach.id = "coach";
+    coach.className = "coach";
+    coach.innerHTML = `
+      <button class="coach-close" type="button" aria-label="Ocultar coach">×</button>
+      <p class="coach-msg" id="coach-msg" aria-live="polite"></p>`;
+    document.body.appendChild(coach);
+    let idx = Math.floor(Math.random() * COACH_TIPS.length);
+    let dismissed = sessionStorage.getItem("evaluacosas:coach-dismissed") === "1";
+    let interval = null;
+    const showTip = () => {
+      const msg = document.getElementById("coach-msg");
+      if (msg) msg.textContent = COACH_TIPS[idx];
+      idx = (idx + 1) % COACH_TIPS.length;
+    };
+    const start = () => {
+      if (dismissed) { coach.style.display = "none"; return; }
+      coach.classList.add("show");
+      showTip();
+      if (interval) clearInterval(interval);
+      interval = setInterval(showTip, 22000);
+    };
+    coach.querySelector(".coach-close")?.addEventListener("click", () => {
+      coach.classList.remove("show");
+      dismissed = true;
+      try { sessionStorage.setItem("evaluacosas:coach-dismissed", "1"); } catch {}
+      if (interval) clearInterval(interval);
+    });
+    setTimeout(start, 4500);
+  }
 
   function initStudentPicker() {
     const picker = document.querySelector("#student-picker");

@@ -156,6 +156,10 @@ function questionCard(question, sectionSlug) {
       ${rubricBlock(question, sectionSlug)}
       <label for="q${question.id}">Respuesta del estudiante${isRequired ? ' <span class="req-asterisk" aria-label="obligatoria">*</span>' : ""}</label>
       <textarea id="q${question.id}" rows="5" spellcheck="true" data-section="${esc(sectionSlug)}" data-required="${isRequired}" aria-required="${isRequired}"></textarea>
+      <div class="answer-controls">
+        <span class="save-indicator" data-state="empty" data-for="q${question.id}" aria-live="polite">○ Aún no respondida</span>
+        <button class="save-and-next" type="button" data-next-from="${question.id}">Guardar y seguir →</button>
+      </div>
       <div class="answer-meta" data-meta-for="q${question.id}">0 palabras | 0 líneas</div>
       <div class="teacher-grading" aria-hidden="true">
         <div class="teacher-grading-row"><span>Veredicto</span><span class="teacher-grading-options">Correcta · Correcta con matiz · Incorrecta · No verificable</span></div>
