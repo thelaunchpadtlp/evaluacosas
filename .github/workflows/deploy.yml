@@ -92,6 +92,15 @@ jobs:
             cp -R dashboard/. _site/dashboard/
           fi
 
+          # Carpetas estáticas de docs/ayuda/legal (sin build, solo HTML)
+          for static_dir in ayuda privacy terms ayuda/dashboard ayuda/estudiantes ayuda/problemas ayuda/privacidad; do
+            if [ -d "$static_dir" ] && [ -f "$static_dir/index.html" ]; then
+              echo "  → copying static: $static_dir"
+              mkdir -p "_site/$static_dir"
+              cp -R "$static_dir"/. "_site/$static_dir/"
+            fi
+          done
+
           # Reemplazar placeholder en fallback index si fue usado
           if grep -q "__APPS__" _site/index.html 2>/dev/null; then
             apps_html=""
