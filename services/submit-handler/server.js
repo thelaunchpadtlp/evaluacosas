@@ -89,7 +89,13 @@ app.post("/submit", async (req, res) => {
     const studentDate = sanitize(data.student?.["student-date"] || new Date().toISOString().slice(0, 10));
     const appSlug = sanitize(data.assessment?.slug || schema.split(".").slice(1, 3).join("-") || "app");
     const ts = Date.now();
-    const docId = `${appSlug}__${studentName}__${studentDate}__${ts}`;
+    // Idempotency key: priorizamos clientDocId si lo manda el cliente (re-submit del mismo file).
+    // Si no, generamos uno con UUID + timestamp para evitar colisión cross-millisegundo.
+    const clientDocId = String(data.clientDocId || "").trim();
+    const uuidShort = (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10);
+    const docId = clientDocId && /^[\w-]{8,128}$/.test(clientDocId)
+      ? sanitize(clientDocId).slice(0, 128)
+      : `${appSlug}__${studentName}__${studentDate}__${ts}__${uuidShort}`;
     const filename = `${docId}.json`;
     const path = `${appSlug}/${filename}`;
 
@@ -157,6 +163,11 @@ app.post("/submit", async (req, res) => {
 async function writeToCloudStorage(path, data, meta) {
   const bucket = storage.bucket(BUCKET);
   const file = bucket.file(path);
+  // Pre-check existence (idempotent: if exists with same content, skip rewrite).
+  const [exists] = await file.exists();
+  if (exists) {
+    return { ok: true, sink: "cloudStorage", uri: `gs://${BUCKET}/${path}`, idempotent: "exists" };
+  }
   const buf = Buffer.from(JSON.stringify(data, null, 2));
   await file.save(buf, {
     contentType: "application/json",
@@ -166,22 +177,27 @@ async function writeToCloudStorage(path, data, meta) {
         email: meta.student.email || "",
         app: meta.app,
         date: meta.student.date || "",
-        teacher: meta.student.teacher || ""
+        teacher: meta.student.teacher || "",
+        docId: meta.docId
       },
       cacheControl: "private, max-age=0, no-cache"
     },
-    resumable: false
+    resumable: false,
+    // ifGenerationMatch:0 hace la escritura atómica si NO existe; rechaza si ya hay objeto.
+    preconditionOpts: { ifGenerationMatch: 0 }
   });
-  return { ok: true, sink: "cloudStorage", uri: `gs://${BUCKET}/${path}` };
+  return { ok: true, sink: "cloudStorage", uri: `gs://${BUCKET}/${path}`, idempotent: "created" };
 }
 
 async function writeToFirestore(docId, data, meta) {
   const docRef = firestore.collection(FIRESTORE_COLLECTION).doc(docId);
-  await docRef.set({
-    ...meta,
-    payload: data
-  });
-  return { ok: true, sink: "firestore", docPath: docRef.path };
+  // Idempotent: si el doc ya existe con el mismo docId, no overwrite.
+  const snapshot = await docRef.get();
+  if (snapshot.exists) {
+    return { ok: true, sink: "firestore", docPath: docRef.path, idempotent: "exists" };
+  }
+  await docRef.create({ ...meta, payload: data });
+  return { ok: true, sink: "firestore", docPath: docRef.path, idempotent: "created" };
 }
 
 async function writeToGitHub(path, data, meta) {
@@ -189,19 +205,21 @@ async function writeToGitHub(path, data, meta) {
   const [owner, repo] = GITHUB_REPO.split("/");
   if (!owner || !repo) return { ok: false, sink: "github", reason: "invalid_repo" };
   const octokit = new Octokit({ auth: GITHUB_TOKEN });
+  // Idempotent: si el archivo ya existe con el mismo path, omitir creación.
+  try {
+    await octokit.repos.getContent({ owner, repo, path, ref: GITHUB_BRANCH });
+    return { ok: true, sink: "github", repo: GITHUB_REPO, path, branch: GITHUB_BRANCH, idempotent: "exists" };
+  } catch (err) {
+    if (err.status !== 404) throw err;
+  }
   const content = Buffer.from(JSON.stringify(data, null, 2)).toString("base64");
   const message = `submit: ${meta.app} · ${meta.student.name || "?"} · ${meta.student.date || ""}`;
   await octokit.repos.createOrUpdateFileContents({
-    owner,
-    repo,
-    path,
-    message,
-    content,
-    branch: GITHUB_BRANCH,
+    owner, repo, path, message, content, branch: GITHUB_BRANCH,
     committer: { name: "evaluacosas-submit", email: "evaluacosas-submit@thelaunchpadtlplabsuniverse.iam.gserviceaccount.com" },
     author: { name: meta.student.name || "estudiante", email: meta.student.email || "noreply@thelaunchpadtlp.education" }
   });
-  return { ok: true, sink: "github", repo: GITHUB_REPO, path, branch: GITHUB_BRANCH };
+  return { ok: true, sink: "github", repo: GITHUB_REPO, path, branch: GITHUB_BRANCH, idempotent: "created" };
 }
 
 async function writeToSupabase(docId, data, meta) {
@@ -234,9 +252,15 @@ async function writeToSupabase(docId, data, meta) {
     payload: data,
     graded_status: "pending"
   };
-  const { error } = await supabase.from(SUPABASE_TABLE).upsert(row, { onConflict: "doc_id" });
+  // Upsert idempotente: si doc_id ya existe NO sobrescribimos (preservamos el estado del docente
+  // que pudo haber actualizado graded_status, graded_score, etc.).
+  const existing = await supabase.from(SUPABASE_TABLE).select("doc_id").eq("doc_id", docId).maybeSingle();
+  if (existing?.data?.doc_id) {
+    return { ok: true, sink: "supabase", table: SUPABASE_TABLE, row: docId, idempotent: "exists" };
+  }
+  const { error } = await supabase.from(SUPABASE_TABLE).insert(row);
   if (error) throw new Error(`supabase: ${error.message}`);
-  return { ok: true, sink: "supabase", table: SUPABASE_TABLE, row: docId };
+  return { ok: true, sink: "supabase", table: SUPABASE_TABLE, row: docId, idempotent: "created" };
 }
 
 async function writeToLinear(docId, data, meta) {
@@ -271,26 +295,34 @@ ${supabase ? `- Supabase: ${SUPABASE_URL}/project/sql/new (table: ${SUPABASE_TAB
 **Próximo paso:** mover este Issue a "In Progress" cuando empieces a calificar, y "Done" cuando termines.`;
 
   const title = `[${meta.app}] ${studentName} · ${meta.student.date || ""}`;
-  const labelInput = `app:${meta.app},status:pending`;
-  const query = `mutation IssueCreate($input: IssueCreateInput!) { issueCreate(input: $input) { success issue { id identifier url } } }`;
-  const variables = {
-    input: {
-      teamId: LINEAR_TEAM_ID,
-      title,
-      description,
-      priority: 3
-    }
-  };
+  // Idempotency: query antes de crear. Linear no tiene idempotency-key nativo,
+  // así que buscamos por description que contiene el docId (único por submit).
+  const searchQuery = `query Search($q: String!) { issueSearch(query: $q, first: 5) { nodes { id identifier url description } } }`;
+  const searchResp = await fetch("https://api.linear.app/graphql", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": LINEAR_API_KEY },
+    body: JSON.stringify({ query: searchQuery, variables: { q: docId } })
+  });
+  const searchJ = await searchResp.json();
+  const existing = (searchJ.data?.issueSearch?.nodes || []).find((n) =>
+    typeof n.description === "string" && n.description.includes(`docId\` ${docId}`) || (n.description || "").includes(docId)
+  );
+  if (existing) {
+    return { ok: true, sink: "linear", issueId: existing.id, identifier: existing.identifier, url: existing.url, idempotent: "exists" };
+  }
+
+  const mutation = `mutation IssueCreate($input: IssueCreateInput!) { issueCreate(input: $input) { success issue { id identifier url } } }`;
+  const variables = { input: { teamId: LINEAR_TEAM_ID, title, description, priority: 3 } };
   const resp = await fetch("https://api.linear.app/graphql", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": LINEAR_API_KEY },
-    body: JSON.stringify({ query, variables })
+    body: JSON.stringify({ query: mutation, variables })
   });
   const j = await resp.json();
   if (!j.data?.issueCreate?.success) {
     throw new Error(`linear: ${JSON.stringify(j.errors || j)}`);
   }
-  return { ok: true, sink: "linear", issueId: j.data.issueCreate.issue.id, identifier: j.data.issueCreate.issue.identifier, url: j.data.issueCreate.issue.url };
+  return { ok: true, sink: "linear", issueId: j.data.issueCreate.issue.id, identifier: j.data.issueCreate.issue.identifier, url: j.data.issueCreate.issue.url, idempotent: "created" };
 }
 
 function extractResult(settled) {
