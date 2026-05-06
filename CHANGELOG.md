@@ -33,6 +33,7 @@ Todas las versiones notables del proyecto. Formato: [Keep a Changelog](https://k
 - Sprint 22 — Búsqueda apex rediseñada como hero conspicuo con magnifying glass SVG + IA button.
 
 ### Security
+- **Sprint 35** — Cloudflare Transform Rules con security headers globales en apex (`thelaunchpadtlp.education`): HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy. Subdomain `evaluacosas.thelaunchpadtlp.education` queda DNS-only por compatibilidad con GitHub Pages SSL — proxy mode no tocado.
 - **Sprint 32** — Rate limiting + audit log + ALLOWED_TEACHERS allowlist explícita en backend.
 - Sprint 18 — IAP-managed OAuth client reemplazado por Web App OAuth client con JS origins explícitos.
 

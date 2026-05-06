@@ -30,7 +30,8 @@
 | 31 | G.4 UX por ítem (ring, atajos, focus) | ✅ |
 | 32 | Backend hardening (audit + rate-limit) | ✅ |
 | 33 | Cleanup + ROADMAP/CHANGELOG | ✅ (en progreso) |
-| 34 | QA Suite cientos de criterios | 🔄 |
+| 34 | QA Suite cientos de criterios | ✅ 99% |
+| 35 | Cloudflare security headers en apex | ✅ |
 
 ## Sprints en cola post-QA
 

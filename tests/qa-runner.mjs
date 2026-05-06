@@ -284,13 +284,29 @@ const SPRINTS = [
         const r = await urlFetch(`${SITE}/device-view.css`);
         return r.text.length < 30000;
       }],
-      ["security", "HSTS header en landing", async () => {
-        const r = await urlFetch(`${SITE}/`);
+      ["security", "HSTS header en apex (proxied)", async () => {
+        const r = await urlFetch(`${APEX}/`);
         return (r.headers["strict-transport-security"] || "").includes("max-age");
       }],
-      ["security", "X-Content-Type-Options nosniff", async () => {
-        const r = await urlFetch(`${SITE}/`);
+      ["security", "X-Content-Type-Options nosniff en apex", async () => {
+        const r = await urlFetch(`${APEX}/`);
         return (r.headers["x-content-type-options"] || "").toLowerCase() === "nosniff";
+      }],
+      ["security", "X-Frame-Options apex", async () => {
+        const r = await urlFetch(`${APEX}/`);
+        return (r.headers["x-frame-options"] || "").includes("SAMEORIGIN");
+      }],
+      ["security", "Referrer-Policy apex", async () => {
+        const r = await urlFetch(`${APEX}/`);
+        return (r.headers["referrer-policy"] || "").includes("strict-origin");
+      }],
+      ["security", "Permissions-Policy apex", async () => {
+        const r = await urlFetch(`${APEX}/`);
+        return (r.headers["permissions-policy"] || "").includes("geolocation");
+      }],
+      ["operability", "evaluacosas is GitHub Pages direct (DNS-only by design)", async () => {
+        const r = await urlFetch(`${SITE}/`);
+        return (r.headers["server"] || "").toLowerCase().includes("github") || (r.headers["x-served-by"] || "").includes("cache");
       }],
       ["operability", "GitHub Pages canonical en headers", async () => {
         const r = await urlFetch(`${SITE}/`);
