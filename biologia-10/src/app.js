@@ -835,33 +835,22 @@ export function initAssessment() {
       status.dataset.state = "loading";
       try {
         const ctrl = new AbortController();
-        const tm = setTimeout(() => ctrl.abort(), 10000);
-        const r = await fetch(`https://apis.gometa.org/cedulas/${raw}`, { signal: ctrl.signal });
+        const tm = setTimeout(() => ctrl.abort(), 14000);
+        const r = await fetch(`https://evaluacosas-submit-handler-441768184201.us-central1.run.app/cedula/${raw}`, { signal: ctrl.signal });
         clearTimeout(tm);
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const data = await r.json();
-        // gometa.org responde típicamente: { results: [{ fullname, firstname, lastname1, lastname2 }] }
-        // o variantes con { nombre, primer_apellido, segundo_apellido }
-        const item = (data?.results && data.results[0]) || data;
-        const firstName = (item.firstname || item.nombre || "").trim();
-        const lastname1 = (item.lastname1 || item.primer_apellido || "").trim();
-        const lastname2 = (item.lastname2 || item.segundo_apellido || "").trim();
-        const full = (item.fullname || item.nombre_completo || `${firstName} ${lastname1} ${lastname2}`).trim();
-        if (!firstName && !full) throw new Error("respuesta vacía");
-        // Si tenemos campos parseados directos, usarlos. Si no, fallback a splitFullName.
-        if (firstName && lastname1) {
-          // El TSE no separa primer/segundo nombre; lo intentamos manualmente
-          const nameTokens = firstName.split(/\s+/);
-          const firstFirstName = nameTokens[0] || "";
-          const secondName = nameTokens.slice(1).join(" ") || "";
-          fillFields([firstFirstName, secondName, lastname1, lastname2]);
+        if (!data.ok) throw new Error(data.error || "respuesta inválida");
+        const { firstName, secondName, firstSurname, secondSurname, fullName, source } = data;
+        if (firstSurname || firstName) {
+          fillFields([firstName, secondName, firstSurname, secondSurname]);
         } else {
-          fillFields(splitFullName(full));
+          fillFields(splitFullName(fullName));
         }
         // Auto-set student-id como cédula
         const idEl = document.querySelector("#student-id");
         if (idEl && !idEl.value) { idEl.value = raw; idEl.dispatchEvent(new Event("input", { bubbles: true })); }
-        status.textContent = `✓ ${full}`;
+        status.textContent = `✓ ${fullName} · fuente: ${source || "TSE"}`;
         status.dataset.state = "success";
       } catch (err) {
         status.textContent = "No pudimos consultar el TSE en este momento. Llená los nombres manualmente.";

@@ -416,6 +416,108 @@ app.get("/admin/whoami", requireAdmin, async (req, res) => {
   res.json({ ok: true, admin: req.admin });
 });
 
+// GET /cedula/:cedula — proxy multi-proveedor TSE Costa Rica con cache 24h en Firestore
+const APIFYCR_TOKEN = process.env.APIFYCR_TOKEN || "";
+const CEDULA_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+app.get("/cedula/:cedula", async (req, res) => {
+  setCors(res, req.headers.origin || "");
+  try {
+    const raw = String(req.params.cedula || "").replace(/\D+/g, "");
+    if (!raw || raw.length < 9 || raw.length > 12) {
+      return res.status(400).json({ error: "invalid_cedula", got: raw });
+    }
+    // Cache check
+    const cacheRef = firestore.collection("cedula_cache").doc(raw);
+    const cached = await cacheRef.get();
+    if (cached.exists) {
+      const data = cached.data();
+      if (data.cachedAt && (Date.now() - new Date(data.cachedAt).getTime() < CEDULA_CACHE_TTL_MS)) {
+        return res.json({ ...data.payload, source: `${data.payload.source}+cache` });
+      }
+    }
+    // Try providers in order
+    let result = null;
+    if (APIFYCR_TOKEN) {
+      try { result = await lookupApifycr(raw); }
+      catch (err) { console.warn("apifycr_failed:", err?.message || err); }
+    }
+    if (!result) {
+      try { result = await lookupGometa(raw); }
+      catch (err) { console.warn("gometa_failed:", err?.message || err); }
+    }
+    if (!result) return res.status(502).json({ error: "no_provider_responded" });
+
+    // Cache result
+    await cacheRef.set({ payload: result, cachedAt: new Date().toISOString() }).catch(() => {});
+    return res.json(result);
+  } catch (err) {
+    console.error("cedula_lookup_error", err?.message || err);
+    return res.status(500).json({ error: "lookup_failed", detail: String(err?.message || err) });
+  }
+});
+
+async function lookupApifycr(cedula) {
+  const ctrl = new AbortController();
+  const tm = setTimeout(() => ctrl.abort(), 10000);
+  try {
+    // tse.apifycr.com (probable endpoint Laravel-style con Bearer token)
+    const r = await fetch(`https://tse.apifycr.com/api/cedula/${cedula}`, {
+      headers: { Authorization: `Bearer ${APIFYCR_TOKEN}`, Accept: "application/json" },
+      signal: ctrl.signal
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const j = await r.json();
+    const item = j?.data || j?.result || j;
+    return normalize({
+      cedula,
+      firstName: item.nombre || item.firstname || item.first_name || "",
+      lastname1: item.primer_apellido || item.lastname1 || item.first_surname || "",
+      lastname2: item.segundo_apellido || item.lastname2 || item.second_surname || "",
+      fullName: item.nombre_completo || item.fullname || ""
+    }, "apifycr");
+  } finally {
+    clearTimeout(tm);
+  }
+}
+
+async function lookupGometa(cedula) {
+  const ctrl = new AbortController();
+  const tm = setTimeout(() => ctrl.abort(), 10000);
+  try {
+    const r = await fetch(`https://apis.gometa.org/cedulas/${cedula}`, { signal: ctrl.signal });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const j = await r.json();
+    const item = (j?.results && j.results[0]) || j;
+    return normalize({
+      cedula,
+      firstName: item.firstname || item.nombre || "",
+      lastname1: item.lastname1 || item.primer_apellido || "",
+      lastname2: item.lastname2 || item.segundo_apellido || "",
+      fullName: item.fullname || item.nombre_completo || ""
+    }, "gometa");
+  } finally {
+    clearTimeout(tm);
+  }
+}
+
+function normalize({ cedula, firstName, lastname1, lastname2, fullName }, source) {
+  const nameTokens = String(firstName).trim().split(/\s+/).filter(Boolean);
+  const ff = nameTokens[0] || "";
+  const sn = nameTokens.slice(1).join(" ") || "";
+  const composedFullName = (fullName || `${firstName} ${lastname1} ${lastname2}`).trim().replace(/\s+/g, " ");
+  return {
+    ok: true,
+    cedula,
+    firstName: ff,
+    secondName: sn,
+    firstSurname: lastname1.trim(),
+    secondSurname: lastname2.trim(),
+    fullName: composedFullName,
+    source
+  };
+}
+
 const port = Number(process.env.PORT || 8080);
 app.listen(port, () => {
   console.log(`evaluacosas-submit-handler listening on :${port}`);
