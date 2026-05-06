@@ -45,6 +45,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p _site
+          # Copiar CNAME al artifact si existe (custom domain)
+          if [ -f CNAME ]; then cp CNAME _site/CNAME; fi
           # Página índice mínima en root
           cat > _site/index.html <<'HTML'
           <!doctype html>
