@@ -64,6 +64,9 @@ export function initAssessment() {
   initStudentPicker();
   initSaveAndNext();
   initCoach();
+  initNameDerivation();
+  initCedulaLookup();
+  initAnswerStateButtons();
   ["#student-name", "#student-id", "#student-email", "#student-section", "#teacher-name", "#student-date"].forEach((sel) => {
     document.querySelector(sel)?.addEventListener("input", updateContextBarStatus);
   });
@@ -641,6 +644,78 @@ export function initAssessment() {
 
   const SUBMIT_ENDPOINT = "https://evaluacosas-submit-handler-441768184201.us-central1.run.app/submit";
 
+  function setAnswerState(questionId, state) {
+    // state: "idle" (todavía no respondida), "editing" (textarea activo), "saved" (locked)
+    const card = document.querySelector(`#pregunta-${questionId.replace(/^q/, "")}`);
+    const textarea = document.getElementById(questionId);
+    const btnRespond = card?.querySelector(`[data-action="respond"]`);
+    const btnSave = card?.querySelector(`[data-action="save"]`);
+    const btnEdit = card?.querySelector(`[data-action="edit"]`);
+    const btnNext = card?.querySelector(`.save-and-next`);
+    if (!card || !textarea) return;
+    card.dataset.answerState = state;
+    if (state === "idle") {
+      textarea.readOnly = true;
+      btnRespond.hidden = false;
+      btnSave.hidden = true;
+      btnEdit.hidden = true;
+      if (btnNext) btnNext.hidden = true;
+    } else if (state === "editing") {
+      textarea.readOnly = false;
+      btnRespond.hidden = true;
+      btnSave.hidden = false;
+      btnEdit.hidden = true;
+      if (btnNext) btnNext.hidden = true;
+      setTimeout(() => textarea.focus({ preventScroll: true }), 50);
+    } else if (state === "saved") {
+      textarea.readOnly = true;
+      btnRespond.hidden = true;
+      btnSave.hidden = true;
+      btnEdit.hidden = false;
+      if (btnNext) btnNext.hidden = false;
+    }
+    try { localStorage.setItem(`evaluacosas:state:${questionId}`, state); } catch {}
+  }
+
+  function initAnswerStateButtons() {
+    document.querySelectorAll(".answer-state-buttons").forEach((wrap) => {
+      const qid = wrap.dataset.for;
+      // Restore state desde localStorage
+      let state = null;
+      try { state = localStorage.getItem(`evaluacosas:state:${qid}`); } catch {}
+      const textarea = document.getElementById(qid);
+      if (state === "saved" && textarea?.value.trim().length > 0) {
+        setAnswerState(qid, "saved");
+      } else if (state === "editing") {
+        setAnswerState(qid, "idle"); // reset to idle on reload to require explicit click
+      } else {
+        setAnswerState(qid, "idle");
+      }
+    });
+
+    document.body.addEventListener("click", (e) => {
+      const t = e.target.closest("[data-action]");
+      if (!t) return;
+      const action = t.dataset.action;
+      const qid = t.dataset.target;
+      if (!qid || !action) return;
+      if (action === "respond") setAnswerState(qid, "editing");
+      else if (action === "save") {
+        const ta = document.getElementById(qid);
+        if (!ta) return;
+        const chars = ta.value.trim().length;
+        if (chars < COMPLETE_MIN_LENGTH) {
+          // permitir guardar como borrador igualmente; pero avisar
+          if (chars === 0) { alert("La respuesta está vacía. Escribí algo antes de guardar."); return; }
+        }
+        setAnswerState(qid, "saved");
+        showHandoffToast(`Respuesta de ${qid} guardada localmente. Podés editarla cuando quieras.`);
+      } else if (action === "edit") {
+        setAnswerState(qid, "editing");
+      }
+    });
+  }
+
   function initSaveAndNext() {
     document.querySelectorAll(".save-and-next").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -705,6 +780,95 @@ export function initAssessment() {
       if (interval) clearInterval(interval);
     });
     setTimeout(start, 4500);
+  }
+
+  function initNameDerivation() {
+    const fields = ["#student-first-name", "#student-second-name", "#student-first-surname", "#student-second-surname"]
+      .map((s) => document.querySelector(s)).filter(Boolean);
+    const fullName = document.querySelector("#student-name");
+    if (!fullName) return;
+    const sync = () => {
+      const parts = fields.map((f) => f.value.trim()).filter(Boolean);
+      fullName.value = parts.join(" ");
+      fullName.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+    fields.forEach((f) => f.addEventListener("input", sync));
+  }
+
+  function initCedulaLookup() {
+    const input = document.querySelector("#student-cedula");
+    const btn = document.querySelector("#cedula-lookup-btn");
+    const status = document.querySelector("#cedula-lookup-status");
+    if (!input || !btn) return;
+
+    const splitFullName = (fullName) => {
+      // El padrón TSE devuelve: { firstname, lastname1, lastname2 } o { nombre, primer_apellido, segundo_apellido }
+      // Fallback: parsear el string completo en 4 partes intentando 2 nombres + 2 apellidos
+      const tokens = String(fullName || "").trim().split(/\s+/);
+      if (tokens.length === 0) return ["", "", "", ""];
+      if (tokens.length === 1) return [tokens[0], "", "", ""];
+      if (tokens.length === 2) return [tokens[0], "", tokens[1], ""];
+      if (tokens.length === 3) return [tokens[0], "", tokens[1], tokens[2]];
+      // 4+: primero, segundo, primer apellido, segundo apellido (los extras se pegan al segundo apellido)
+      return [tokens[0], tokens[1], tokens[2], tokens.slice(3).join(" ")];
+    };
+
+    const fillFields = (parts) => {
+      const map = ["#student-first-name", "#student-second-name", "#student-first-surname", "#student-second-surname"];
+      map.forEach((sel, i) => {
+        const el = document.querySelector(sel);
+        if (el) {
+          el.value = parts[i] || "";
+          el.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      });
+    };
+
+    btn.addEventListener("click", async () => {
+      const raw = (input.value || "").replace(/\D+/g, "");
+      if (!raw || raw.length < 9) {
+        status.textContent = "Ingresá una cédula válida (9 dígitos).";
+        status.dataset.state = "error";
+        return;
+      }
+      status.textContent = "Consultando Padrón Electoral del TSE…";
+      status.dataset.state = "loading";
+      try {
+        const ctrl = new AbortController();
+        const tm = setTimeout(() => ctrl.abort(), 10000);
+        const r = await fetch(`https://apis.gometa.org/cedulas/${raw}`, { signal: ctrl.signal });
+        clearTimeout(tm);
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const data = await r.json();
+        // gometa.org responde típicamente: { results: [{ fullname, firstname, lastname1, lastname2 }] }
+        // o variantes con { nombre, primer_apellido, segundo_apellido }
+        const item = (data?.results && data.results[0]) || data;
+        const firstName = (item.firstname || item.nombre || "").trim();
+        const lastname1 = (item.lastname1 || item.primer_apellido || "").trim();
+        const lastname2 = (item.lastname2 || item.segundo_apellido || "").trim();
+        const full = (item.fullname || item.nombre_completo || `${firstName} ${lastname1} ${lastname2}`).trim();
+        if (!firstName && !full) throw new Error("respuesta vacía");
+        // Si tenemos campos parseados directos, usarlos. Si no, fallback a splitFullName.
+        if (firstName && lastname1) {
+          // El TSE no separa primer/segundo nombre; lo intentamos manualmente
+          const nameTokens = firstName.split(/\s+/);
+          const firstFirstName = nameTokens[0] || "";
+          const secondName = nameTokens.slice(1).join(" ") || "";
+          fillFields([firstFirstName, secondName, lastname1, lastname2]);
+        } else {
+          fillFields(splitFullName(full));
+        }
+        // Auto-set student-id como cédula
+        const idEl = document.querySelector("#student-id");
+        if (idEl && !idEl.value) { idEl.value = raw; idEl.dispatchEvent(new Event("input", { bubbles: true })); }
+        status.textContent = `✓ ${full}`;
+        status.dataset.state = "success";
+      } catch (err) {
+        status.textContent = "No pudimos consultar el TSE en este momento. Llená los nombres manualmente.";
+        status.dataset.state = "error";
+        console.warn("[evaluacosas] cedula lookup failed:", err);
+      }
+    });
   }
 
   function initStudentPicker() {

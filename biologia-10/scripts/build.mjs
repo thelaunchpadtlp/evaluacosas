@@ -155,10 +155,15 @@ function questionCard(question, sectionSlug) {
       </div>
       ${rubricBlock(question, sectionSlug)}
       <label for="q${question.id}">Respuesta del estudiante${isRequired ? ' <span class="req-asterisk" aria-label="obligatoria">*</span>' : ""}</label>
-      <textarea id="q${question.id}" rows="5" spellcheck="true" data-section="${esc(sectionSlug)}" data-required="${isRequired}" aria-required="${isRequired}"></textarea>
+      <div class="answer-state-buttons" data-for="q${question.id}">
+        <button class="btn-respond" type="button" data-action="respond" data-target="q${question.id}">✏️ Responder</button>
+        <button class="btn-save" type="button" data-action="save" data-target="q${question.id}" hidden>💾 Guardar respuesta</button>
+        <button class="btn-edit" type="button" data-action="edit" data-target="q${question.id}" hidden>✎ Editar respuesta</button>
+      </div>
+      <textarea id="q${question.id}" rows="5" spellcheck="true" data-section="${esc(sectionSlug)}" data-required="${isRequired}" aria-required="${isRequired}" readonly></textarea>
       <div class="answer-controls">
         <span class="save-indicator" data-state="empty" data-for="q${question.id}" aria-live="polite">○ Aún no respondida</span>
-        <button class="save-and-next" type="button" data-next-from="${question.id}">Guardar y seguir →</button>
+        <button class="save-and-next" type="button" data-next-from="${question.id}" hidden>Guardar y seguir →</button>
       </div>
       <div class="answer-meta" data-meta-for="q${question.id}">0 palabras | 0 líneas</div>
       <div class="teacher-grading" aria-hidden="true">
@@ -399,8 +404,19 @@ const html = `<!doctype html>
           <option value="__other__">Otro / registro manual</option>
         </select>
       </label>
-      <label>Nombre completo<input id="student-name" autocomplete="name" placeholder="Nombre y apellidos"></label>
-      <label>Identificador / cédula<input id="student-id" autocomplete="off" placeholder="Carnet o cédula"></label>
+      <div class="cedula-lookup-wrap">
+        <label class="cedula-lookup">Cédula (CR)
+          <input id="student-cedula" autocomplete="off" placeholder="1-2345-6789 o 123456789" inputmode="numeric">
+        </label>
+        <button type="button" id="cedula-lookup-btn" class="cedula-lookup-btn" title="Consultar Padrón Electoral del TSE">Buscar en TSE →</button>
+        <span class="cedula-lookup-status" id="cedula-lookup-status" aria-live="polite"></span>
+      </div>
+      <label>Primer nombre<input id="student-first-name" autocomplete="given-name" placeholder="Ej: Juan"></label>
+      <label>Segundo nombre<input id="student-second-name" autocomplete="additional-name" placeholder="Ej: Carlos (opcional)"></label>
+      <label>Primer apellido<input id="student-first-surname" autocomplete="family-name" placeholder="Ej: Pérez"></label>
+      <label>Segundo apellido<input id="student-second-surname" autocomplete="off" placeholder="Ej: Ortiz (opcional)"></label>
+      <label class="full-name-derived">Nombre completo (auto)<input id="student-name" autocomplete="name" placeholder="Se completa solo a partir de los campos de arriba" readonly></label>
+      <label>Identificador / carnet<input id="student-id" autocomplete="off" placeholder="Carnet o ID alternativo"></label>
       <label>Correo institucional<input id="student-email" type="email" autocomplete="email" placeholder="@thelaunchpadtlp.education"></label>
       <label>Fecha<input id="student-date" type="date"></label>
       <label>Profesor/a<input id="teacher-name"></label>

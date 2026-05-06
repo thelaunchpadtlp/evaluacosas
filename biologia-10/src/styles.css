@@ -595,6 +595,50 @@ button {
   cursor: not-allowed;
 }
 
+.cedula-lookup-wrap {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: end;
+  padding: 12px 14px;
+  border: 1px dashed rgba(103, 209, 255, .3);
+  border-radius: 8px;
+  background: rgba(103, 209, 255, .04);
+}
+
+.cedula-lookup-btn {
+  height: 44px;
+  padding: 8px 16px;
+  background: rgba(103, 209, 255, .14);
+  border: 1px solid rgba(103, 209, 255, .42);
+  color: var(--accent-2);
+  border-radius: 7px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: .85rem;
+}
+
+.cedula-lookup-btn:hover {
+  background: rgba(103, 209, 255, .26);
+}
+
+.cedula-lookup-status {
+  grid-column: 1 / -1;
+  font-size: .82rem;
+  color: var(--muted);
+  min-height: 18px;
+}
+
+.cedula-lookup-status[data-state="loading"] { color: var(--accent-2); }
+.cedula-lookup-status[data-state="success"] { color: var(--accent); }
+.cedula-lookup-status[data-state="error"] { color: var(--warning); }
+
+.full-name-derived input {
+  font-style: italic;
+  color: var(--muted);
+}
+
 .score-box.criterion {
   background: rgba(103, 209, 255, .12);
   border-color: rgba(103, 209, 255, .28);
@@ -2331,6 +2375,77 @@ li + li {
 
 .toc-finalize .toc-q-num {
   color: var(--accent);
+}
+
+.answer-state-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 12px;
+}
+
+.answer-state-buttons button {
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: .9rem;
+  cursor: pointer;
+  transition: all .15s ease;
+  border: 1px solid transparent;
+}
+
+.btn-respond {
+  background: linear-gradient(135deg, var(--accent), #2db974);
+  color: #06110b;
+  border-color: var(--accent);
+  min-height: 44px;
+}
+
+.btn-respond:hover { filter: brightness(1.06); transform: translateY(-1px); }
+
+.btn-save {
+  background: linear-gradient(135deg, var(--accent-2), #4ab9e8);
+  color: #06141a;
+  border-color: var(--accent-2);
+  min-height: 44px;
+  animation: btn-save-pulse 1.8s ease-in-out infinite;
+}
+
+.btn-save:hover { filter: brightness(1.06); transform: translateY(-1px); animation: none; }
+
+@keyframes btn-save-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(103, 209, 255, .55); }
+  50% { box-shadow: 0 0 0 8px rgba(103, 209, 255, 0); }
+}
+
+.btn-edit {
+  background: rgba(255, 209, 102, .14);
+  color: var(--warning);
+  border-color: rgba(255, 209, 102, .4);
+  min-height: 44px;
+}
+
+.btn-edit:hover {
+  background: rgba(255, 209, 102, .26);
+  color: var(--text);
+}
+
+.question-card[data-answer-state="saved"] textarea {
+  background: rgba(57, 217, 138, .04);
+  border-color: rgba(57, 217, 138, .35);
+  cursor: default;
+}
+
+.question-card[data-answer-state="editing"] textarea {
+  background: rgba(103, 209, 255, .05);
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(103, 209, 255, .14);
+}
+
+.question-card[data-answer-state="idle"] textarea {
+  background: rgba(255, 255, 255, .03);
+  border-color: rgba(255, 255, 255, .12);
+  cursor: default;
 }
 
 .answer-controls {
