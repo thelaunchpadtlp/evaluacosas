@@ -11,10 +11,10 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@google-cloud/firestore": "^8.5.0",
+    "@google-cloud/firestore": "^8.6.0",
     "@google-cloud/storage": "^7.19.0",
     "@octokit/rest": "^22.0.1",
-    "@supabase/supabase-js": "^2.58.0",
+    "@supabase/supabase-js": "^2.105.4",
     "express": "^5.2.1",
     "google-auth-library": "^10.4.1"
   }
